@@ -17,3 +17,18 @@ declare module "@susisu/mte-kernel" {
   }
   export function options<T extends Record<string, unknown>>(options: T): T;
 }
+
+declare module "@bytemd/vue-next" {
+  import type { DefineComponent } from "vue";
+
+  export const Editor: DefineComponent<Record<string, unknown>, object, object>;
+  export const Viewer: DefineComponent<Record<string, unknown>, object, object>;
+}
+
+declare module "@halo-dev/api-client" {
+  import type { AxiosInstance } from "axios";
+
+  export const axiosInstance: AxiosInstance;
+  export const consoleApiClient: any;
+  export const ucApiClient: any;
+}

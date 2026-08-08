@@ -1,42 +1,129 @@
 <script setup lang="ts">
 import { Editor } from "@bytemd/vue-next";
 import gfm from "@bytemd/plugin-gfm";
+import gfmLocale from "@bytemd/plugin-gfm/locales/zh_Hans.json";
 import {
   markdownTable,
+  luoguToolbarIcons,
   mermaidPlugin,
   pluginSlug,
   renderMermaidInHtml,
   vim,
 } from "../plugins";
+import type { LuoguToolbarIcon } from "../plugins";
 import {
   getProcessor,
   type BytemdEditorContext,
   type BytemdPlugin,
 } from "bytemd";
-import { watch, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import math from "@bytemd/plugin-math";
+import mathLocale from "@bytemd/plugin-math/locales/zh_Hans.json";
 import breaks from "@bytemd/plugin-breaks";
+import useActiveLine from "codemirror-ssr/addon/selection/active-line.js";
 import type { AttachmentLike } from "@halo-dev/ui-shared";
-import { consoleApiClient, ucApiClient } from "@halo-dev/api-client";
+import {
+  axiosInstance,
+  consoleApiClient,
+  ucApiClient,
+} from "@halo-dev/api-client";
+import type { AxiosResponse } from "axios";
+import bytemdLocale from "bytemd/locales/zh_Hans.json";
 import "bytemd/dist/index.css";
 import "github-markdown-css/github-markdown-light.css";
 import "../styles/main.scss";
 
+type LuoguToolbarButton = {
+  title: string;
+  icon: LuoguToolbarIcon;
+  action: () => void | Promise<void>;
+  disabled?: boolean;
+};
+
+type TableCell = {
+  row: number;
+  column: number;
+  rowspan: number;
+  colspan: number;
+  content: string;
+  hidden: boolean;
+};
+
+type TablePoint = {
+  row: number;
+  column: number;
+};
+
+type CodeLanguage = {
+  label: string;
+  value: string;
+};
+
+type AutosaveRecord = {
+  id: string;
+  savedAt: string;
+  pagePath: string;
+  raw: string;
+};
+
+const activeEditorContext = ref<BytemdEditorContext>();
+const activeLineCodeMirrors = new WeakSet<object>();
+const isEditorFullscreen = ref(false);
+
+const editorContextPlugin = (): BytemdPlugin => ({
+  editorEffect(ctx: BytemdEditorContext) {
+    if (!activeLineCodeMirrors.has(ctx.codemirror)) {
+      useActiveLine(ctx.codemirror);
+      activeLineCodeMirrors.add(ctx.codemirror);
+    }
+
+    ctx.editor.setOption("styleActiveLine", true);
+    activeEditorContext.value = ctx;
+
+    const syncFullscreenState = () => {
+      isEditorFullscreen.value = ctx.root.classList.contains(
+        "bytemd-fullscreen"
+      );
+    };
+    const fullscreenObserver = new MutationObserver(syncFullscreenState);
+
+    fullscreenObserver.observe(ctx.root, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    syncFullscreenState();
+
+    return () => {
+      fullscreenObserver.disconnect();
+
+      if (activeEditorContext.value === ctx) {
+        activeEditorContext.value = undefined;
+        isEditorFullscreen.value = false;
+      }
+    };
+  },
+});
+
 const basePlugins: BytemdPlugin[] = [
-  gfm(),
+  editorContextPlugin(),
+  gfm({
+    locale: gfmLocale,
+  }),
   pluginSlug(),
   mermaidPlugin(),
-  math(),
+  math({
+    locale: mathLocale,
+  }),
   breaks(),
   {
     actions: [
       {
         icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 48 48"><g fill="none"><path fill="currentColor" d="M44 24a2 2 0 1 0-4 0h4ZM24 8a2 2 0 1 0 0-4v4Zm15 32H9v4h30v-4ZM8 39V9H4v30h4Zm32-15v15h4V24h-4ZM9 8h15V4H9v4Zm0 32a1 1 0 0 1-1-1H4a5 5 0 0 0 5 5v-4Zm30 4a5 5 0 0 0 5-5h-4a1 1 0 0 1-1 1v4ZM8 9a1 1 0 0 1 1-1V4a5 5 0 0 0-5 5h4Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="m6 35l10.693-9.802a2 2 0 0 1 2.653-.044L32 36m-4-5l4.773-4.773a2 2 0 0 1 2.615-.186L42 31M30 12h12m-6-6v12"/></g></svg>',
-        title: "Attachment",
+        title: "附件",
         handler: {
           type: "action",
           click: (context: BytemdEditorContext): void => {
-            editorContext.value = context;
+            activeEditorContext.value = context;
             attachmentSelectorModal.value = true;
           },
         },
@@ -48,6 +135,34 @@ const basePlugins: BytemdPlugin[] = [
 const createPlugins = (useVimKeymap = false): BytemdPlugin[] => {
   return [...basePlugins, useVimKeymap ? vim() : markdownTable()];
 };
+
+const editorConfig = {
+  fixedGutter: false,
+  lineNumbers: true,
+  mode: {
+    name: "yaml-frontmatter",
+    base: {
+      name: "gfm",
+      gitHubSpice: false,
+    },
+  },
+};
+
+const DEFAULT_TABLE_ROWS = 5;
+const DEFAULT_TABLE_COLUMNS = 2;
+const MAX_TABLE_SIZE = 100;
+
+const createTableCells = (rows: number, columns: number): TableCell[][] =>
+  Array.from({ length: rows }, (_, row) =>
+    Array.from({ length: columns }, (_, column) => ({
+      row,
+      column,
+      rowspan: 1,
+      colspan: 1,
+      content: "",
+      hidden: false,
+    }))
+  );
 
 const plugins = ref<BytemdPlugin[]>(createPlugins());
 let contentRenderVersion = 0;
@@ -73,7 +188,232 @@ const emit = defineEmits<{
   (event: "update", value: string): void;
 }>();
 
+const editorValue = ref(props.raw);
+const characterCount = computed(
+  () => Array.from(editorValue.value.replace(/\s/g, "")).length
+);
+const lineCount = computed(() => editorValue.value.split("\n").length);
+const lastSavedAt = ref<Date>();
+const AUTOSAVE_HISTORY_STORAGE_KEY = "plugin-bytemd:autosave-history:v1";
+const MAX_AUTOSAVE_RECORDS = 20;
+const autosaveDialogOpen = ref(false);
+const autosaveRecords = ref<AutosaveRecord[]>([]);
+const selectedAutosaveRecordId = ref<string>();
+
+const formatTimePart = (value: number) => String(value).padStart(2, "0");
+const formatSavedTime = (value: Date) =>
+  [value.getHours(), value.getMinutes(), value.getSeconds()]
+    .map(formatTimePart)
+    .join(":");
+const formatAutosaveTime = (value: string) => {
+  const savedAt = new Date(value);
+
+  if (Number.isNaN(savedAt.getTime())) {
+    return "--";
+  }
+
+  return `${savedAt.getFullYear()}/${savedAt.getMonth() + 1}/${savedAt.getDate()} ${formatSavedTime(savedAt)}`;
+};
+const lastSavedTime = computed(() =>
+  lastSavedAt.value ? formatSavedTime(lastSavedAt.value) : "--"
+);
+const selectedAutosaveRecord = computed(() =>
+  autosaveRecords.value.find(
+    (record) => record.id === selectedAutosaveRecordId.value
+  )
+);
+
+const draftContentPath =
+  /^\/apis\/api\.console\.halo\.run\/v1alpha1\/(?:posts|singlepages)\/?$/;
+const contentUpdatePath =
+  /^\/apis\/api\.console\.halo\.run\/v1alpha1\/(?:posts|singlepages)\/[^/]+\/content\/?$/;
+
+const getRequestPath = (url: string) => {
+  try {
+    return new URL(url, window.location.origin).pathname;
+  } catch {
+    return "";
+  }
+};
+
+const isContentSaveResponse = (response: AxiosResponse) => {
+  const method = response.config.method?.toLowerCase();
+  const url = response.config.url;
+
+  if (!method || !url) {
+    return false;
+  }
+
+  const path = getRequestPath(url);
+  return (
+    (method === "post" && draftContentPath.test(path)) ||
+    (method === "put" && contentUpdatePath.test(path))
+  );
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const parseRequestData = (data: unknown) => {
+  if (typeof data !== "string") {
+    return data;
+  }
+
+  try {
+    return JSON.parse(data) as unknown;
+  } catch {
+    return undefined;
+  }
+};
+
+const getResponseRaw = (response: AxiosResponse) => {
+  const requestData = parseRequestData(response.config.data);
+
+  if (isRecord(requestData)) {
+    if (typeof requestData.raw === "string") {
+      return requestData.raw;
+    }
+
+    if (isRecord(requestData.content) && typeof requestData.content.raw === "string") {
+      return requestData.content.raw;
+    }
+  }
+
+  return editorValue.value;
+};
+
+const getCurrentPagePath = () =>
+  `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+const getAutosavePagePath = (response: AxiosResponse) => {
+  const responseData = response.data;
+  const permalink =
+    isRecord(responseData) && isRecord(responseData.status)
+      ? responseData.status.permalink
+      : undefined;
+
+  if (typeof permalink !== "string" || !permalink) {
+    return getCurrentPagePath();
+  }
+
+  try {
+    const url = new URL(permalink, window.location.origin);
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return getCurrentPagePath();
+  }
+};
+
+const isAutosaveRecord = (value: unknown): value is AutosaveRecord => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.savedAt === "string" &&
+    !Number.isNaN(new Date(value.savedAt).getTime()) &&
+    typeof value.pagePath === "string" &&
+    typeof value.raw === "string"
+  );
+};
+
+const readAutosaveRecords = () => {
+  try {
+    const savedRecords = window.localStorage.getItem(
+      AUTOSAVE_HISTORY_STORAGE_KEY
+    );
+
+    if (!savedRecords) {
+      return [];
+    }
+
+    const parsedRecords = JSON.parse(savedRecords) as unknown;
+    if (!Array.isArray(parsedRecords)) {
+      return [];
+    }
+
+    return parsedRecords
+      .filter(isAutosaveRecord)
+      .sort(
+        (first, second) =>
+          new Date(second.savedAt).getTime() - new Date(first.savedAt).getTime()
+      )
+      .slice(0, MAX_AUTOSAVE_RECORDS);
+  } catch {
+    return [];
+  }
+};
+
+const setAutosaveRecords = (records: AutosaveRecord[]) => {
+  autosaveRecords.value = records;
+
+  if (
+    !selectedAutosaveRecordId.value ||
+    !records.some((record) => record.id === selectedAutosaveRecordId.value)
+  ) {
+    selectedAutosaveRecordId.value = records[0]?.id;
+  }
+};
+
+const addAutosaveRecord = (response: AxiosResponse, savedAt: Date) => {
+  const newRecord: AutosaveRecord = {
+    id: `${savedAt.getTime()}-${Math.random().toString(36).slice(2, 8)}`,
+    savedAt: savedAt.toISOString(),
+    pagePath: getAutosavePagePath(response),
+    raw: getResponseRaw(response),
+  };
+  const records = [newRecord, ...readAutosaveRecords()].slice(
+    0,
+    MAX_AUTOSAVE_RECORDS
+  );
+
+  for (let length = records.length; length > 0; length--) {
+    const recordsToStore = records.slice(0, length);
+
+    try {
+      window.localStorage.setItem(
+        AUTOSAVE_HISTORY_STORAGE_KEY,
+        JSON.stringify(recordsToStore)
+      );
+      setAutosaveRecords(recordsToStore);
+      return;
+    } catch {
+      // Retry with older records removed when local storage is close to quota.
+    }
+  }
+};
+
+const openAutosaveDialog = () => {
+  const records = readAutosaveRecords();
+  autosaveRecords.value = records;
+  selectedAutosaveRecordId.value = records[0]?.id;
+  autosaveDialogOpen.value = true;
+};
+
+const closeAutosaveDialog = () => {
+  autosaveDialogOpen.value = false;
+  focusEditor();
+};
+
+const restoreAutosaveRecord = () => {
+  const record = selectedAutosaveRecord.value;
+  const ctx = getEditorContext();
+
+  if (!record || !ctx) {
+    return;
+  }
+
+  editorValue.value = record.raw;
+  ctx.editor.setValue(record.raw);
+  autosaveDialogOpen.value = false;
+  focusEditor();
+};
+
+let saveResponseInterceptorId: number | undefined;
+
 const handleChange = (v: string) => {
+  editorValue.value = v;
   emit("update:raw", v);
 
   if (v !== props.raw) {
@@ -136,7 +476,628 @@ const handleUploadImages = async (files: File[]) => {
   );
 };
 
+const getEditorContext = () => activeEditorContext.value;
+
+const focusEditor = () => {
+  getEditorContext()?.editor.focus();
+};
+
+const clampHeadingLevel = (level: number) => Math.min(Math.max(level, 1), 6);
+
+const changeHeadingLevel = (offset: number) => {
+  const ctx = getEditorContext();
+  if (!ctx) {
+    return;
+  }
+
+  ctx.replaceLines((line) => {
+    const indent = line.match(/^\s*/)?.[0] || "";
+    const content = line.slice(indent.length);
+    const match = content.match(/^(#{1,6})\s+/);
+    const text = content.replace(/^(#{1,6})\s+/, "").trim() || "标题";
+    const baseLevel = match ? match[1].length : offset > 0 ? 1 : 2;
+    const nextLevel = clampHeadingLevel(baseLevel + offset);
+
+    return `${indent}${"#".repeat(nextLevel)} ${text}`;
+  });
+  focusEditor();
+};
+
+const wrapText = (before: string, after?: string) => {
+  const ctx = getEditorContext();
+  if (!ctx) {
+    return;
+  }
+
+  ctx.wrapText(before, after);
+  focusEditor();
+};
+
+const replaceLines = (replace: Parameters<BytemdEditorContext["replaceLines"]>[0]) => {
+  const ctx = getEditorContext();
+  if (!ctx) {
+    return;
+  }
+
+  ctx.replaceLines(replace);
+  focusEditor();
+};
+
+const insertHorizontalRule = () => {
+  const ctx = getEditorContext();
+  if (!ctx) {
+    return;
+  }
+
+  ctx.appendBlock("---");
+  focusEditor();
+};
+
+const linkDialogOpen = ref(false);
+const linkUrl = ref("");
+const linkText = ref("");
+const imageDialogOpen = ref(false);
+const imageUrl = ref("");
+const imageAlt = ref("");
+const imageUploading = ref(false);
+
+const insertLink = () => {
+  const ctx = getEditorContext();
+  linkUrl.value = "";
+  linkText.value = ctx?.editor.getSelection() || "";
+  linkDialogOpen.value = true;
+};
+
+const closeLinkDialog = () => {
+  linkDialogOpen.value = false;
+  focusEditor();
+};
+
+const confirmLinkDialog = () => {
+  const ctx = getEditorContext();
+  const url = linkUrl.value.trim();
+
+  if (!ctx || !url) {
+    return;
+  }
+
+  const text = linkText.value.trim() || url;
+  ctx.editor.replaceSelection(`[${text}](${url})`);
+  linkDialogOpen.value = false;
+  focusEditor();
+};
+
+const insertImages = () => {
+  const ctx = getEditorContext();
+  imageUrl.value = "";
+  imageAlt.value = ctx?.editor.getSelection() || "";
+  imageDialogOpen.value = true;
+};
+
+const closeImageDialog = () => {
+  imageDialogOpen.value = false;
+  focusEditor();
+};
+
+const uploadImageForDialog = async () => {
+  const ctx = getEditorContext();
+  if (!ctx || imageUploading.value) {
+    return;
+  }
+
+  const fileList = await ctx.selectFiles({
+    accept: "image/*",
+    multiple: false,
+  });
+
+  if (!fileList?.length) {
+    return;
+  }
+
+  imageUploading.value = true;
+  try {
+    const [image] = await handleUploadImages([fileList[0]]);
+    imageUrl.value = image.url;
+    if (!imageAlt.value.trim()) {
+      imageAlt.value = image.alt;
+    }
+  } finally {
+    imageUploading.value = false;
+  }
+};
+
+const confirmImageDialog = () => {
+  const ctx = getEditorContext();
+  const url = imageUrl.value.trim();
+
+  if (!ctx || !url) {
+    return;
+  }
+
+  const alt = imageAlt.value.trim();
+  ctx.appendBlock(`![${alt}](${url})`);
+  imageDialogOpen.value = false;
+  focusEditor();
+};
+
+const insertCode = () => {
+  const ctx = getEditorContext();
+  codeContent.value = ctx?.editor.getSelection() || "";
+  codeLanguage.value = "cpp";
+  codeDialogOpen.value = true;
+};
+
+const codeLanguages: CodeLanguage[] = [
+  { label: "C++", value: "cpp" },
+  { label: "Python", value: "python" },
+  { label: "C", value: "c" },
+  { label: "Java", value: "java" },
+  { label: "Javascript", value: "javascript" },
+  { label: "Markdown", value: "markdown" },
+  { label: "LaTeX", value: "latex" },
+];
+
+const codeDialogOpen = ref(false);
+const codeLanguage = ref("cpp");
+const codeContent = ref("");
+
+const closeCodeDialog = () => {
+  codeDialogOpen.value = false;
+  focusEditor();
+};
+
+const getCodeFence = (content: string) => {
+  const fences = content.match(/`{3,}/g) || [];
+  const maxFenceLength = fences.reduce(
+    (length, fence) => Math.max(length, fence.length),
+    2
+  );
+
+  return "`".repeat(maxFenceLength + 1);
+};
+
+const confirmCodeDialog = () => {
+  const ctx = getEditorContext();
+  if (!ctx) {
+    closeCodeDialog();
+    return;
+  }
+
+  const fence = getCodeFence(codeContent.value);
+  ctx.appendBlock(`${fence}${codeLanguage.value}\n${codeContent.value}\n${fence}`);
+  codeDialogOpen.value = false;
+  focusEditor();
+};
+
+const insertTable = () => {
+  openTableDialog();
+};
+
+const tableDialogOpen = ref(false);
+const tableRows = ref(DEFAULT_TABLE_ROWS);
+const tableColumns = ref(DEFAULT_TABLE_COLUMNS);
+const tableCells = ref<TableCell[][]>(
+  createTableCells(DEFAULT_TABLE_ROWS, DEFAULT_TABLE_COLUMNS)
+);
+const tableSelectionStart = ref<TablePoint>({ row: 0, column: 0 });
+const tableSelectionEnd = ref<TablePoint>({ row: 0, column: 0 });
+const tableSelectionDragging = ref(false);
+
+const clampTableSize = (value: number) =>
+  Math.min(Math.max(Number.isFinite(value) ? value : 1, 1), MAX_TABLE_SIZE);
+
+const resetTableCells = (rows: number, columns: number) => {
+  tableCells.value = createTableCells(rows, columns);
+  tableSelectionStart.value = { row: 0, column: 0 };
+  tableSelectionEnd.value = { row: 0, column: 0 };
+};
+
+const openTableDialog = () => {
+  tableRows.value = DEFAULT_TABLE_ROWS;
+  tableColumns.value = DEFAULT_TABLE_COLUMNS;
+  resetTableCells(DEFAULT_TABLE_ROWS, DEFAULT_TABLE_COLUMNS);
+  tableDialogOpen.value = true;
+};
+
+const closeTableDialog = () => {
+  tableDialogOpen.value = false;
+  tableSelectionDragging.value = false;
+  focusEditor();
+};
+
+const syncTableSize = () => {
+  const rows = clampTableSize(Number(tableRows.value));
+  const columns = clampTableSize(Number(tableColumns.value));
+
+  tableRows.value = rows;
+  tableColumns.value = columns;
+  resetTableCells(rows, columns);
+};
+
+const getSelectionRect = () => {
+  const start = tableSelectionStart.value;
+  const end = tableSelectionEnd.value;
+
+  return {
+    minRow: Math.min(start.row, end.row),
+    maxRow: Math.max(start.row, end.row),
+    minColumn: Math.min(start.column, end.column),
+    maxColumn: Math.max(start.column, end.column),
+  };
+};
+
+const isTableCellSelected = (cell: TableCell) => {
+  const rect = getSelectionRect();
+  const cellMinRow = cell.row;
+  const cellMaxRow = cell.row + cell.rowspan - 1;
+  const cellMinColumn = cell.column;
+  const cellMaxColumn = cell.column + cell.colspan - 1;
+
+  return (
+    cellMinRow <= rect.maxRow &&
+    cellMaxRow >= rect.minRow &&
+    cellMinColumn <= rect.maxColumn &&
+    cellMaxColumn >= rect.minColumn
+  );
+};
+
+const findTableCellOwner = (row: number, column: number) => {
+  for (const tableRow of tableCells.value) {
+    for (const cell of tableRow) {
+      if (cell.hidden) {
+        continue;
+      }
+
+      const ownsRow = row >= cell.row && row < cell.row + cell.rowspan;
+      const ownsColumn =
+        column >= cell.column && column < cell.column + cell.colspan;
+
+      if (ownsRow && ownsColumn) {
+        return cell;
+      }
+    }
+  }
+};
+
+const getActiveTableCell = () => {
+  const { row, column } = tableSelectionStart.value;
+  return findTableCellOwner(row, column);
+};
+
+const getActiveTableCellContent = () => getActiveTableCell()?.content || "";
+
+const setActiveTableCellContent = (event: Event) => {
+  const cell = getActiveTableCell();
+  if (!cell) {
+    return;
+  }
+
+  cell.content = (event.target as HTMLTextAreaElement).value;
+};
+
+const startTableSelection = (cell: TableCell) => {
+  tableSelectionStart.value = { row: cell.row, column: cell.column };
+  tableSelectionEnd.value = {
+    row: cell.row + cell.rowspan - 1,
+    column: cell.column + cell.colspan - 1,
+  };
+  tableSelectionDragging.value = true;
+};
+
+const extendTableSelection = (cell: TableCell) => {
+  if (!tableSelectionDragging.value) {
+    return;
+  }
+
+  tableSelectionEnd.value = {
+    row: cell.row + cell.rowspan - 1,
+    column: cell.column + cell.colspan - 1,
+  };
+};
+
+const finishTableSelection = () => {
+  tableSelectionDragging.value = false;
+};
+
+const mergeSelectedTableCells = () => {
+  const rect = getSelectionRect();
+  const owners = new Map<string, TableCell>();
+
+  for (let row = rect.minRow; row <= rect.maxRow; row++) {
+    for (let column = rect.minColumn; column <= rect.maxColumn; column++) {
+      const owner = findTableCellOwner(row, column);
+      if (!owner) {
+        return;
+      }
+
+      const ownerOutsideSelection =
+        owner.row < rect.minRow ||
+        owner.column < rect.minColumn ||
+        owner.row + owner.rowspan - 1 > rect.maxRow ||
+        owner.column + owner.colspan - 1 > rect.maxColumn;
+
+      if (ownerOutsideSelection) {
+        return;
+      }
+
+      owners.set(`${owner.row}-${owner.column}`, owner);
+    }
+  }
+
+  const mergedContent = Array.from(owners.values())
+    .map((cell) => cell.content.trim())
+    .filter(Boolean)
+    .join("\n");
+  const targetCell = tableCells.value[rect.minRow][rect.minColumn];
+
+  for (let row = rect.minRow; row <= rect.maxRow; row++) {
+    for (let column = rect.minColumn; column <= rect.maxColumn; column++) {
+      const cell = tableCells.value[row][column];
+      cell.rowspan = 1;
+      cell.colspan = 1;
+      cell.content = "";
+      cell.hidden = true;
+    }
+  }
+
+  targetCell.rowspan = rect.maxRow - rect.minRow + 1;
+  targetCell.colspan = rect.maxColumn - rect.minColumn + 1;
+  targetCell.content = mergedContent;
+  targetCell.hidden = false;
+  tableSelectionStart.value = { row: targetCell.row, column: targetCell.column };
+  tableSelectionEnd.value = {
+    row: targetCell.row + targetCell.rowspan - 1,
+    column: targetCell.column + targetCell.colspan - 1,
+  };
+};
+
+const splitActiveTableCell = () => {
+  const cell = getActiveTableCell();
+  if (!cell) {
+    return;
+  }
+
+  const { row, column, rowspan, colspan } = cell;
+  const content = cell.content;
+
+  for (let currentRow = row; currentRow < row + rowspan; currentRow++) {
+    for (
+      let currentColumn = column;
+      currentColumn < column + colspan;
+      currentColumn++
+    ) {
+      const currentCell = tableCells.value[currentRow][currentColumn];
+      currentCell.rowspan = 1;
+      currentCell.colspan = 1;
+      currentCell.hidden = false;
+      currentCell.content = "";
+    }
+  }
+
+  tableCells.value[row][column].content = content;
+  tableSelectionStart.value = { row, column };
+  tableSelectionEnd.value = { row, column };
+};
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+const renderTableCellContent = (content: string) => {
+  const escaped = escapeHtml(content.trim());
+  return escaped ? escaped.replace(/\n/g, "<br>") : "&nbsp;";
+};
+
+const buildTableHtml = () => {
+  const lines = ["<table>", "  <tbody>"];
+
+  tableCells.value.forEach((row) => {
+    lines.push("    <tr>");
+    row.forEach((cell) => {
+      if (cell.hidden) {
+        return;
+      }
+
+      const attrs = [
+        cell.rowspan > 1 ? `rowspan="${cell.rowspan}"` : "",
+        cell.colspan > 1 ? `colspan="${cell.colspan}"` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const attrText = attrs ? ` ${attrs}` : "";
+      lines.push(
+        `      <td${attrText}>${renderTableCellContent(cell.content)}</td>`
+      );
+    });
+    lines.push("    </tr>");
+  });
+
+  lines.push("  </tbody>", "</table>");
+  return lines.join("\n");
+};
+
+const confirmTableDialog = () => {
+  const ctx = getEditorContext();
+  if (!ctx) {
+    closeTableDialog();
+    return;
+  }
+
+  ctx.appendBlock(buildTableHtml());
+  tableDialogOpen.value = false;
+  focusEditor();
+};
+
+const clickNativeToolbarButton = (path: string, right = true) => {
+  const root = getEditorContext()?.root;
+  const side = right ? "right" : "left";
+  root
+    ?.querySelector<HTMLElement>(
+      `.bytemd-toolbar-${side} .bytemd-toolbar-icon[bytemd-tippy-path="${path}"]`
+    )
+    ?.click();
+};
+
+const getToolbarButtonTitle = (button: LuoguToolbarButton) => {
+  if (button.icon === "fullscreen" && isEditorFullscreen.value) {
+    return "退出全屏";
+  }
+
+  return button.title;
+};
+
+const setEditorView = (view: "write" | "preview") => {
+  const root = getEditorContext()?.root;
+  const tabs = root?.querySelectorAll<HTMLElement>(
+    ".bytemd-toolbar-left .bytemd-toolbar-tab"
+  );
+
+  if (tabs?.length) {
+    tabs[view === "write" ? 0 : 1]?.click();
+    return;
+  }
+
+  clickNativeToolbarButton(view === "write" ? "2" : "3");
+};
+
+const toolbarLeftGroups: LuoguToolbarButton[][] = [
+  [
+    {
+      title: "提升一级",
+      icon: "headingUp",
+      action: () => changeHeadingLevel(-1),
+    },
+    {
+      title: "降低一级",
+      icon: "headingDown",
+      action: () => changeHeadingLevel(1),
+    },
+    {
+      title: "水平线",
+      icon: "horizontalRule",
+      action: insertHorizontalRule,
+    },
+  ],
+  [
+    {
+      title: "粗体",
+      icon: "bold",
+      action: () => wrapText("**"),
+    },
+    {
+      title: "斜体",
+      icon: "italic",
+      action: () => wrapText("*"),
+    },
+    {
+      title: "删除线",
+      icon: "strike",
+      action: () => wrapText("~~"),
+    },
+    {
+      title: "数学公式",
+      icon: "math",
+      action: () => wrapText("$"),
+    },
+  ],
+  [
+    {
+      title: "链接",
+      icon: "link",
+      action: insertLink,
+    },
+    {
+      title: "图片",
+      icon: "image",
+      action: insertImages,
+    },
+    {
+      title: "代码",
+      icon: "code",
+      action: insertCode,
+    },
+    {
+      title: "表格",
+      icon: "table",
+      action: insertTable,
+    },
+  ],
+  [
+    {
+      title: "引用",
+      icon: "quote",
+      action: () => replaceLines((line) => `> ${line}`),
+    },
+    {
+      title: "无序列表",
+      icon: "unorderedList",
+      action: () => replaceLines((line) => `- ${line}`),
+    },
+    {
+      title: "有序列表",
+      icon: "orderedList",
+      action: () => replaceLines((line, index) => `${index + 1}. ${line}`),
+    },
+    {
+      title: "任务列表",
+      icon: "taskList",
+      action: () => replaceLines((line) => `- [ ] ${line}`),
+    },
+  ],
+];
+
+const toolbarRightGroups: LuoguToolbarButton[][] = [
+  [
+    {
+      title: "仅编辑",
+      icon: "writeOnly",
+      action: () => setEditorView("write"),
+    },
+    {
+      title: "仅预览",
+      icon: "previewOnly",
+      action: () => setEditorView("preview"),
+    },
+    {
+      title: "全屏",
+      icon: "fullscreen",
+      action: () => clickNativeToolbarButton("4"),
+    },
+  ],
+  [
+    {
+      title: "帮助",
+      icon: "help",
+      action: () => clickNativeToolbarButton("1"),
+    },
+    {
+      title: "自动保存",
+      icon: "clock",
+      action: openAutosaveDialog,
+    },
+  ],
+];
+
 onMounted(async () => {
+  setAutosaveRecords(readAutosaveRecords());
+
+  // The editor-provider contract has no save callback, so use the host's
+  // successful content-save response as the authoritative timestamp source.
+  saveResponseInterceptorId = axiosInstance.interceptors.response.use(
+    (response) => {
+      if (isContentSaveResponse(response)) {
+        const savedAt = new Date();
+        lastSavedAt.value = savedAt;
+        addAutosaveRecord(response, savedAt);
+      }
+
+      return response;
+    }
+  );
+
   try {
     const { data } = await consoleApiClient.plugin.plugin.fetchPluginJsonConfig(
       {
@@ -154,9 +1115,16 @@ onMounted(async () => {
   }
 });
 
+onBeforeUnmount(() => {
+  if (saveResponseInterceptorId !== undefined) {
+    axiosInstance.interceptors.response.eject(saveResponseInterceptorId);
+  }
+});
+
 watch(
   () => props.raw,
   async (value) => {
+    editorValue.value = value;
     const version = ++contentRenderVersion;
     const processor = getProcessor({ plugins: plugins.value }).processSync(
       value
@@ -174,7 +1142,6 @@ watch(
 
 // attachment selector
 const attachmentSelectorModal = ref(false);
-const editorContext = ref<BytemdEditorContext>();
 const onAttachmentSelect = (attachments: AttachmentLike[]) => {
   if (!attachments.length) {
     return;
@@ -182,9 +1149,9 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
 
   attachments.forEach((attachment) => {
     if (typeof attachment === "string") {
-      editorContext.value?.appendBlock(`![](${attachment})`);
+      activeEditorContext.value?.appendBlock(`![](${attachment})`);
     } else if ("url" in attachment) {
-      editorContext.value?.appendBlock(
+      activeEditorContext.value?.appendBlock(
         `![${attachment.type}](${attachment.url})`
       );
     } else if ("spec" in attachment) {
@@ -192,37 +1159,510 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
       const { permalink } = attachment.status || {};
 
       if (mediaType?.startsWith("image/")) {
-        editorContext.value?.appendBlock(`![${displayName}](${permalink})`);
+        activeEditorContext.value?.appendBlock(`![${displayName}](${permalink})`);
         return;
       }
 
       if (mediaType?.startsWith("video/")) {
-        editorContext.value?.appendBlock(`<video src="${permalink}"></video>`);
+        activeEditorContext.value?.appendBlock(`<video src="${permalink}"></video>`);
         return;
       }
 
       if (mediaType?.startsWith("audio/")) {
-        editorContext.value?.appendBlock(`<audio src="${permalink}"></audio>`);
+        activeEditorContext.value?.appendBlock(`<audio src="${permalink}"></audio>`);
         return;
       }
 
-      editorContext.value?.appendBlock(`[${displayName}](${permalink})`);
+      activeEditorContext.value?.appendBlock(`[${displayName}](${permalink})`);
     }
   });
 
   attachmentSelectorModal.value = false;
-  editorContext.value = undefined;
+  focusEditor();
 };
 </script>
 
 <template>
-  <section class="bytemd-wrapper">
+  <section
+    class="bytemd-wrapper"
+    :class="{ 'bytemd-wrapper-fullscreen': isEditorFullscreen }"
+  >
+    <div class="luogu-bytemd-toolbar">
+      <div class="luogu-toolbar-side">
+        <span
+          v-for="(group, groupIndex) in toolbarLeftGroups"
+          :key="`left-${groupIndex}`"
+          class="luogu-toolbar-group"
+        >
+          <button
+            v-for="button in group"
+            :key="button.title"
+            type="button"
+            class="luogu-toolbar-tool"
+            :class="{ disabled: button.disabled }"
+            :aria-label="getToolbarButtonTitle(button)"
+            :disabled="button.disabled"
+            @click="button.action"
+          >
+            <span
+              class="luogu-toolbar-icon"
+              v-html="luoguToolbarIcons[button.icon]"
+            />
+            <span class="luogu-tooltip">{{ getToolbarButtonTitle(button) }}</span>
+          </button>
+        </span>
+      </div>
+      <div class="luogu-toolbar-side">
+        <span
+          v-for="(group, groupIndex) in toolbarRightGroups"
+          :key="`right-${groupIndex}`"
+          class="luogu-toolbar-group"
+        >
+          <button
+            v-for="button in group"
+            :key="button.title"
+            type="button"
+            class="luogu-toolbar-tool"
+            :class="{ disabled: button.disabled }"
+            :aria-label="getToolbarButtonTitle(button)"
+            :disabled="button.disabled"
+            @click="button.action"
+          >
+            <span
+              class="luogu-toolbar-icon"
+              v-html="luoguToolbarIcons[button.icon]"
+            />
+            <span class="luogu-tooltip">{{ getToolbarButtonTitle(button) }}</span>
+          </button>
+        </span>
+      </div>
+    </div>
     <Editor
       :value="raw"
       :plugins="plugins"
+      :locale="bytemdLocale"
+      :editor-config="editorConfig"
       :upload-images="handleUploadImages"
       @change="handleChange"
     />
+    <div class="bytemd-custom-status" aria-live="polite">
+      <span>字数: <strong>{{ characterCount }}</strong></span>
+      <span>行数: <strong>{{ lineCount }}</strong></span>
+      <span>上次保存: <strong>{{ lastSavedTime }}</strong></span>
+    </div>
+    <div
+      v-if="autosaveDialogOpen"
+      class="luogu-table-dialog-container luogu-autosave-dialog-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bytemd-autosave-dialog-title"
+      @keydown.esc="closeAutosaveDialog"
+      @mousedown.self="closeAutosaveDialog"
+    >
+      <div class="cs-dialog cs-autosave-dialog">
+        <aside class="cs-autosave-sidebar">
+          <div class="cs-dialog-header">
+            <span id="bytemd-autosave-dialog-title">自动保存</span>
+            <button
+              type="button"
+              class="cs-close-container"
+              aria-label="关闭"
+              @click="closeAutosaveDialog"
+            >
+              <svg
+                class="cs-close-button"
+                aria-hidden="true"
+                viewBox="0 0 384 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="cs-autosave-history" aria-label="最近自动保存记录">
+            <button
+              v-for="record in autosaveRecords"
+              :key="record.id"
+              type="button"
+              class="cs-autosave-record"
+              :class="{
+                selected: record.id === selectedAutosaveRecordId,
+              }"
+              :aria-pressed="record.id === selectedAutosaveRecordId"
+              :title="record.pagePath"
+              @click="selectedAutosaveRecordId = record.id"
+            >
+              <time>{{ formatAutosaveTime(record.savedAt) }}</time>
+              <span>{{ record.pagePath }}</span>
+            </button>
+            <p v-if="!autosaveRecords.length" class="cs-autosave-empty">
+              暂无自动保存记录
+            </p>
+          </div>
+          <div class="cs-autosave-actions">
+            <button
+              type="button"
+              class="cs-dialog-button cs-dialog-button-primary"
+              :disabled="!selectedAutosaveRecord"
+              @click="restoreAutosaveRecord"
+            >
+              载入
+            </button>
+            <button
+              type="button"
+              class="cs-dialog-button cs-dialog-button-info"
+              @click="closeAutosaveDialog"
+            >
+              取消
+            </button>
+          </div>
+        </aside>
+        <section class="cs-autosave-preview">
+          <template v-if="selectedAutosaveRecord">
+            <h2>
+              保存时间 {{ formatAutosaveTime(selectedAutosaveRecord.savedAt) }}
+            </h2>
+            <h2>保存页面 {{ selectedAutosaveRecord.pagePath }}</h2>
+            <pre>{{ selectedAutosaveRecord.raw }}</pre>
+          </template>
+          <p v-else class="cs-autosave-preview-empty">选择左侧的保存记录查看源码</p>
+        </section>
+      </div>
+    </div>
+    <div
+      v-if="linkDialogOpen"
+      class="luogu-table-dialog-container luogu-simple-dialog-container"
+    >
+      <form class="cs-dialog" @submit.prevent="confirmLinkDialog">
+        <div class="cs-dialog-header">
+          插入链接
+          <button
+            type="button"
+            class="cs-close-container"
+            aria-label="关闭"
+            @click="closeLinkDialog"
+          >
+            <svg
+              class="cs-close-button"
+              aria-hidden="true"
+              viewBox="0 0 384 512"
+            >
+              <path
+                fill="currentColor"
+                d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="cs-dialog-item">
+          <label class="cs-dialog-item-label" for="bytemd-link-url">
+            链接地址
+          </label>
+          <input
+            id="bytemd-link-url"
+            v-model="linkUrl"
+            class="cs-dialog-item-content"
+            type="text"
+            inputmode="url"
+            placeholder="https://example.com"
+            required
+          />
+        </div>
+        <div class="cs-dialog-item">
+          <label class="cs-dialog-item-label" for="bytemd-link-text">
+            链接文字
+          </label>
+          <input
+            id="bytemd-link-text"
+            v-model="linkText"
+            class="cs-dialog-item-content"
+            type="text"
+            placeholder="阅读原文"
+          />
+        </div>
+        <div class="cs-dialog-submit-area">
+          <button
+            type="submit"
+            class="cs-dialog-button cs-dialog-button-primary"
+            :disabled="!linkUrl.trim()"
+          >
+            确认
+          </button>
+          <button
+            type="button"
+            class="cs-dialog-button cs-dialog-button-info"
+            @click="closeLinkDialog"
+          >
+            取消
+          </button>
+        </div>
+      </form>
+    </div>
+    <div
+      v-if="imageDialogOpen"
+      class="luogu-table-dialog-container luogu-simple-dialog-container"
+    >
+      <form class="cs-dialog" @submit.prevent="confirmImageDialog">
+        <div class="cs-dialog-header">
+          插入图片
+          <button
+            type="button"
+            class="cs-close-container"
+            aria-label="关闭"
+            @click="closeImageDialog"
+          >
+            <svg
+              class="cs-close-button"
+              aria-hidden="true"
+              viewBox="0 0 384 512"
+            >
+              <path
+                fill="currentColor"
+                d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="cs-dialog-item">
+          <label class="cs-dialog-item-label" for="bytemd-image-url">
+            图片地址
+          </label>
+          <input
+            id="bytemd-image-url"
+            v-model="imageUrl"
+            class="cs-dialog-item-content"
+            type="text"
+            inputmode="url"
+            placeholder="https://example.com/image.png"
+            required
+          />
+        </div>
+        <div class="cs-dialog-item">
+          <label class="cs-dialog-item-label" for="bytemd-image-alt">
+            图片说明
+          </label>
+          <input
+            id="bytemd-image-alt"
+            v-model="imageAlt"
+            class="cs-dialog-item-content"
+            type="text"
+            placeholder="图片的替代文字"
+          />
+        </div>
+        <div class="cs-dialog-upload-area">
+          <button
+            type="button"
+            class="cs-dialog-upload-button"
+            :disabled="imageUploading"
+            @click="uploadImageForDialog"
+          >
+            {{ imageUploading ? "上传中..." : "上传图片" }}
+          </button>
+        </div>
+        <div class="cs-dialog-submit-area">
+          <button
+            type="submit"
+            class="cs-dialog-button cs-dialog-button-primary"
+            :disabled="!imageUrl.trim() || imageUploading"
+          >
+            确认
+          </button>
+          <button
+            type="button"
+            class="cs-dialog-button cs-dialog-button-info"
+            :disabled="imageUploading"
+            @click="closeImageDialog"
+          >
+            取消
+          </button>
+        </div>
+      </form>
+    </div>
+    <div
+      v-if="codeDialogOpen"
+      class="luogu-table-dialog-container luogu-code-dialog-container"
+    >
+      <div class="cs-dialog">
+        <div>
+          <div class="cs-dialog-header">
+            插入代码
+            <button
+              type="button"
+              class="cs-close-container"
+              aria-label="关闭"
+              @click="closeCodeDialog"
+            >
+              <svg
+                class="cs-close-button"
+                aria-hidden="true"
+                viewBox="0 0 384 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <div class="cs-dialog-item">
+              <div class="cs-dialog-item-label">选择语言</div>
+              <select
+                v-model="codeLanguage"
+                class="cs-dialog-item-content"
+              >
+                <option
+                  v-for="language in codeLanguages"
+                  :key="language.value"
+                  :value="language.value"
+                >
+                  {{ language.label }}
+                </option>
+              </select>
+            </div>
+            <div class="cs-dialog-item">
+              <div class="cs-dialog-item-label code-label">代码</div>
+              <textarea
+                v-model="codeContent"
+                class="cs-dialog-item-content code-content"
+              />
+            </div>
+            <div class="cs-dialog-submit-area">
+              <button
+                type="button"
+                class="cs-dialog-button cs-dialog-button-primary"
+                @click="confirmCodeDialog"
+              >
+                确认
+              </button>
+              <button
+                type="button"
+                class="cs-dialog-button cs-dialog-button-info"
+                @click="closeCodeDialog"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="tableDialogOpen"
+      class="luogu-table-dialog-container"
+      @mouseup="finishTableSelection"
+      @mouseleave="finishTableSelection"
+    >
+      <div class="cs-dialog cs-dialog-big">
+        <div class="cs-dialog-sidebar">
+          <div class="cs-dialog-header">
+            插入表格
+            <button
+              type="button"
+              class="cs-close-container"
+              aria-label="关闭"
+              @click="closeTableDialog"
+            >
+              <svg
+                class="cs-close-button"
+                aria-hidden="true"
+                viewBox="0 0 384 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="cs-dialog-item">
+            <div class="cs-dialog-item-label">行数</div>
+            <input
+              v-model.number="tableRows"
+              type="number"
+              class="cs-dialog-item-content"
+              min="1"
+              max="100"
+              @change="syncTableSize"
+            />
+          </div>
+          <div class="cs-dialog-item">
+            <div class="cs-dialog-item-label">列数</div>
+            <input
+              v-model.number="tableColumns"
+              type="number"
+              class="cs-dialog-item-content"
+              min="1"
+              max="100"
+              @change="syncTableSize"
+            />
+          </div>
+          <div class="cs-dialog-item">
+            <button
+              type="button"
+              class="cs-dialog-button cs-dialog-button-info"
+              @click="mergeSelectedTableCells"
+            >
+              合并
+            </button>
+            <button
+              type="button"
+              class="cs-dialog-button cs-dialog-button-info"
+              @click="splitActiveTableCell"
+            >
+              拆分
+            </button>
+          </div>
+          <div class="cs-dialog-area">
+            <h3>编辑区</h3>
+            <textarea
+              :value="getActiveTableCellContent()"
+              @input="setActiveTableCellContent"
+            />
+          </div>
+          <div class="submit-area">
+            <button
+              type="button"
+              class="cs-dialog-button cs-dialog-button-info"
+              @click="closeTableDialog"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              class="cs-dialog-button cs-dialog-button-primary"
+              @click="confirmTableDialog"
+            >
+              确认
+            </button>
+          </div>
+        </div>
+        <div class="cs-dialog-view">
+          <table class="cs-dialog-table-editor">
+            <tbody>
+              <tr v-for="(row, rowIndex) in tableCells" :key="rowIndex">
+                <td
+                  v-for="cell in row"
+                  v-show="!cell.hidden"
+                  :key="`${cell.row}-${cell.column}`"
+                  :data-x="cell.row"
+                  :data-y="cell.column"
+                  :colspan="cell.colspan"
+                  :rowspan="cell.rowspan"
+                  :class="{ selected: isTableCellSelected(cell) }"
+                  @mousedown.prevent="startTableSelection(cell)"
+                  @mouseenter="extendTableSelection(cell)"
+                >
+                  {{ cell.content || " " }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     <AttachmentSelectorModal
       v-if="attachmentSelectorModal"
       @select="onAttachmentSelect"
