@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm", "math"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["katex", "katex-mathml", "mord", "style=\"height:"]}
+}

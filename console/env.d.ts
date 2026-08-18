@@ -24,11 +24,3 @@ declare module "@bytemd/vue-next" {
   export const Editor: DefineComponent<Record<string, unknown>, object, object>;
   export const Viewer: DefineComponent<Record<string, unknown>, object, object>;
 }
-
-declare module "@halo-dev/api-client" {
-  import type { AxiosInstance } from "axios";
-
-  export const axiosInstance: AxiosInstance;
-  export const consoleApiClient: any;
-  export const ucApiClient: any;
-}

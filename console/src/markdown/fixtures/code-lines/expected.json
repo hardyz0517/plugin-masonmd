@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm", "prism-code"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["data-line=\"2\"", "data-line=\"5\"", "is-highlighted"]}
+}

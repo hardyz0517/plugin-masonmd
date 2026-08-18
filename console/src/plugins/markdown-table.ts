@@ -460,12 +460,6 @@ const createMarkdownTableKeyMap = (ctx: BytemdEditorContext): CmKeyMap => {
   );
   addShortcut(
     keyMap,
-    ["Enter"],
-    (context) => runMarkdownTableCommand(context, "nextRow"),
-    ctx
-  );
-  addShortcut(
-    keyMap,
     ["Esc"],
     (context) => runMarkdownTableCommand(context, "escape"),
     ctx

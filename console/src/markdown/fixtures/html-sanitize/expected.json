@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm"],
+  "diagnostics": [],
+  "htmlSnapshot": {"notContains": ["<script", "onerror", "javascript:", "style="]}
+}

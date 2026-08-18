@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm", "cute-table"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["luogu-cute-table-tuack", "luogu-tuack-break", "<colgroup>"]}
+}

@@ -1,0 +1,807 @@
+/* Shared semantic styles for the editor preview and published content. */
+
+/*
+ * Saved posts carry this class themselves, so published rendering is not
+ * coupled to a theme's prose class or page structure.
+ */
+.luogu-markdown-body {
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+}
+
+.luogu-markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.luogu-markdown-body > :last-child {
+  margin-bottom: 0;
+}
+
+.luogu-markdown-body h1,
+.luogu-markdown-body h2,
+.luogu-markdown-body h3,
+.luogu-markdown-body h4,
+.luogu-markdown-body h5,
+.luogu-markdown-body h6 {
+  color: inherit;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.45em 0 0.6em;
+}
+
+.luogu-markdown-body h1 {
+  border-bottom: 1px solid var(--luogu-markdown-table-border, #d0d7de);
+  font-size: 2em;
+  padding-bottom: 0.3em;
+}
+
+.luogu-markdown-body h2 {
+  border-bottom: 1px solid var(--luogu-markdown-table-border, #d0d7de);
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+}
+
+.luogu-markdown-body h3 {
+  font-size: 1.25em;
+}
+
+.luogu-markdown-body h4 {
+  font-size: 1em;
+}
+
+.luogu-markdown-body h5,
+.luogu-markdown-body h6 {
+  font-size: 0.875em;
+}
+
+.luogu-markdown-body p,
+.luogu-markdown-body ul,
+.luogu-markdown-body ol,
+.luogu-markdown-body dl {
+  margin: 0 0 1em;
+}
+
+.luogu-markdown-body ul,
+.luogu-markdown-body ol {
+  padding-left: 2em;
+}
+
+.luogu-markdown-body li + li {
+  margin-top: 0.25em;
+}
+
+.luogu-markdown-body li > p {
+  margin: 0.5em 0;
+}
+
+.luogu-markdown-body ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.luogu-markdown-body li.task-list-item {
+  list-style: none;
+}
+
+.luogu-markdown-body .task-list-item input[type="checkbox"] {
+  accent-color: var(--luogu-markdown-link, #0969da);
+  margin: 0 0.45em 0 0;
+  pointer-events: none;
+  vertical-align: middle;
+}
+
+.luogu-markdown-body a {
+  color: var(--luogu-markdown-link, #0969da);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.luogu-markdown-body a:hover {
+  color: var(--luogu-markdown-link-hover, #0550ae);
+}
+
+.luogu-markdown-body blockquote {
+  border-left: 4px solid var(--luogu-markdown-quote-border, #d0d7de);
+  color: inherit;
+  margin: 1em 0;
+  padding: 0 1em;
+}
+
+.luogu-markdown-body blockquote > :first-child {
+  margin-top: 0;
+}
+
+.luogu-markdown-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.luogu-markdown-body hr {
+  background: var(--luogu-markdown-table-border, #d0d7de);
+  border: 0;
+  height: 1px;
+  margin: 1.5em 0;
+}
+
+.luogu-markdown-body img,
+.luogu-markdown-body video,
+.luogu-markdown-body audio {
+  height: auto;
+  max-width: 100%;
+}
+
+.luogu-markdown-body :not(pre) > code,
+.luogu-markdown-body tt {
+  background: var(--luogu-markdown-inline-code-background, #f0f0f0);
+  border-radius: 3px;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.875em;
+  padding: 0.15em 0.35em;
+}
+
+.luogu-markdown-body kbd {
+  background: var(--luogu-markdown-kbd-background, #f6f8fa);
+  border: 1px solid var(--luogu-markdown-kbd-border, #d0d7de);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.8em;
+  padding: 0.15em 0.35em;
+}
+
+.luogu-markdown-body pre:not(.luogu-code-block) {
+  background: var(--luogu-markdown-code-background, #f6f8fa);
+  border: 1px solid var(--luogu-markdown-code-border, #d0d7de);
+  border-radius: 3px;
+  box-sizing: border-box;
+  margin: 1em 0;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+  padding: 0.9em 1em;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.luogu-markdown-body pre:not(.luogu-code-block) > code {
+  background: transparent;
+  color: inherit;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.875em;
+  padding: 0;
+  white-space: inherit;
+}
+
+.luogu-markdown-body table:not(.luogu-markdown-table) {
+  border-collapse: collapse;
+  display: block;
+  margin: 1em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  width: max-content;
+}
+
+.luogu-markdown-body table:not(.luogu-markdown-table) th,
+.luogu-markdown-body table:not(.luogu-markdown-table) td {
+  border: 1px solid var(--luogu-markdown-table-border, #d0d7de);
+  padding: 0.45em 0.65em;
+}
+
+.luogu-markdown-body table:not(.luogu-markdown-table) th {
+  background: var(--luogu-markdown-table-header, #f6f8fa);
+  font-weight: 600;
+}
+
+.luogu-markdown-body details:not(.luogu-callout) {
+  margin: 1em 0;
+}
+
+.luogu-markdown-body details > summary {
+  cursor: pointer;
+}
+
+.luogu-markdown-body .footnotes {
+  border-top: 1px solid var(--luogu-markdown-table-border, #d0d7de);
+  color: inherit;
+  font-size: 0.9em;
+  margin-top: 2em;
+  padding-top: 1em;
+}
+
+.luogu-markdown-body .footnote-backref {
+  text-decoration: none;
+}
+
+.luogu-markdown-body a[data-footnote-ref] {
+  text-decoration: none;
+}
+
+.luogu-markdown-body .math-display,
+.luogu-markdown-body .katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@mixin mermaid-light-theme {
+  --bytemd-mermaid-background: #ffffff;
+  --bytemd-mermaid-primary-color: #f8f8f8;
+  --bytemd-mermaid-primary-text-color: #3b3b3b;
+  --bytemd-mermaid-primary-border-color: #007acc;
+  --bytemd-mermaid-secondary-color: #f3f3f3;
+  --bytemd-mermaid-secondary-text-color: #3b3b3b;
+  --bytemd-mermaid-secondary-border-color: #bdbdbd;
+  --bytemd-mermaid-tertiary-color: #ffffff;
+  --bytemd-mermaid-tertiary-text-color: #3b3b3b;
+  --bytemd-mermaid-tertiary-border-color: #bdbdbd;
+  --bytemd-mermaid-note-bkg-color: #fff8c5;
+  --bytemd-mermaid-note-text-color: #3b3b3b;
+  --bytemd-mermaid-note-border-color: #c8a600;
+  --bytemd-mermaid-line-color: #007acc;
+  --bytemd-mermaid-text-color: #3b3b3b;
+  --bytemd-mermaid-main-bkg: #f8f8f8;
+  --bytemd-mermaid-error-bkg-color: #fce4e4;
+  --bytemd-mermaid-error-text-color: #a1260d;
+  --bytemd-mermaid-node-border: #007acc;
+  --bytemd-mermaid-cluster-bkg: #f3f3f3;
+  --bytemd-mermaid-cluster-border: #bdbdbd;
+  --bytemd-mermaid-default-link-color: #007acc;
+  --bytemd-mermaid-title-color: #3b3b3b;
+  --bytemd-mermaid-edge-label-background: #ffffff;
+  --bytemd-mermaid-actor-bkg: #f8f8f8;
+  --bytemd-mermaid-actor-border: #007acc;
+  --bytemd-mermaid-actor-text-color: #3b3b3b;
+  --bytemd-mermaid-actor-line-color: #6e6e6e;
+  --bytemd-mermaid-signal-color: #007acc;
+  --bytemd-mermaid-signal-text-color: #3b3b3b;
+  --bytemd-mermaid-label-box-bkg-color: #f8f8f8;
+  --bytemd-mermaid-label-box-border-color: #007acc;
+  --bytemd-mermaid-label-text-color: #3b3b3b;
+  --bytemd-mermaid-loop-text-color: #3b3b3b;
+  --bytemd-mermaid-activation-border-color: #6e6e6e;
+  --bytemd-mermaid-activation-bkg-color: #eeeeee;
+  --bytemd-mermaid-sequence-number-color: #fefefe;
+  --bytemd-mermaid-alt-background: #f3f3f3;
+  --bytemd-mermaid-class-text: #3b3b3b;
+}
+
+@mixin mermaid-dark-theme {
+  --bytemd-mermaid-background: #1f1f1f;
+  --bytemd-mermaid-primary-color: #252526;
+  --bytemd-mermaid-primary-text-color: #cccccc;
+  --bytemd-mermaid-primary-border-color: #0078d4;
+  --bytemd-mermaid-secondary-color: #2d2d30;
+  --bytemd-mermaid-secondary-text-color: #cccccc;
+  --bytemd-mermaid-secondary-border-color: #3c3c3c;
+  --bytemd-mermaid-tertiary-color: #1f1f1f;
+  --bytemd-mermaid-tertiary-text-color: #cccccc;
+  --bytemd-mermaid-tertiary-border-color: #3c3c3c;
+  --bytemd-mermaid-note-bkg-color: #2d2d30;
+  --bytemd-mermaid-note-text-color: #cccccc;
+  --bytemd-mermaid-note-border-color: #0078d4;
+  --bytemd-mermaid-line-color: #0078d4;
+  --bytemd-mermaid-text-color: #cccccc;
+  --bytemd-mermaid-main-bkg: #252526;
+  --bytemd-mermaid-error-bkg-color: #3b1e1e;
+  --bytemd-mermaid-error-text-color: #f85149;
+  --bytemd-mermaid-node-border: #0078d4;
+  --bytemd-mermaid-cluster-bkg: #2d2d30;
+  --bytemd-mermaid-cluster-border: #3c3c3c;
+  --bytemd-mermaid-default-link-color: #0078d4;
+  --bytemd-mermaid-title-color: #cccccc;
+  --bytemd-mermaid-edge-label-background: #1f1f1f;
+  --bytemd-mermaid-actor-bkg: #252526;
+  --bytemd-mermaid-actor-border: #0078d4;
+  --bytemd-mermaid-actor-text-color: #cccccc;
+  --bytemd-mermaid-actor-line-color: #858585;
+  --bytemd-mermaid-signal-color: #cccccc;
+  --bytemd-mermaid-signal-text-color: #cccccc;
+  --bytemd-mermaid-label-box-bkg-color: #252526;
+  --bytemd-mermaid-label-box-border-color: #0078d4;
+  --bytemd-mermaid-label-text-color: #cccccc;
+  --bytemd-mermaid-loop-text-color: #cccccc;
+  --bytemd-mermaid-activation-border-color: #858585;
+  --bytemd-mermaid-activation-bkg-color: #252526;
+  --bytemd-mermaid-sequence-number-color: #fefefe;
+  --bytemd-mermaid-alt-background: #2d2d30;
+  --bytemd-mermaid-class-text: #cccccc;
+}
+
+.bytemd-mermaid {
+  @include mermaid-light-theme;
+  display: flow-root;
+  margin: 1em 0;
+}
+
+.bytemd-mermaid > svg {
+  display: block;
+  height: auto;
+  margin-inline: auto;
+  max-width: 100%;
+}
+
+// Mermaid's supported HTML-label renderer places text in XHTML inside SVG.
+// Reset article-level paragraph rules at this boundary so labels keep the
+// dimensions Mermaid measured in the browser.
+.bytemd-mermaid foreignObject > div {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.bytemd-mermaid foreignObject p {
+  margin: 0;
+  padding: 0;
+}
+
+// Sequence diagrams place actor coordinates at the rectangle center. Keep
+// old SVG output centered even when its embedded Mermaid stylesheet omitted
+// text-anchor, and isolate the label from article-level line-height rules.
+.bytemd-mermaid > svg[aria-roledescription="sequence"] text.actor {
+  dominant-baseline: central;
+  line-height: normal;
+  text-anchor: middle;
+}
+
+.bytemd-mermaid-error {
+  color: #b42318;
+  padding: 0.75em;
+}
+.luogu-callout {
+  background: transparent;
+  border: 0;
+  border-left: 7px solid var(--luogu-markdown-callout-border, #d9d9d9);
+  border-radius: 0;
+  line-height: 1.5;
+  margin: 1.5rem 4px;
+  overflow: visible;
+  padding: 0.75rem 1.5rem;
+}
+
+.luogu-callout > summary {
+  align-items: center;
+  color: var(--luogu-markdown-callout-color, inherit);
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  line-height: 1.5;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+/* github-markdown-css gives these elements higher-specificity defaults in the editor preview. */
+.markdown-body .luogu-callout {
+  margin: 1.5rem 4px;
+}
+
+.markdown-body .luogu-callout > summary {
+  display: flex;
+  list-style: none;
+}
+
+.luogu-callout > summary::-webkit-details-marker {
+  display: none;
+}
+
+.luogu-callout > summary::marker {
+  content: "";
+}
+
+.luogu-callout > summary::before {
+  align-items: center;
+  background: var(--luogu-markdown-callout-color, #d9d9d9);
+  border-radius: 50%;
+  color: #ffffff;
+  content: var(--luogu-markdown-callout-icon, "!");
+  display: inline-flex;
+  flex: 0 0 24px;
+  font-family: Arial, "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  height: 24px;
+  justify-content: center;
+  line-height: 1;
+  margin-right: 12px;
+  text-align: center;
+  width: 24px;
+}
+
+.luogu-callout-body {
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.luogu-callout-body-with-table {
+  margin-top: 1rem;
+}
+
+.luogu-callout-body > :first-child {
+  margin-top: 0;
+}
+
+.luogu-callout-body > :last-child {
+  margin-bottom: 0;
+}
+
+.luogu-callout-body .luogu-table-scroll {
+  margin-left: 1rem;
+  max-width: 100%;
+  width: max-content;
+}
+
+.luogu-callout-body .luogu-table-scroll > table.luogu-markdown-table {
+  min-width: 0;
+  width: auto;
+}
+
+.luogu-callout-body .luogu-table-scroll > table.luogu-markdown-table th,
+.luogu-callout-body .luogu-table-scroll > table.luogu-markdown-table td {
+  padding: 0.375em 0.75em;
+}
+
+.luogu-callout-info {
+  --luogu-markdown-callout-border: #3498db;
+  --luogu-markdown-callout-color: #3498db;
+  --luogu-markdown-callout-icon: "i";
+}
+
+.luogu-callout-success {
+  --luogu-markdown-callout-border: #52c41a;
+  --luogu-markdown-callout-color: #52c41a;
+  --luogu-markdown-callout-icon: "✓";
+}
+
+.luogu-callout-warning {
+  --luogu-markdown-callout-border: #ffc116;
+  --luogu-markdown-callout-color: #ffc116;
+  --luogu-markdown-callout-icon: "!";
+}
+
+.luogu-callout-error {
+  --luogu-markdown-callout-border: #e74c3c;
+  --luogu-markdown-callout-color: #e74c3c;
+  --luogu-markdown-callout-icon: "×";
+}
+
+.luogu-align-left {
+  text-align: left;
+}
+
+.luogu-align-center {
+  text-align: center;
+}
+
+.luogu-align-right {
+  text-align: right;
+}
+
+.luogu-epigraph {
+  border: 0;
+  margin: 1rem 0 1rem 60%;
+  padding: 0;
+  text-align: left;
+  width: 40%;
+}
+
+.markdown-body blockquote.luogu-epigraph,
+.luogu-markdown-body blockquote.luogu-epigraph {
+  border: 0;
+  margin: 1rem 0 1rem 60%;
+  padding: 0;
+  width: 40%;
+}
+
+.luogu-epigraph-body {
+  text-align: left;
+}
+
+.luogu-epigraph-body > :last-child {
+  margin-bottom: 0;
+}
+
+.luogu-epigraph cite {
+  border-top: 1px solid var(--luogu-markdown-table-border, #888);
+  display: block;
+  font-style: normal;
+  margin-top: 0;
+  text-align: right;
+}
+
+.luogu-table-scroll {
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table.luogu-markdown-table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0;
+  min-width: 100%;
+  width: max-content;
+}
+
+table.luogu-markdown-table th,
+table.luogu-markdown-table td {
+  border: 1px solid var(--luogu-markdown-table-border, #d9d9d9);
+  padding: 0.45rem 0.65rem;
+  vertical-align: top;
+}
+
+table.luogu-markdown-table thead th {
+  background: var(--luogu-markdown-table-header, #f5f5f5);
+  font-weight: 600;
+}
+
+.luogu-table-scroll.luogu-cute-table {
+  margin: 0.5em 0;
+  overflow-x: auto;
+}
+
+/*
+ * Cute Table's variant is a semantic class on the table itself. The wrapper
+ * is only a responsive overflow layer, and may be removed by a host theme or
+ * by content normalization when an article is rendered.
+ */
+table.luogu-markdown-table.luogu-cute-table-three,
+table.luogu-markdown-table.luogu-cute-table-tuack {
+  display: table;
+  margin: 0.5em auto;
+  min-width: 0;
+  width: auto;
+}
+
+table.luogu-markdown-table.luogu-cute-table-three tr,
+table.luogu-markdown-table.luogu-cute-table-three th,
+table.luogu-markdown-table.luogu-cute-table-three td,
+table.luogu-markdown-table.luogu-cute-table-tuack tr,
+table.luogu-markdown-table.luogu-cute-table-tuack th,
+table.luogu-markdown-table.luogu-cute-table-tuack td {
+  background-color: transparent;
+  border: 0;
+}
+
+table.luogu-markdown-table.luogu-cute-table-three th,
+table.luogu-markdown-table.luogu-cute-table-tuack th {
+  font-weight: 400;
+}
+
+table.luogu-markdown-table.luogu-cute-table-three,
+table.luogu-markdown-table.luogu-cute-table-tuack {
+  border-bottom: 5px solid var(--luogu-cute-table-rule, currentColor);
+  border-top: 5px solid var(--luogu-cute-table-rule, currentColor);
+}
+
+table.luogu-markdown-table.luogu-cute-table-three > thead,
+table.luogu-markdown-table.luogu-cute-table-tuack > thead {
+  border-bottom: 3px solid var(--luogu-cute-table-rule, currentColor);
+}
+
+table.luogu-markdown-table.luogu-cute-table-tuack
+  > colgroup
+  > col:not(:first-child) {
+  border-left: 1px solid var(--luogu-cute-table-rule, currentColor);
+}
+
+table.luogu-markdown-table.luogu-cute-table-tuack
+  > colgroup
+  > col.luogu-tuack-break {
+  border-left-width: 3px;
+}
+
+table.luogu-markdown-table.luogu-cute-table-tuack
+  > tbody
+  > tr:not(:last-child) {
+  border-bottom: 1px solid var(--luogu-cute-table-rule, currentColor);
+}
+
+.luogu-code-block {
+  background: var(--luogu-markdown-code-background, #f6f8fa);
+  border: 1px solid var(--luogu-markdown-code-border, #d9d9d9);
+  border-radius: 3px;
+  box-sizing: border-box;
+  color: var(--luogu-markdown-code-foreground, #24292f);
+  display: block;
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.7rem 0;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.luogu-code-block > code {
+  display: block;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.9em;
+  line-height: 1.55;
+  white-space: inherit;
+}
+
+.luogu-code-line {
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr);
+  min-height: 1.55em;
+  padding: 0 0.8rem 0 0;
+  white-space: inherit;
+}
+
+// Article themes commonly reset every span under a code element to inline.
+// Code lines are structural rows, so keep this layout rule authoritative.
+.luogu-code-block > code > .luogu-code-line {
+  display: grid !important;
+}
+
+.luogu-code-line.is-highlighted {
+  background: var(--luogu-markdown-code-highlight, rgb(255 224 138 / 28%));
+}
+
+.luogu-code-line-number {
+  color: var(--luogu-markdown-code-line-number, #8b949e);
+  padding-right: 0.8rem;
+  text-align: right;
+  user-select: none;
+}
+
+.luogu-code-line-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: inherit;
+}
+
+.luogu-code-fallback {
+  background: var(--luogu-markdown-code-background, #f6f8fa);
+  border: 1px solid var(--luogu-markdown-code-border, #d9d9d9);
+  border-radius: 3px;
+  box-sizing: border-box;
+  color: var(--luogu-markdown-code-foreground, #24292f);
+  display: block;
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.9em 1em;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.luogu-code-fallback > code {
+  background: transparent;
+  color: inherit;
+  display: block;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.9em;
+  line-height: 1.55;
+  padding: 0;
+  white-space: inherit;
+}
+
+.luogu-code-line-content .token.comment,
+.luogu-code-line-content .token.prolog,
+.luogu-code-line-content .token.doctype,
+.luogu-code-line-content .token.cdata,
+.luogu-code-fallback .token.comment,
+.luogu-code-fallback .token.prolog,
+.luogu-code-fallback .token.doctype,
+.luogu-code-fallback .token.cdata {
+  color: var(--luogu-markdown-token-comment, #6a9955);
+}
+
+.luogu-code-line-content .token.punctuation,
+.luogu-code-line-content .token.operator,
+.luogu-code-fallback .token.punctuation,
+.luogu-code-fallback .token.operator {
+  color: var(--luogu-markdown-token-operator, #586069);
+}
+
+.luogu-code-line-content .token.keyword,
+.luogu-code-line-content .token.atrule,
+.luogu-code-line-content .token.selector,
+.luogu-code-fallback .token.keyword,
+.luogu-code-fallback .token.atrule,
+.luogu-code-fallback .token.selector {
+  color: var(--luogu-markdown-token-keyword, #005cc5);
+}
+
+.luogu-code-line-content .token.string,
+.luogu-code-line-content .token.char,
+.luogu-code-line-content .token.attr-value,
+.luogu-code-line-content .token.regex,
+.luogu-code-fallback .token.string,
+.luogu-code-fallback .token.char,
+.luogu-code-fallback .token.attr-value,
+.luogu-code-fallback .token.regex {
+  color: var(--luogu-markdown-token-string, #032f62);
+}
+
+.luogu-code-line-content .token.function,
+.luogu-code-line-content .token.class-name,
+.luogu-code-fallback .token.function,
+.luogu-code-fallback .token.class-name {
+  color: var(--luogu-markdown-token-function, #6f42c1);
+}
+
+.luogu-code-line-content .token.number,
+.luogu-code-line-content .token.boolean,
+.luogu-code-line-content .token.constant,
+.luogu-code-fallback .token.number,
+.luogu-code-fallback .token.boolean,
+.luogu-code-fallback .token.constant {
+  color: var(--luogu-markdown-token-number, #005cc5);
+}
+
+.luogu-directive-fallback {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto .luogu-markdown-body,
+  [data-color-scheme="auto"] .luogu-markdown-body,
+  .color-scheme-auto .luogu-markdown-table,
+  [data-color-scheme="auto"] .luogu-markdown-table,
+  .color-scheme-dark .luogu-markdown-table,
+  [data-color-scheme="dark"] .luogu-markdown-table,
+  .color-scheme-auto .luogu-code-fallback,
+  [data-color-scheme="auto"] .luogu-code-fallback {
+    --luogu-markdown-table-border: #3c3c3c;
+    --luogu-markdown-table-header: #252526;
+    --luogu-markdown-code-background: #1e1e1e;
+    --luogu-markdown-code-border: #3c3c3c;
+    --luogu-markdown-code-foreground: #d4d4d4;
+    --luogu-markdown-code-line-number: #858585;
+    --luogu-markdown-token-comment: #6a9955;
+    --luogu-markdown-token-operator: #d4d4d4;
+    --luogu-markdown-token-keyword: #569cd6;
+    --luogu-markdown-token-string: #ce9178;
+    --luogu-markdown-token-function: #dcdcaa;
+    --luogu-markdown-token-number: #b5cea8;
+    --luogu-markdown-inline-code-background: #2b2d30;
+    --luogu-markdown-kbd-background: #252526;
+    --luogu-markdown-kbd-border: #3c3c3c;
+    --luogu-markdown-quote-border: #3c3c3c;
+    --luogu-markdown-link: #4daafc;
+    --luogu-markdown-link-hover: #79c0ff;
+  }
+
+  .color-scheme-auto .bytemd-mermaid,
+  [data-color-scheme="auto"] .bytemd-mermaid {
+    @include mermaid-dark-theme;
+  }
+}
+
+.color-scheme-dark .luogu-markdown-body,
+.dark .luogu-markdown-body,
+[data-color-scheme="dark"] .luogu-markdown-body,
+.color-scheme-dark .luogu-code-block,
+.dark .luogu-code-block,
+.color-scheme-dark .luogu-code-fallback,
+.dark .luogu-code-fallback,
+[data-color-scheme="dark"] .luogu-code-block,
+[data-color-scheme="dark"] .luogu-code-fallback {
+  --luogu-markdown-code-background: #1e1e1e;
+  --luogu-markdown-code-border: #3c3c3c;
+  --luogu-markdown-code-foreground: #d4d4d4;
+  --luogu-markdown-code-line-number: #858585;
+  --luogu-markdown-token-comment: #6a9955;
+  --luogu-markdown-token-operator: #d4d4d4;
+  --luogu-markdown-token-keyword: #569cd6;
+  --luogu-markdown-token-string: #ce9178;
+  --luogu-markdown-token-function: #dcdcaa;
+  --luogu-markdown-token-number: #b5cea8;
+  --luogu-markdown-inline-code-background: #2b2d30;
+  --luogu-markdown-kbd-background: #252526;
+  --luogu-markdown-kbd-border: #3c3c3c;
+  --luogu-markdown-quote-border: #3c3c3c;
+  --luogu-markdown-link: #4daafc;
+  --luogu-markdown-link-hover: #79c0ff;
+}
+
+.color-scheme-dark .bytemd-mermaid,
+.dark .bytemd-mermaid,
+[data-color-scheme="dark"] .bytemd-mermaid {
+  @include mermaid-dark-theme;
+}

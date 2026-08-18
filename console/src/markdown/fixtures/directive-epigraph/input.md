@@ -1,0 +1,3 @@
+:::epigraph[-- author]
+Quote body.
+:::

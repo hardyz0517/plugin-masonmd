@@ -1,0 +1,8 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm"],
+  "diagnostics": [],
+  "htmlSnapshot": {
+    "contains": ["<h1", "<strong>bold</strong>", "<em>italic</em>", "href=\"https://example.com\"", "<ul>"]
+  }
+}

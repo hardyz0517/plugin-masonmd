@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["<p>line one\nline two</p>"], "notContains": ["<br"]}
+}

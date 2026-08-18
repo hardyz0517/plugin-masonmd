@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm", "directive"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["luogu-epigraph", "<cite>-- author</cite>", "Quote body."]}
+}

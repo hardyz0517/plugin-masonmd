@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["aria-describedby=\"footnote-label\"", "data-footnote-backref", "Footnote body."]}
+}

@@ -6,7 +6,8 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@halo-dev/api-client": ["./node_modules/@halo-dev/api-client/dist/index.d.ts"]
     }
   }
 }

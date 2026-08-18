@@ -1,26 +1,12 @@
 <script setup lang="ts">
 import { Editor } from "@bytemd/vue-next";
-import gfm from "@bytemd/plugin-gfm";
-import gfmLocale from "@bytemd/plugin-gfm/locales/zh_Hans.json";
 import {
   markdownTable,
   luoguToolbarIcons,
-  mermaidPlugin,
-  pluginSlug,
-  renderMermaidInHtml,
-  vim,
 } from "../plugins";
 import type { LuoguToolbarIcon } from "../plugins";
-import {
-  getProcessor,
-  type BytemdEditorContext,
-  type BytemdPlugin,
-} from "bytemd";
+import type { BytemdEditorContext, BytemdPlugin } from "bytemd";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import math from "@bytemd/plugin-math";
-import mathLocale from "@bytemd/plugin-math/locales/zh_Hans.json";
-import breaks from "@bytemd/plugin-breaks";
-import useActiveLine from "codemirror-ssr/addon/selection/active-line.js";
 import type { AttachmentLike } from "@halo-dev/ui-shared";
 import {
   axiosInstance,
@@ -31,7 +17,36 @@ import type { AxiosResponse } from "axios";
 import bytemdLocale from "bytemd/locales/zh_Hans.json";
 import "bytemd/dist/index.css";
 import "github-markdown-css/github-markdown-light.css";
+import "katex/dist/katex.min.css";
+import { contentAnnotations } from "../constants/content-annotations";
+import { createMarkdownRuntime } from "../markdown/pipeline";
+import { createMarkdownRenderCoordinator } from "../markdown/render-coordinator";
+import { codeLanguages } from "../markdown/language-registry";
+import {
+  createLuoguTableCells,
+  serializeLuoguTable,
+} from "../editor/table-source-model";
+import type { LuoguTableCell } from "../editor/table-source-model";
+import {
+  createEditorContextBridge,
+  markdownModeConfig,
+} from "../editor/editor-context";
+import {
+  createAttachmentToolbarPlugin,
+  createBytemdEditorPlugins,
+} from "../editor/bytemd-plugin-adapter";
+import {
+  clampTableSize as clampTableSizeCommand,
+  findTableCellOwner as findTableCellOwnerCommand,
+  getTableSelectionRect,
+  isTableCellSelected as isTableCellSelectedCommand,
+  mergeTableCells,
+  splitTableCell,
+} from "../editor/table-commands";
+import type { TablePoint, TableSelectionRect } from "../editor/table-commands";
 import "../styles/main.scss";
+
+defineOptions({ name: "ByteMdEditor" });
 
 type LuoguToolbarButton = {
   title: string;
@@ -40,24 +55,7 @@ type LuoguToolbarButton = {
   disabled?: boolean;
 };
 
-type TableCell = {
-  row: number;
-  column: number;
-  rowspan: number;
-  colspan: number;
-  content: string;
-  hidden: boolean;
-};
-
-type TablePoint = {
-  row: number;
-  column: number;
-};
-
-type CodeLanguage = {
-  label: string;
-  value: string;
-};
+type TableCell = LuoguTableCell;
 
 type AutosaveRecord = {
   id: string;
@@ -66,103 +64,40 @@ type AutosaveRecord = {
   raw: string;
 };
 
-const activeEditorContext = ref<BytemdEditorContext>();
-const activeLineCodeMirrors = new WeakSet<object>();
-const isEditorFullscreen = ref(false);
-
-const editorContextPlugin = (): BytemdPlugin => ({
-  editorEffect(ctx: BytemdEditorContext) {
-    if (!activeLineCodeMirrors.has(ctx.codemirror)) {
-      useActiveLine(ctx.codemirror);
-      activeLineCodeMirrors.add(ctx.codemirror);
-    }
-
-    ctx.editor.setOption("styleActiveLine", true);
-    activeEditorContext.value = ctx;
-
-    const syncFullscreenState = () => {
-      isEditorFullscreen.value = ctx.root.classList.contains(
-        "bytemd-fullscreen"
-      );
-    };
-    const fullscreenObserver = new MutationObserver(syncFullscreenState);
-
-    fullscreenObserver.observe(ctx.root, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    syncFullscreenState();
-
-    return () => {
-      fullscreenObserver.disconnect();
-
-      if (activeEditorContext.value === ctx) {
-        activeEditorContext.value = undefined;
-        isEditorFullscreen.value = false;
-      }
-    };
-  },
+const markdownRuntime = createMarkdownRuntime("luogu-v1");
+const editorContextBridge = createEditorContextBridge({
+  insertTable: () => insertTable(),
+  insertLink: () => insertLink(),
+  insertImage: () => insertImages(),
 });
+const { activeEditorContext, isEditorFullscreen } = editorContextBridge;
+const createPlugins = (useVimKeymap = false): BytemdPlugin[] =>
+  createBytemdEditorPlugins({
+    runtime: markdownRuntime,
+    contextPlugin: editorContextBridge.plugin,
+    attachmentPlugin: createAttachmentToolbarPlugin((context) => {
+      activeEditorContext.value = context;
+      attachmentSelectorModal.value = true;
+    }),
+    tablePlugin: markdownTable(),
+    useVimKeymap,
+  });
 
-const basePlugins: BytemdPlugin[] = [
-  editorContextPlugin(),
-  gfm({
-    locale: gfmLocale,
-  }),
-  pluginSlug(),
-  mermaidPlugin(),
-  math({
-    locale: mathLocale,
-  }),
-  breaks(),
-  {
-    actions: [
-      {
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 48 48"><g fill="none"><path fill="currentColor" d="M44 24a2 2 0 1 0-4 0h4ZM24 8a2 2 0 1 0 0-4v4Zm15 32H9v4h30v-4ZM8 39V9H4v30h4Zm32-15v15h4V24h-4ZM9 8h15V4H9v4Zm0 32a1 1 0 0 1-1-1H4a5 5 0 0 0 5 5v-4Zm30 4a5 5 0 0 0 5-5h-4a1 1 0 0 1-1 1v4ZM8 9a1 1 0 0 1 1-1V4a5 5 0 0 0-5 5h4Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="m6 35l10.693-9.802a2 2 0 0 1 2.653-.044L32 36m-4-5l4.773-4.773a2 2 0 0 1 2.615-.186L42 31M30 12h12m-6-6v12"/></g></svg>',
-        title: "附件",
-        handler: {
-          type: "action",
-          click: (context: BytemdEditorContext): void => {
-            activeEditorContext.value = context;
-            attachmentSelectorModal.value = true;
-          },
-        },
-      },
-    ],
-  },
-];
-
-const createPlugins = (useVimKeymap = false): BytemdPlugin[] => {
-  return [...basePlugins, useVimKeymap ? vim() : markdownTable()];
-};
+const renderCoordinator = createMarkdownRenderCoordinator("luogu-v1");
 
 const editorConfig = {
   fixedGutter: false,
+  lineWrapping: true,
   lineNumbers: true,
-  mode: {
-    name: "yaml-frontmatter",
-    base: {
-      name: "gfm",
-      gitHubSpice: false,
-    },
-  },
+  mode: markdownModeConfig,
 };
 
-const DEFAULT_TABLE_ROWS = 5;
-const DEFAULT_TABLE_COLUMNS = 2;
+const DEFAULT_TABLE_ROWS = 1;
+const DEFAULT_TABLE_COLUMNS = 1;
 const MAX_TABLE_SIZE = 100;
 
 const createTableCells = (rows: number, columns: number): TableCell[][] =>
-  Array.from({ length: rows }, (_, row) =>
-    Array.from({ length: columns }, (_, column) => ({
-      row,
-      column,
-      rowspan: 1,
-      colspan: 1,
-      content: "",
-      hidden: false,
-    }))
-  );
+  createLuoguTableCells(rows, columns);
 
 const plugins = ref<BytemdPlugin[]>(createPlugins());
 let contentRenderVersion = 0;
@@ -189,9 +124,7 @@ const emit = defineEmits<{
 }>();
 
 const editorValue = ref(props.raw);
-const characterCount = computed(
-  () => Array.from(editorValue.value.replace(/\s/g, "")).length
-);
+const characterCount = computed(() => Array.from(editorValue.value).length);
 const lineCount = computed(() => editorValue.value.split("\n").length);
 const lastSavedAt = ref<Date>();
 const AUTOSAVE_HISTORY_STORAGE_KEY = "plugin-bytemd:autosave-history:v1";
@@ -224,9 +157,9 @@ const selectedAutosaveRecord = computed(() =>
 );
 
 const draftContentPath =
-  /^\/apis\/api\.console\.halo\.run\/v1alpha1\/(?:posts|singlepages)\/?$/;
+  /^\/apis\/(?:api\.console\.halo\.run\/v1alpha1\/(?:posts|singlepages)|uc\.api\.content\.halo\.run\/v1alpha1\/posts)\/?$/;
 const contentUpdatePath =
-  /^\/apis\/api\.console\.halo\.run\/v1alpha1\/(?:posts|singlepages)\/[^/]+\/content\/?$/;
+  /^\/apis\/(?:api\.console\.halo\.run\/v1alpha1\/(?:posts|singlepages)\/[^/]+\/content|uc\.api\.content\.halo\.run\/v1alpha1\/posts\/[^/]+\/draft)\/?$/;
 
 const getRequestPath = (url: string) => {
   try {
@@ -266,16 +199,48 @@ const parseRequestData = (data: unknown) => {
   }
 };
 
+const getRawFromRequestPart = (value: unknown): string | undefined => {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  if (typeof value.raw === "string") {
+    return value.raw;
+  }
+
+  if (isRecord(value.content) && typeof value.content.raw === "string") {
+    return value.content.raw;
+  }
+
+  if (!isRecord(value.metadata) || !isRecord(value.metadata.annotations)) {
+    return undefined;
+  }
+
+  const contentJson = value.metadata.annotations[contentAnnotations.CONTENT_JSON];
+  if (typeof contentJson !== "string") {
+    return undefined;
+  }
+
+  try {
+    const content = JSON.parse(contentJson) as unknown;
+    return isRecord(content) && typeof content.raw === "string"
+      ? content.raw
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const getResponseRaw = (response: AxiosResponse) => {
   const requestData = parseRequestData(response.config.data);
+  const requestParts = isRecord(requestData)
+    ? [requestData, requestData.post, requestData.snapshot]
+    : [requestData];
 
-  if (isRecord(requestData)) {
-    if (typeof requestData.raw === "string") {
-      return requestData.raw;
-    }
-
-    if (isRecord(requestData.content) && typeof requestData.content.raw === "string") {
-      return requestData.content.raw;
+  for (const requestPart of requestParts) {
+    const raw = getRawFromRequestPart(requestPart);
+    if (raw !== undefined) {
+      return raw;
     }
   }
 
@@ -540,6 +505,7 @@ const imageDialogOpen = ref(false);
 const imageUrl = ref("");
 const imageAlt = ref("");
 const imageUploading = ref(false);
+const imageUploadError = ref("");
 
 const insertLink = () => {
   const ctx = getEditorContext();
@@ -571,11 +537,13 @@ const insertImages = () => {
   const ctx = getEditorContext();
   imageUrl.value = "";
   imageAlt.value = ctx?.editor.getSelection() || "";
+  imageUploadError.value = "";
   imageDialogOpen.value = true;
 };
 
 const closeImageDialog = () => {
   imageDialogOpen.value = false;
+  imageUploadError.value = "";
   focusEditor();
 };
 
@@ -595,12 +563,18 @@ const uploadImageForDialog = async () => {
   }
 
   imageUploading.value = true;
+  imageUploadError.value = "";
   try {
     const [image] = await handleUploadImages([fileList[0]]);
     imageUrl.value = image.url;
     if (!imageAlt.value.trim()) {
       imageAlt.value = image.alt;
     }
+  } catch (error: unknown) {
+    imageUploadError.value =
+      error instanceof Error && error.message
+        ? error.message
+        : "图片上传失败，请重试";
   } finally {
     imageUploading.value = false;
   }
@@ -626,16 +600,6 @@ const insertCode = () => {
   codeLanguage.value = "cpp";
   codeDialogOpen.value = true;
 };
-
-const codeLanguages: CodeLanguage[] = [
-  { label: "C++", value: "cpp" },
-  { label: "Python", value: "python" },
-  { label: "C", value: "c" },
-  { label: "Java", value: "java" },
-  { label: "Javascript", value: "javascript" },
-  { label: "Markdown", value: "markdown" },
-  { label: "LaTeX", value: "latex" },
-];
 
 const codeDialogOpen = ref(false);
 const codeLanguage = ref("cpp");
@@ -684,7 +648,7 @@ const tableSelectionEnd = ref<TablePoint>({ row: 0, column: 0 });
 const tableSelectionDragging = ref(false);
 
 const clampTableSize = (value: number) =>
-  Math.min(Math.max(Number.isFinite(value) ? value : 1, 1), MAX_TABLE_SIZE);
+  clampTableSizeCommand(value, MAX_TABLE_SIZE);
 
 const resetTableCells = (rows: number, columns: number) => {
   tableCells.value = createTableCells(rows, columns);
@@ -714,50 +678,14 @@ const syncTableSize = () => {
   resetTableCells(rows, columns);
 };
 
-const getSelectionRect = () => {
-  const start = tableSelectionStart.value;
-  const end = tableSelectionEnd.value;
+const getSelectionRect = (): TableSelectionRect =>
+  getTableSelectionRect(tableSelectionStart.value, tableSelectionEnd.value);
 
-  return {
-    minRow: Math.min(start.row, end.row),
-    maxRow: Math.max(start.row, end.row),
-    minColumn: Math.min(start.column, end.column),
-    maxColumn: Math.max(start.column, end.column),
-  };
-};
+const isTableCellSelected = (cell: TableCell) =>
+  isTableCellSelectedCommand(cell, getSelectionRect());
 
-const isTableCellSelected = (cell: TableCell) => {
-  const rect = getSelectionRect();
-  const cellMinRow = cell.row;
-  const cellMaxRow = cell.row + cell.rowspan - 1;
-  const cellMinColumn = cell.column;
-  const cellMaxColumn = cell.column + cell.colspan - 1;
-
-  return (
-    cellMinRow <= rect.maxRow &&
-    cellMaxRow >= rect.minRow &&
-    cellMinColumn <= rect.maxColumn &&
-    cellMaxColumn >= rect.minColumn
-  );
-};
-
-const findTableCellOwner = (row: number, column: number) => {
-  for (const tableRow of tableCells.value) {
-    for (const cell of tableRow) {
-      if (cell.hidden) {
-        continue;
-      }
-
-      const ownsRow = row >= cell.row && row < cell.row + cell.rowspan;
-      const ownsColumn =
-        column >= cell.column && column < cell.column + cell.colspan;
-
-      if (ownsRow && ownsColumn) {
-        return cell;
-      }
-    }
-  }
-};
+const findTableCellOwner = (row: number, column: number) =>
+  findTableCellOwnerCommand(tableCells.value, row, column);
 
 const getActiveTableCell = () => {
   const { row, column } = tableSelectionStart.value;
@@ -801,49 +729,8 @@ const finishTableSelection = () => {
 
 const mergeSelectedTableCells = () => {
   const rect = getSelectionRect();
-  const owners = new Map<string, TableCell>();
-
-  for (let row = rect.minRow; row <= rect.maxRow; row++) {
-    for (let column = rect.minColumn; column <= rect.maxColumn; column++) {
-      const owner = findTableCellOwner(row, column);
-      if (!owner) {
-        return;
-      }
-
-      const ownerOutsideSelection =
-        owner.row < rect.minRow ||
-        owner.column < rect.minColumn ||
-        owner.row + owner.rowspan - 1 > rect.maxRow ||
-        owner.column + owner.colspan - 1 > rect.maxColumn;
-
-      if (ownerOutsideSelection) {
-        return;
-      }
-
-      owners.set(`${owner.row}-${owner.column}`, owner);
-    }
-  }
-
-  const mergedContent = Array.from(owners.values())
-    .map((cell) => cell.content.trim())
-    .filter(Boolean)
-    .join("\n");
+  if (!mergeTableCells(tableCells.value, rect)) return;
   const targetCell = tableCells.value[rect.minRow][rect.minColumn];
-
-  for (let row = rect.minRow; row <= rect.maxRow; row++) {
-    for (let column = rect.minColumn; column <= rect.maxColumn; column++) {
-      const cell = tableCells.value[row][column];
-      cell.rowspan = 1;
-      cell.colspan = 1;
-      cell.content = "";
-      cell.hidden = true;
-    }
-  }
-
-  targetCell.rowspan = rect.maxRow - rect.minRow + 1;
-  targetCell.colspan = rect.maxColumn - rect.minColumn + 1;
-  targetCell.content = mergedContent;
-  targetCell.hidden = false;
   tableSelectionStart.value = { row: targetCell.row, column: targetCell.column };
   tableSelectionEnd.value = {
     row: targetCell.row + targetCell.rowspan - 1,
@@ -857,66 +744,10 @@ const splitActiveTableCell = () => {
     return;
   }
 
-  const { row, column, rowspan, colspan } = cell;
-  const content = cell.content;
-
-  for (let currentRow = row; currentRow < row + rowspan; currentRow++) {
-    for (
-      let currentColumn = column;
-      currentColumn < column + colspan;
-      currentColumn++
-    ) {
-      const currentCell = tableCells.value[currentRow][currentColumn];
-      currentCell.rowspan = 1;
-      currentCell.colspan = 1;
-      currentCell.hidden = false;
-      currentCell.content = "";
-    }
-  }
-
-  tableCells.value[row][column].content = content;
+  const { row, column } = cell;
+  splitTableCell(tableCells.value, cell);
   tableSelectionStart.value = { row, column };
   tableSelectionEnd.value = { row, column };
-};
-
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-
-const renderTableCellContent = (content: string) => {
-  const escaped = escapeHtml(content.trim());
-  return escaped ? escaped.replace(/\n/g, "<br>") : "&nbsp;";
-};
-
-const buildTableHtml = () => {
-  const lines = ["<table>", "  <tbody>"];
-
-  tableCells.value.forEach((row) => {
-    lines.push("    <tr>");
-    row.forEach((cell) => {
-      if (cell.hidden) {
-        return;
-      }
-
-      const attrs = [
-        cell.rowspan > 1 ? `rowspan="${cell.rowspan}"` : "",
-        cell.colspan > 1 ? `colspan="${cell.colspan}"` : "",
-      ]
-        .filter(Boolean)
-        .join(" ");
-      const attrText = attrs ? ` ${attrs}` : "";
-      lines.push(
-        `      <td${attrText}>${renderTableCellContent(cell.content)}</td>`
-      );
-    });
-    lines.push("    </tr>");
-  });
-
-  lines.push("  </tbody>", "</table>");
-  return lines.join("\n");
 };
 
 const confirmTableDialog = () => {
@@ -926,7 +757,7 @@ const confirmTableDialog = () => {
     return;
   }
 
-  ctx.appendBlock(buildTableHtml());
+  ctx.appendBlock(serializeLuoguTable(tableCells.value));
   tableDialogOpen.value = false;
   focusEditor();
 };
@@ -1105,13 +936,16 @@ onMounted(async () => {
       }
     );
 
-    const configMapData = data as Record<string, any>;
+    const configMapData = data as Record<string, unknown>;
+    const basicConfig = isRecord(configMapData.basic)
+      ? configMapData.basic
+      : undefined;
 
-    if (configMapData?.basic?.keymap === VIM_KEYMAP_NAME) {
+    if (basicConfig?.keymap === VIM_KEYMAP_NAME) {
       plugins.value = createPlugins(true);
     }
-  } catch (e) {
-    // ignore this
+  } catch {
+    // Plugin configuration is optional; keep the default Markdown keymap.
   }
 });
 
@@ -1126,13 +960,10 @@ watch(
   async (value) => {
     editorValue.value = value;
     const version = ++contentRenderVersion;
-    const processor = getProcessor({ plugins: plugins.value }).processSync(
-      value
-    );
-    const content = await renderMermaidInHtml(processor.toString());
+    const result = await renderCoordinator.render(value, "editor-preview");
 
     if (version === contentRenderVersion) {
-      emit("update:content", content);
+      emit("update:content", result.renderedHtml);
     }
   },
   {
@@ -1152,7 +983,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
       activeEditorContext.value?.appendBlock(`![](${attachment})`);
     } else if ("url" in attachment) {
       activeEditorContext.value?.appendBlock(
-        `![${attachment.type}](${attachment.url})`
+        `![${attachment.alt || attachment.mediaType || "attachment"}](${attachment.url})`
       );
     } else if ("spec" in attachment) {
       const { mediaType, displayName } = attachment.spec;
@@ -1238,8 +1069,11 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
       </div>
     </div>
     <Editor
+      class="bytemd-editor-host"
       :value="raw"
       :plugins="plugins"
+      :sanitize="markdownRuntime.sanitize"
+      :remark-rehype="markdownRuntime.remarkRehype"
       :locale="bytemdLocale"
       :editor-config="editorConfig"
       :upload-images="handleUploadImages"
@@ -1461,6 +1295,9 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
             {{ imageUploading ? "上传中..." : "上传图片" }}
           </button>
         </div>
+        <p v-if="imageUploadError" class="cs-dialog-error" role="alert">
+          {{ imageUploadError }}
+        </p>
         <div class="cs-dialog-submit-area">
           <button
             type="submit"
@@ -1511,7 +1348,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
               <div class="cs-dialog-item-label">选择语言</div>
               <select
                 v-model="codeLanguage"
-                class="cs-dialog-item-content"
+                class="cs-dialog-item-content code-language-select"
               >
                 <option
                   v-for="language in codeLanguages"

@@ -16,6 +16,7 @@ dependencies {
 
     testImplementation 'run.halo.app:api'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
@@ -35,9 +36,16 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.register('processUiResources', Copy) {
     from project(':console').layout.buildDirectory.dir('dist')
+    from('src/main/resources/assets') {
+        into('published')
+    }
     into layout.buildDirectory.dir('resources/main/ui')
     dependsOn project(':console').tasks.named('assemble')
     shouldRunAfter tasks.named('processResources')
+    outputs.upToDateWhen { false }
+    doFirst {
+        delete(destinationDir)
+    }
 }
 
 tasks.named('classes') {

@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["<table", "<th align=\"left\"", "<th align=\"right\"", "<strong>A</strong>"]}
+}

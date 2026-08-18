@@ -1,0 +1,6 @@
+{
+  "profile": "luogu-v1",
+  "features": ["gfm"],
+  "diagnostics": [],
+  "htmlSnapshot": {"contains": ["href=\"https://example.com\"", "mailto:test@example.com"]}
+}
