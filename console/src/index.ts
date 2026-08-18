@@ -3,6 +3,21 @@ import { defineAsyncComponent } from "vue";
 import { VLoading } from "@halo-dev/components";
 
 export default definePlugin({
+  ucRoutes: [
+    {
+      path: "/hardy-post-editor",
+      name: "HardyPostEditor",
+      component: defineAsyncComponent({
+        loader: () => import("./components/uc-post-editor.vue"),
+        loadingComponent: VLoading,
+      }),
+      meta: {
+        title: "新建文章",
+        permissions: ["uc:posts:manage"],
+        hideFooter: true,
+      },
+    },
+  ],
   extensionPoints: {
     "editor:create": () => {
       return [
