@@ -14,7 +14,7 @@ import run.halo.app.theme.dialect.TemplateHeadProcessor;
 @Component
 public class BytemdHeadProcessor implements TemplateHeadProcessor {
 
-    private static final String PLUGIN_VERSION = "1.10.70";
+    private static final String PLUGIN_VERSION = "1.10.72";
 
     @Override
     public Mono<Void> process(ITemplateContext context, IModel model,
