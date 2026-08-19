@@ -79,6 +79,137 @@ function errorMessage(error: unknown, fallback: string) {
   ) || fallback;
 }
 
+const LUOGU_DIRECTIVE_NAMES = new Set([
+  "info",
+  "success",
+  "warning",
+  "error",
+  "align",
+  "epigraph",
+  "cute-table",
+]);
+
+const DIRECTIVE_START = /^ {0,3}:{2,}\s*([A-Za-z][\w-]*)/;
+const FENCE_START = /^ {0,3}(`{3,}|~{3,})/;
+const FENCED_CODE_START = /^\s*(?:`{3,}|~{3,})/m;
+const DIRECT_CODE_BLOCK = /<pre\b[^>]*>\s*<code\b/i;
+const UNSAFE_PUBLISHED_MARKUP =
+  /<\s*\/?\s*(?:script|iframe|object|embed|applet|base|form|meta|link)\b|<[^>]*\bon[a-z][\w:-]*\s*=|\b(?:href|src|action|formaction|xlink:href)\s*=\s*["']?\s*(?:javascript|vbscript|data|file):/i;
+// The compatibility resolver supports `^` and the leftward `<` marker.
+// Luogu's malformed forward `>` marker is deliberately rendered as text, so
+// it must not make an otherwise stable snapshot look perpetually migratable.
+const VERTICAL_MERGE_MARKER = /(?:^|\|)\s*\^\s*(?:\||$)/m;
+const HORIZONTAL_MERGE_MARKER = /(?:^|\|)\s*<\s*(?:\||$)/m;
+const ROWSPAN_MERGE = /\browspan=["'](?:[2-9]|[1-9]\d+)["']/i;
+const COLSPAN_MERGE = /\bcolspan=["'](?:[2-9]|[1-9]\d+)["']/i;
+
+function withoutFencedCode(raw: string): string {
+  let fenceCharacter = "";
+  let fenceLength = 0;
+  return raw
+    .split(/\r?\n/)
+    .map((line) => {
+      const fence = line.match(FENCE_START);
+      if (fenceCharacter) {
+        if (
+          fence &&
+          fence[1][0] === fenceCharacter &&
+          fence[1].length >= fenceLength
+        ) {
+          fenceCharacter = "";
+          fenceLength = 0;
+        }
+        return "";
+      }
+      if (fence) {
+        fenceCharacter = fence[1][0];
+        fenceLength = fence[1].length;
+        return "";
+      }
+      return line;
+    })
+    .join("\n");
+}
+
+function directiveNamesOutsideFences(raw: string): string[] {
+  return withoutFencedCode(raw)
+    .split(/\r?\n/)
+    .map((line) => line.match(DIRECTIVE_START)?.[1].toLowerCase())
+    .filter((name): name is string => Boolean(name));
+}
+
+function hasUnsupportedDirectiveOutput(source: Content): boolean {
+  const names = directiveNamesOutsideFences(source.raw);
+  if (!names.length) return false;
+
+  const hasFallback = source.content.includes("luogu-directive-fallback");
+  if (names.some((name) => !LUOGU_DIRECTIVE_NAMES.has(name)) && !hasFallback) {
+    return true;
+  }
+
+  const expectedClasses: Record<string, string> = {
+    info: "luogu-callout",
+    success: "luogu-callout",
+    warning: "luogu-callout",
+    error: "luogu-callout",
+    align: "luogu-align-container",
+    epigraph: "luogu-epigraph",
+    "cute-table": "luogu-cute-table",
+  };
+  return names.some(
+    (name) =>
+      LUOGU_DIRECTIVE_NAMES.has(name) &&
+      !source.content.includes(expectedClasses[name]) &&
+      !hasFallback,
+  );
+}
+
+function needsPublishedRenderRefresh(source: Content): boolean {
+  if (source.rawType !== "markdown" || !source.raw.trim()) return false;
+  const semanticRaw = withoutFencedCode(source.raw);
+
+  // Older snapshots do not carry the stable wrapper used by the published
+  // stylesheet. Re-render them on the next save instead of leaving them tied
+  // to whichever theme happened to render the original Markdown.
+  if (!/\bclass=["'][^"']*\bluogu-markdown-body\b/.test(source.content)) {
+    return true;
+  }
+
+  // The first Luogu renderer emitted direct `pre > code` nodes. Halo's theme
+  // highlighter takes over those nodes, so migrate fenced blocks to the
+  // wrapped structure used by the current renderer.
+  if (
+    FENCED_CODE_START.test(source.raw) &&
+    DIRECT_CODE_BLOCK.test(source.content)
+  ) {
+    return true;
+  }
+
+  // A legacy snapshot can contain executable markup even though the current
+  // editor preview sanitizes it. Re-render once so the published snapshot is
+  // safe as well; escaped text does not match this expression.
+  if (UNSAFE_PUBLISHED_MARKUP.test(source.content)) return true;
+
+  if (hasUnsupportedDirectiveOutput(source)) return true;
+
+  if (
+    /^\s*:{2,}\s*epigraph(?:\[|\s|\{|$)/m.test(semanticRaw) &&
+    !source.content.includes("luogu-epigraph")
+  ) {
+    return true;
+  }
+
+  if (VERTICAL_MERGE_MARKER.test(semanticRaw) && !ROWSPAN_MERGE.test(source.content)) {
+    return true;
+  }
+
+  if (HORIZONTAL_MERGE_MARKER.test(semanticRaw) && !COLSPAN_MERGE.test(source.content)) {
+    return true;
+  }
+
+  return false;
+}
+
 export function useUcPostDraft(initialName = "") {
   const postName = ref(initialName);
   const loading = ref(true);
@@ -100,6 +231,10 @@ export function useUcPostDraft(initialName = "") {
   let savePromise: Promise<boolean> | undefined;
   let saveActionPromise: Promise<boolean> | undefined;
   let saveRequested = false;
+  let renderRefreshRequested = false;
+  // Updating a head snapshot does not update a published post's release
+  // snapshot. Keep this bit until the corresponding publish request succeeds.
+  let publicationRefreshRequested = false;
   const saveController = createPostSaveController<{
     postFingerprint: string;
     contentFingerprint: string;
@@ -167,9 +302,21 @@ export function useUcPostDraft(initialName = "") {
     const { data } = await ucApiClient.content.post.getMyPost({ name: postName.value });
     post.value = data;
 
+    // A draft save advances headSnapshot, while the public article keeps
+    // serving releaseSnapshot until the post is published again. Preserve
+    // that signal when reopening an already published post so a subsequent
+    // explicit save can promote the current head even when the raw source did
+    // not change during this editor session.
+    publicationRefreshRequested = Boolean(
+      data.spec?.publish &&
+        data.spec.headSnapshot &&
+        data.spec.headSnapshot !== data.spec.releaseSnapshot,
+    );
+
     if (!data.spec.headSnapshot) {
       snapshot.value = undefined;
       content.value = { content: "", raw: "", rawType: "markdown" };
+      renderRefreshRequested = false;
       rememberSavedState();
       return;
     }
@@ -182,6 +329,7 @@ export function useUcPostDraft(initialName = "") {
       raw: annotations[contentAnnotations.PATCHED_RAW] || "",
       rawType: draft.data.spec?.rawType || "markdown",
     };
+    renderRefreshRequested = needsPublishedRenderRefresh(content.value);
     rememberSavedState();
   }
 
@@ -248,7 +396,8 @@ export function useUcPostDraft(initialName = "") {
   function hasUnsavedChanges() {
     if (!isUpdate.value) return hasDraftInput();
 
-    return getPostFingerprint() !== savedPostFingerprint ||
+    return renderRefreshRequested ||
+      getPostFingerprint() !== savedPostFingerprint ||
       getContentFingerprint() !== savedContentFingerprint;
   }
 
@@ -319,7 +468,8 @@ export function useUcPostDraft(initialName = "") {
     const contentToSave = clone(content.value);
     const postChanged =
       !isUpdate.value || postFingerprintAtStart !== savedPostFingerprint;
-    const contentChanged = contentFingerprintAtStart !== savedContentFingerprint;
+    const contentChanged =
+      renderRefreshRequested || contentFingerprintAtStart !== savedContentFingerprint;
     error.value = "";
     saving.value = true;
     try {
@@ -390,6 +540,8 @@ export function useUcPostDraft(initialName = "") {
           });
           snapshot.value = saved.data;
           savedContentFingerprint = contentFingerprintAtStart;
+          renderRefreshRequested = false;
+          publicationRefreshRequested = true;
         }
       }
       if (!saveController.isCurrent(saveRequest)) return false;
@@ -404,6 +556,7 @@ export function useUcPostDraft(initialName = "") {
           await loadPost();
           post.value.spec = { ...post.value.spec, ...localSpec };
           content.value = localContent;
+          renderRefreshRequested = needsPublishedRenderRefresh(localContent);
           return await saveDraftNow(conflictRetries - 1);
         } catch {
           // Keep the original conflict error when refreshing the server state fails.
@@ -449,14 +602,18 @@ export function useUcPostDraft(initialName = "") {
     }, AUTOSAVE_DELAY_MS);
   }
 
-  async function syncPublicationState(conflictRetries = 2): Promise<boolean> {
+  async function syncPublicationState(
+    forcePublish = false,
+    conflictRetries = 2,
+  ): Promise<boolean> {
     if (!postName.value) return true;
 
     const visibilityAtStart = post.value.spec.visible;
     const shouldPublish = visibilityAtStart === "PUBLIC";
-    if (shouldPublish === isPublished.value) return true;
+    const needsPublish = shouldPublish && (!isPublished.value || forcePublish);
+    if (!needsPublish && shouldPublish === isPublished.value) return true;
 
-    if (shouldPublish && !canPublish.value) {
+    if (needsPublish && !canPublish.value) {
       error.value = "没有发布文章的权限";
       return false;
     }
@@ -490,6 +647,11 @@ export function useUcPostDraft(initialName = "") {
       }
 
       keepLocalPostChanges(verifiedPost);
+      if (shouldPublish) {
+        // A successful publish promotes the current head snapshot, including
+        // content saved by an autosave before the explicit publish action.
+        publicationRefreshRequested = false;
+      }
       successLink.value = shouldPublish ? verifiedPost.status?.permalink || "" : "";
       return true;
     } catch (requestError: unknown) {
@@ -500,7 +662,7 @@ export function useUcPostDraft(initialName = "") {
           await loadPost();
           post.value.spec = { ...post.value.spec, ...localSpec };
           content.value = localContent;
-          return await syncPublicationState(conflictRetries - 1);
+          return await syncPublicationState(forcePublish, conflictRetries - 1);
         } catch {
           // Keep the original conflict error when refreshing the server state fails.
         }
@@ -523,7 +685,7 @@ export function useUcPostDraft(initialName = "") {
         do {
           result = await saveDraft();
           if (!result) return false;
-          result = await syncPublicationState();
+          result = await syncPublicationState(publicationRefreshRequested);
         } while (result && (saveRequested || hasUnsavedChanges()));
         return result;
       })().finally(() => {
