@@ -11,6 +11,28 @@ export type LuoguCodeHNode = {
 
 type HNode = LuoguCodeHNode;
 
+// Keep the semantic <code> element, but place it behind one phrasing-content
+// wrapper. Halo's Shiki integration claims every `pre > code` block and moves
+// it into a shadow tree, where the plugin's line-row CSS cannot apply. The
+// wrapper leaves these already-highlighted blocks in the document while
+// preserving the language class and generated token markup.
+const codeContent = (
+  language: ReturnType<typeof resolveCodeLanguage>,
+  children: HNode[],
+): HNode => ({
+  type: "element",
+  tagName: "span",
+  properties: { className: ["luogu-code-content"] },
+  children: [
+    {
+      type: "element",
+      tagName: "code",
+      properties: { className: [`language-${language.language}`] },
+      children,
+    },
+  ],
+});
+
 const tokenNodes = (tokens: unknown[]): HNode[] => {
   const result: HNode[] = [];
   tokens.forEach((token) => {
@@ -97,14 +119,7 @@ const createFallbackCodeBlock = (
   properties: {
     className: [`language-${language.language}`, "luogu-code-fallback"],
   },
-  children: [
-    {
-      type: "element",
-      tagName: "code",
-      properties: { className: [`language-${language.language}`] },
-      children: codeChildren(code, language),
-    },
-  ],
+  children: [codeContent(language, codeChildren(code, language))],
 });
 
 const createPlainCodeBlock = (
@@ -117,14 +132,7 @@ const createPlainCodeBlock = (
     className: ["luogu-code-block", `language-${language.language}`],
     dataLanguage: language.language,
   },
-  children: [
-    {
-      type: "element",
-      tagName: "code",
-      properties: { className: [`language-${language.language}`] },
-      children: [{ type: "text", value: code }],
-    },
-  ],
+  children: [codeContent(language, [{ type: "text", value: code }])],
 });
 
 export function renderLuoguCodeBlock(
@@ -171,13 +179,6 @@ export function renderLuoguCodeBlock(
       className: ["luogu-code-block", `language-${language.language}`],
       dataLanguage: language.language,
     },
-    children: [
-      {
-        type: "element",
-        tagName: "code",
-        properties: { className: [`language-${language.language}`] },
-        children: lineNodes,
-      },
-    ],
+    children: [codeContent(language, lineNodes)],
   };
 }

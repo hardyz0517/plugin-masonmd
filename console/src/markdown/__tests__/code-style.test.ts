@@ -16,15 +16,21 @@ describe("code block style contract", () => {
     `;
     window.document.body.innerHTML = `
       <div class="markdown-body">
-        <pre class="luogu-code-block"><code>
+        <pre class="luogu-code-block"><span class="luogu-code-content"><code>
           <span class="luogu-code-line"><span class="luogu-code-line-content">one</span></span>
           <span class="luogu-code-line"><span class="luogu-code-line-content">two</span></span>
-        </code></pre>
+        </code></span></pre>
       </div>
     `;
 
     const lines = window.document.querySelectorAll(".luogu-code-line");
     expect(lines.length).toBe(2);
+    expect(window.document.querySelectorAll("pre > code").length).toBe(0);
+    expect(window.getComputedStyle(window.document.querySelector(".luogu-code-content")!).display).toBe("block");
+    const code = window.document.querySelector(".luogu-code-content > code")!;
+    expect(window.getComputedStyle(code).display).toBe("block");
+    expect(window.getComputedStyle(code).backgroundColor).toBe("transparent");
+    expect(window.getComputedStyle(code).padding).toBe("0px");
     lines.forEach((line) => {
       expect(window.getComputedStyle(line).display).toBe("grid");
     });

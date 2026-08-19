@@ -1,6 +1,9 @@
 import type { BytemdPlugin } from "bytemd";
 
-const MERMAID_SELECTOR = "pre > code.language-mermaid";
+// Code blocks are wrapped once so Halo's Shiki integration does not claim
+// already-rendered blocks via its `pre > code` selector. Keep Mermaid lookup
+// independent of that wrapper for both editor and saved HTML rendering.
+const MERMAID_SELECTOR = "pre code.language-mermaid";
 const MERMAID_THEME_FALLBACKS = {
   background: "#ffffff",
   primaryColor: "#f8f8f8",

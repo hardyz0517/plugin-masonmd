@@ -24,7 +24,7 @@ const render = (raw: string) =>
 describe("Luogu Markdown runtime", () => {
   it("wraps saved HTML in a theme-independent published-content container", async () => {
     const saved = await createMarkdownRenderCoordinator("luogu-v1").render(
-      "# Published title",
+      "# Published title\n\n[Published link](https://example.com) and `inline code`",
       "save-html",
     );
     const preview = await compileMarkdown({
@@ -36,6 +36,10 @@ describe("Luogu Markdown runtime", () => {
 
     expect(saved.canonicalHtml).not.toContain("luogu-markdown-body");
     expect(saved.renderedHtml).toContain('<div class="luogu-markdown-body">');
+    expect(saved.renderedHtml).toContain(
+      '<a href="https://example.com">Published link</a>',
+    );
+    expect(saved.renderedHtml).toContain("<code>inline code</code>");
     expect(preview.renderedHtml).not.toContain("luogu-markdown-body");
   });
 
@@ -160,6 +164,44 @@ describe("Luogu Markdown runtime", () => {
     expect(result.canonicalHtml).toContain("is-highlighted");
   });
 
+  it("keeps every generated code block outside Shiki's direct-child hook", async () => {
+    const raw = [
+      "```cpp",
+      "int main() {",
+      "  return 0;",
+      "}",
+      "```",
+      "",
+      "```not-a-language",
+      "plain fallback",
+      "```",
+      "",
+      "```mermaid",
+      "graph TD; A-->B;",
+      "```",
+    ].join("\n");
+    const result = await render(raw);
+    const saved = await createMarkdownRenderCoordinator("luogu-v1").render(
+      raw,
+      "save-html",
+    );
+
+    // Halo's Shiki integration selects only `pre > code`; the wrapper keeps
+    // the semantic code element and Prism line rows in the light DOM.
+    expect(result.canonicalHtml).not.toMatch(/<pre\b[^>]*>\s*<code\b/);
+    expect(saved.renderedHtml).not.toMatch(/<pre\b[^>]*>\s*<code\b/);
+    expect(result.canonicalHtml).toContain(
+      '<span class="luogu-code-content"><code class="language-cpp">',
+    );
+    expect(result.canonicalHtml).toContain(
+      '<span class="luogu-code-content"><code class="language-plaintext">plain fallback</code></span>',
+    );
+    expect(result.canonicalHtml).toContain(
+      '<span class="luogu-code-content"><code class="language-mermaid">graph TD; A-->B;</code></span>',
+    );
+    expect((result.canonicalHtml.match(/class="luogu-code-line"/g) || []).length).toBe(3);
+  });
+
   it("reports malformed line metadata without highlighting an invented line", async () => {
     const result = await render("```cpp lines=0,3-2\nint main() {}\n```");
 
@@ -208,10 +250,13 @@ describe("Luogu Markdown runtime", () => {
     expect(result.canonicalHtml).not.toContain("<a");
     expect(result.canonicalHtml).toContain('class="language-plaintext"');
     expect(result.canonicalHtml).toContain('class="language-cpp"');
-    expect(result.canonicalHtml).not.toContain("luogu-code-line-number");
-    expect(result.canonicalHtml).toContain("<p>不应被执行</p>");
-    expect(result.canonicalHtml).toContain("<p>原样内容</p>");
-    expect(result.canonicalHtml).not.toContain(":::");
+    expect(result.canonicalHtml).not.toContain("is-highlighted");
+    expect(result.canonicalHtml).toContain("luogu-directive-fallback");
+    expect(result.canonicalHtml).toContain("language-plaintext");
+    expect(result.canonicalHtml).toContain(":::unknown-directive[不应被执行]");
+    expect(result.canonicalHtml).toContain("原样内容");
+    expect(result.canonicalHtml).toContain(":::");
+    expect(result.canonicalHtml).not.toContain("<p>不应被执行</p>");
     expect(result.diagnostics.some((item) => item.message.includes("Unknown code language"))).toBe(true);
     expect(result.diagnostics.filter((item) => item.message.includes("Invalid code line range")).length).toBe(2);
     expect(result.diagnostics.some((item) => item.message.includes("Unsupported directive"))).toBe(true);

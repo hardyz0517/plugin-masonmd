@@ -552,17 +552,32 @@ table.luogu-markdown-table.luogu-cute-table-tuack > tbody > tr:not(:last-child) 
   max-width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0.7rem 0;
+  filter: none !important;
+  padding: 0.7rem 0 !important;
   white-space: pre-wrap;
   word-break: normal;
 }
 
-.luogu-code-block > code {
-  display: block;
+.luogu-code-content {
+  display: block !important;
+  min-width: 0;
+  white-space: inherit;
+}
+
+.luogu-code-block > code,
+.luogu-code-block .luogu-code-content > code {
+  display: block !important;
   font-family: Consolas, "Cascadia Code", "Courier New", monospace;
   font-size: 0.9em;
   line-height: 1.55;
   white-space: inherit;
+}
+
+.luogu-code-block .luogu-code-content > code {
+  background: transparent;
+  border-radius: 0;
+  color: inherit;
+  padding: 0;
 }
 
 .luogu-code-line {
@@ -573,7 +588,10 @@ table.luogu-markdown-table.luogu-cute-table-tuack > tbody > tr:not(:last-child) 
   white-space: inherit;
 }
 
-.luogu-code-block > code > .luogu-code-line {
+/* Article themes commonly reset every span under a code element to inline.
+ * Code lines are structural rows, so keep this layout rule authoritative. */
+.luogu-code-block > code > .luogu-code-line,
+.luogu-code-content > code > .luogu-code-line {
   display: grid !important;
 }
 
@@ -605,13 +623,16 @@ table.luogu-markdown-table.luogu-cute-table-tuack > tbody > tr:not(:last-child) 
   max-width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0.9em 1em;
+  filter: none !important;
+  padding: 0.9em 1em !important;
   white-space: pre-wrap;
   word-break: normal;
 }
 
-.luogu-code-fallback > code {
+.luogu-code-fallback > code,
+.luogu-code-fallback .luogu-code-content > code {
   background: transparent;
+  border-radius: 0;
   color: inherit;
   display: block;
   font-family: Consolas, "Cascadia Code", "Courier New", monospace;

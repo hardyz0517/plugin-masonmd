@@ -960,7 +960,10 @@ watch(
   async (value) => {
     editorValue.value = value;
     const version = ++contentRenderVersion;
-    const result = await renderCoordinator.render(value, "editor-preview");
+    // The host persists update:content as the article HTML. Render this
+    // value with the published target so it carries the same content wrapper
+    // and semantic markup as the standalone UC save path.
+    const result = await renderCoordinator.render(value, "save-html");
 
     if (version === contentRenderVersion) {
       emit("update:content", result.renderedHtml);

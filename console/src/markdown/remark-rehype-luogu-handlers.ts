@@ -79,38 +79,17 @@ const getDirectiveLabel = (node: DirectiveNode): string | undefined => {
     .join("");
 };
 
-const paragraph = (value: string): HNode => ({
-  type: "element",
-  tagName: "p",
-  properties: {},
-  children: [text(value)],
-});
-
-function sourceFallback(state: State, node: DirectiveNode): HNode {
-  const label = getDirectiveLabel(node);
-  const bodyNode = label
-    ? { ...node, children: (node.children || []).slice(1) }
-    : node;
-  const body = state.all(bodyNode);
-  const children = [
-    ...(label ? [paragraph(label)] : []),
-    ...body,
-  ];
-
-  // A malformed node can lose its children during parsing. Keep a readable
-  // literal in that case, while still emitting it through a text node.
-  if (!children.length) {
-    children.push(
-      paragraph(String(node.data?.luoguDirectiveSource || `::${node.name || "directive"}`)),
-    );
-  }
-
-  return {
-    type: "element",
-    tagName: "div",
-    properties: { className: ["luogu-directive-fallback"] },
-    children,
-  };
+function sourceFallback(_state: State, node: DirectiveNode): HNode {
+  // Do not walk an invalid directive's children. A partially normalized
+  // directive can contain user-controlled nodes that would otherwise be
+  // interpreted as HTML or as another supported directive. The original
+  // source position is the only lossless and safe fallback.
+  const source = String(
+    node.data?.luoguDirectiveSource || `::${node.name || "directive"}`,
+  );
+  const fallback = renderLuoguCodeBlock("plaintext", "", source) as HNode;
+  addClass(fallback, "luogu-directive-fallback");
+  return fallback;
 }
 
 function directiveHandler(state: State, rawNode: unknown): HNode {
