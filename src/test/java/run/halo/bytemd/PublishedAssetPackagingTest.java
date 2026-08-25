@@ -12,13 +12,23 @@ class PublishedAssetPackagingTest {
 
     @Test
     void packagesPublishedStylesAndFontsUnderThePublicUiDirectory() throws IOException {
-        String markdownStyles = readText("ui/published/luogu-markdown.css");
-        assertTrue(markdownStyles.contains(".luogu-markdown-body"));
-        assertTrue(markdownStyles.contains(".luogu-markdown-body a"));
-        assertTrue(markdownStyles.contains(".luogu-code-content"));
-        assertTrue(markdownStyles.contains(".luogu-code-content > code"));
+        String markdownStyles = readText("ui/published/bytemd-markdown.css");
+        assertTrue(markdownStyles.contains(".bytemd-markdown-body"));
+        assertTrue(markdownStyles.contains(".bytemd-markdown-body a"));
+        assertTrue(markdownStyles.contains(".bytemd-code-content"));
+        assertTrue(markdownStyles.contains(".bytemd-code-content > code"));
+        assertTrue(markdownStyles.contains(".bytemd-code-block--no-line-numbers"));
+        assertTrue(markdownStyles.contains(".bytemd-code-copy-button"));
         assertTrue(markdownStyles.contains("#0969da"));
         assertTrue(markdownStyles.contains("#f0f0f0"));
+        String legacyStyles = readText("ui/published/luogu-markdown.css");
+        assertTrue(legacyStyles.contains(".luogu-markdown-body"));
+        assertTrue(legacyStyles.contains(".luogu-code-content"));
+        assertTrue(legacyStyles.contains(".luogu-code-content > code"));
+        assertTrue(legacyStyles.contains("white-space: pre-wrap !important"));
+        String copyRuntime = readText("ui/published/code-block-copy.js");
+        assertTrue(copyRuntime.contains("bytemd-code-copy-button"));
+        assertTrue(copyRuntime.contains("navigator.clipboard"));
         assertTrue(readText("ui/published/katex/katex.min.css")
             .contains("url(fonts/KaTeX_Main-Regular.woff2)"));
         assertTrue(readBytes("ui/published/katex/fonts/KaTeX_Main-Regular.woff2").length > 0);
