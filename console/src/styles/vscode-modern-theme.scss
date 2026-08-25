@@ -40,7 +40,7 @@ main.hardy-post-editor,
   --vscode-line-number: #6e7681;
   --vscode-line-number-active: #171184;
   --vscode-link: #0969da;
-  --vscode-code-block-background: #f8f8f8;
+  --vscode-code-block-background: #fafafa;
   --vscode-inline-code-background: #f0f0f0;
   --vscode-markdown-heading: #800000;
   --vscode-markdown-strong: #000080;
@@ -129,10 +129,10 @@ main.hardy-post-editor--dark,
 }
 
 main.hardy-post-editor .bytemd-wrapper {
-  --luogu-toolbar-text: var(--vscode-editor-foreground);
-  --luogu-toolbar-border: var(--vscode-border);
-  --luogu-toolbar-bg: var(--vscode-side-background);
-  --luogu-toolbar-hover: var(--vscode-hover-background);
+  --bytemd-toolbar-text: var(--vscode-editor-foreground);
+  --bytemd-toolbar-border: var(--vscode-border);
+  --bytemd-toolbar-bg: var(--vscode-side-background);
+  --bytemd-toolbar-hover: var(--vscode-hover-background);
 }
 
 main.hardy-post-editor .hardy-button,
@@ -371,7 +371,7 @@ main.hardy-post-editor
   .bytemd
   .bytemd-preview
   .markdown-body
-  table:not(.luogu-cute-table-three):not(.luogu-cute-table-tuack)
+  table:not(.bytemd-cute-table-three):not(.bytemd-cute-table-tuack)
   tr {
   background: var(--vscode-editor-background);
   border-top-color: var(--vscode-border);
@@ -381,7 +381,7 @@ main.hardy-post-editor
   .bytemd
   .bytemd-preview
   .markdown-body
-  table:not(.luogu-cute-table-three):not(.luogu-cute-table-tuack)
+  table:not(.bytemd-cute-table-three):not(.bytemd-cute-table-tuack)
   tr:nth-child(2n) {
   background: var(--vscode-side-background);
 }

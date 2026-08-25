@@ -3,7 +3,7 @@ import { consoleApiClient, ucApiClient } from "@halo-dev/api-client";
 import type { Attachment } from "@halo-dev/api-client";
 import { stores } from "@halo-dev/ui-shared";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import Bytemd from "./bytemd.vue";
+import MasonMarkdown from "./bytemd.vue";
 import { useUcPostDraft } from "../composables/use-uc-post-draft";
 import "../styles/uc-post-editor.scss";
 import "../styles/vscode-modern-theme.scss";
@@ -386,15 +386,64 @@ function handleTagPickerTriggerKeydown(event: KeyboardEvent) {
   }
 }
 
-const categoryOptions = computed(() => [
-  { value: "", label: "未分类" },
-  ...categories.value.map((item) => ({
-    value: item.metadata.name,
-    label: displayName(item),
-  })),
-]);
+type CategoryOption = {
+  value: string;
+  label: string;
+  path: string;
+  depth: number;
+  hasChildren: boolean;
+};
+
+/**
+ * CategoryVo exposes the tree through each category's children names instead
+ * of a parent name. Flatten the forest in display order so the existing
+ * combobox can keep its simple, keyboard-navigable interaction model.
+ */
+const categoryOptions = computed<CategoryOption[]>(() => {
+  const options: CategoryOption[] = [
+    { value: "", label: "未分类", path: "未分类", depth: 0, hasChildren: false },
+  ];
+  const categoryByName = new Map(categories.value.map((item) => [item.metadata.name, item]));
+  const childrenByName = new Map<string, string[]>();
+  const childNames = new Set<string>();
+
+  for (const category of categories.value) {
+    const children = (category.spec?.children || []).filter((name) => categoryByName.has(name));
+    childrenByName.set(category.metadata.name, children);
+    children.forEach((name) => childNames.add(name));
+  }
+
+  const visited = new Set<string>();
+  const appendCategory = (name: string, depth: number, ancestors: string[] = []) => {
+    if (visited.has(name)) return;
+    const category = categoryByName.get(name);
+    if (!category) return;
+
+    visited.add(name);
+    const children = childrenByName.get(name) || [];
+    const label = displayName(category);
+    options.push({
+      value: name,
+      label,
+      path: [...ancestors, label].join(" / "),
+      depth,
+      hasChildren: children.length > 0,
+    });
+    children.forEach((childName) => appendCategory(childName, depth + 1, [...ancestors, label]));
+  };
+
+  // Keep the API's ordering for roots, while ensuring descendants sit below
+  // their parent regardless of how the server paginates the response.
+  categories.value
+    .filter((category) => !childNames.has(category.metadata.name))
+    .forEach((category) => appendCategory(category.metadata.name, 0));
+
+  // Malformed or cyclic data should still leave every category selectable.
+  categories.value.forEach((category) => appendCategory(category.metadata.name, 0));
+  return options;
+});
 const selectedCategoryLabel = computed(
-  () => categoryOptions.value.find((option) => option.value === selectedCategory.value)?.label || "未分类",
+  () => categoryOptions.value.find((option) => option.value === selectedCategory.value)?.path || "未分类",
 );
 
 function syncCategoryHighlight() {
@@ -576,10 +625,19 @@ onBeforeUnmount(() => {
                       }"
                       role="option"
                       :aria-selected="option.value === selectedCategory"
+                      :title="option.path"
+                      :style="{ paddingLeft: `${10 + option.depth * 22}px` }"
                       @mouseenter="categoryHighlightIndex = index"
                       @click="selectCategory(option.value)"
                     >
-                      {{ option.label }}
+                      <span
+                        v-if="option.depth"
+                        class="hardy-category-branch"
+                        aria-hidden="true"
+                      />
+                      <span :class="{ 'hardy-category-parent-label': option.hasChildren }">
+                        {{ option.label }}
+                      </span>
                     </button>
                   </div>
                 </Transition>
@@ -642,7 +700,7 @@ onBeforeUnmount(() => {
             <span class="hardy-form-label">文章内容</span>
             <div class="hardy-form-control hardy-content-control">
               <div class="hardy-editor-surface">
-                <Bytemd
+                <MasonMarkdown
                   v-model:raw="content.raw"
                   v-model:content="content.content"
                 />

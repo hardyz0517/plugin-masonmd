@@ -2,8 +2,8 @@ import type { BytemdPlugin, BytemdEditorContext } from "bytemd";
 import rehypeSlug from "rehype-slug";
 import useVim from "codemirror-ssr/keymap/vim";
 export { markdownTable } from "./markdown-table";
-export { luoguToolbarIcons } from "./luogu-toolbar-icons";
-export type { LuoguToolbarIcon } from "./luogu-toolbar-icons";
+export { bytemdToolbarIcons } from "./bytemd-toolbar-icons";
+export type { BytemdToolbarIcon } from "./bytemd-toolbar-icons";
 export { mermaidPlugin, renderMermaidInHtml } from "./mermaid";
 
 export function pluginSlug(): BytemdPlugin {

@@ -1,7 +1,7 @@
 const icon = (viewBox: string, path: string) =>
   `<svg class="svg-inline--fa cs-icon" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"><path fill="currentColor" d="${path}"></path></svg>`;
 
-export const luoguToolbarIcons = {
+export const bytemdToolbarIcons = {
   headingUp: icon(
     "0 0 640 512",
     "M0 56C0 42.7 10.7 32 24 32l112 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-32 0 0 144 240 0 0-144-32 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l112 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-32 0 0 146c-19.4 14.2-35.8 32.4-48 53.2l0-7.2-240 0 0 160 32 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 480c-13.3 0-24-10.7-24-24s10.7-24 24-24l32 0 0-184L56 80 24 80C10.7 80 0 69.3 0 56zM288 456c0-13.3 10.7-24 24-24l20 0c6.9 17.5 16.5 33.7 28.3 48L312 480c-13.3 0-24-10.7-24-24zm64-88c0-51.4 27.4-99 72-124.7s99.4-25.7 144 0s72 73.3 72 124.7s-27.4 99-72 124.7s-99.4 25.7-144 0S352 419.4 352 368zm76.7-19.3c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L480 342.6l0 89.4c0 8.8 7.2 16 16 16s16-7.2 16-16l0-89.4 28.7 28.7c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-56-56c-6.2-6.2-16.4-6.2-22.6 0c-18.7 18.7-37.3 37.3-56 56z"
@@ -84,4 +84,4 @@ export const luoguToolbarIcons = {
   ),
 } as const;
 
-export type LuoguToolbarIcon = keyof typeof luoguToolbarIcons;
+export type BytemdToolbarIcon = keyof typeof bytemdToolbarIcons;

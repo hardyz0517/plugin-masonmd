@@ -314,6 +314,12 @@ main.hardy-post-editor *::after {
   border-color: #aac5e9;
 }
 
+.hardy-category-trigger > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .hardy-category-trigger:focus-visible,
 .hardy-category-trigger[aria-expanded="true"] {
   border-color: #83b1ed;
@@ -324,6 +330,7 @@ main.hardy-post-editor *::after {
 .hardy-category-chevron {
   border-bottom: 2px solid #536171;
   border-right: 2px solid #536171;
+  flex: 0 0 auto;
   height: 7px;
   margin: -4px 2px 0 12px;
   transform: rotate(45deg);
@@ -343,6 +350,8 @@ main.hardy-post-editor *::after {
   box-shadow: 0 12px 24px rgb(31 41 55 / 14%);
   left: 0;
   max-height: 248px;
+  max-width: calc(100vw - 32px);
+  min-width: 250px;
   overflow-y: auto;
   padding: 4px;
   position: absolute;
@@ -368,6 +377,19 @@ main.hardy-post-editor *::after {
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+}
+
+.hardy-category-branch {
+  border-bottom: 1px solid var(--hardy-border);
+  border-left: 1px solid var(--hardy-border);
+  display: inline-block;
+  height: 13px;
+  margin: 0 7px 3px 0;
+  width: 10px;
+}
+
+.hardy-category-parent-label {
+  font-weight: 600;
 }
 
 .hardy-category-option:hover,
@@ -419,7 +441,7 @@ main.hardy-post-editor *::after {
 }
 
 .hardy-post-editor .hardy-editor-surface > .bytemd-wrapper {
-  --luogu-toolbar-height: 38px;
+  --bytemd-toolbar-height: 38px;
   background: var(--hardy-control-surface);
   border: 0;
   height: 100%;
@@ -430,7 +452,7 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-post-editor .bytemd-wrapper > div:not(.luogu-bytemd-toolbar):not(.bytemd-custom-status),
+.hardy-post-editor .bytemd-wrapper > div:not(.bytemd-bytemd-toolbar):not(.bytemd-custom-status),
 .hardy-post-editor .bytemd-wrapper > .bytemd-editor-host {
   min-width: 0;
   width: 100%;
@@ -451,10 +473,20 @@ main.hardy-post-editor *::after {
 
 .hardy-post-editor .bytemd .bytemd-editor,
 .hardy-post-editor .bytemd .bytemd-preview {
-  flex: 0 1 auto;
+  /* Keep both panes present even when the editor is narrower than ByteMD's
+     default auto-split threshold. */
+  flex: 1 1 0;
+  overflow-x: hidden;
+  width: 50%;
 }
 
-.hardy-post-editor .luogu-bytemd-toolbar {
+.hardy-post-editor .bytemd .bytemd-sidebar {
+  flex: 0 0 280px;
+  overflow-x: hidden;
+  width: 280px;
+}
+
+.hardy-post-editor .bytemd-bytemd-toolbar {
   border-bottom: 1px solid var(--hardy-border);
   min-height: 38px;
   height: 38px;
@@ -464,28 +496,28 @@ main.hardy-post-editor *::after {
   z-index: 3;
 }
 
-.hardy-post-editor .luogu-toolbar-side {
+.hardy-post-editor .bytemd-toolbar-side {
   flex: 0 0 auto;
 }
 
-.hardy-post-editor .luogu-toolbar-group:not(:last-child) {
+.hardy-post-editor .bytemd-toolbar-group:not(:last-child) {
   border-right: 0;
   margin-right: 8px;
   padding-right: 0;
 }
 
-.hardy-post-editor .luogu-toolbar-tool {
+.hardy-post-editor .bytemd-toolbar-tool {
   border-radius: 4px;
   height: 28px;
   z-index: 4;
   width: 28px;
 }
 
-.hardy-post-editor .luogu-tooltip {
+.hardy-post-editor .bytemd-tooltip {
   z-index: 10;
 }
 
-.hardy-post-editor .luogu-toolbar-tool:not(:last-child) {
+.hardy-post-editor .bytemd-toolbar-tool:not(:last-child) {
   margin-right: 2px;
 }
 
@@ -517,7 +549,7 @@ main.hardy-post-editor *::after {
 }
 
 @container hardy-post-form (max-width: 700px) {
-  .hardy-post-editor .luogu-bytemd-toolbar {
+  .hardy-post-editor .bytemd-bytemd-toolbar {
     align-content: center;
     flex-wrap: wrap;
     height: auto;
@@ -525,25 +557,25 @@ main.hardy-post-editor *::after {
     row-gap: 2px;
   }
 
-  .hardy-post-editor .luogu-toolbar-side {
+  .hardy-post-editor .bytemd-toolbar-side {
     flex: 0 1 auto;
     flex-wrap: wrap;
   }
 
-  .hardy-post-editor .luogu-toolbar-side:last-child {
+  .hardy-post-editor .bytemd-toolbar-side:last-child {
     margin-left: auto;
   }
 }
 
 /* Fullscreen keeps a stable header height; overflow remains reachable. */
-.hardy-post-editor .bytemd-wrapper.bytemd-wrapper-fullscreen > .luogu-bytemd-toolbar {
+.hardy-post-editor .bytemd-wrapper.bytemd-wrapper-fullscreen > .bytemd-bytemd-toolbar {
   flex-wrap: nowrap;
-  height: var(--luogu-toolbar-height);
-  min-height: var(--luogu-toolbar-height);
+  height: var(--bytemd-toolbar-height);
+  min-height: var(--bytemd-toolbar-height);
   overflow-x: auto;
 }
 
-.hardy-post-editor .bytemd-wrapper.bytemd-wrapper-fullscreen .luogu-toolbar-side {
+.hardy-post-editor .bytemd-wrapper.bytemd-wrapper-fullscreen .bytemd-toolbar-side {
   flex-wrap: nowrap;
   flex: 0 0 auto;
 }

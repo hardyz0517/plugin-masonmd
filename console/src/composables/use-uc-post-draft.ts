@@ -79,7 +79,7 @@ function errorMessage(error: unknown, fallback: string) {
   ) || fallback;
 }
 
-const LUOGU_DIRECTIVE_NAMES = new Set([
+const BYTEMD_DIRECTIVE_NAMES = new Set([
   "info",
   "success",
   "warning",
@@ -96,12 +96,16 @@ const DIRECT_CODE_BLOCK = /<pre\b[^>]*>\s*<code\b/i;
 const UNSAFE_PUBLISHED_MARKUP =
   /<\s*\/?\s*(?:script|iframe|object|embed|applet|base|form|meta|link)\b|<[^>]*\bon[a-z][\w:-]*\s*=|\b(?:href|src|action|formaction|xlink:href)\s*=\s*["']?\s*(?:javascript|vbscript|data|file):/i;
 // The compatibility resolver supports `^` and the leftward `<` marker.
-// Luogu's malformed forward `>` marker is deliberately rendered as text, so
+// Bytemd's malformed forward `>` marker is deliberately rendered as text, so
 // it must not make an otherwise stable snapshot look perpetually migratable.
 const VERTICAL_MERGE_MARKER = /(?:^|\|)\s*\^\s*(?:\||$)/m;
 const HORIZONTAL_MERGE_MARKER = /(?:^|\|)\s*<\s*(?:\||$)/m;
 const ROWSPAN_MERGE = /\browspan=["'](?:[2-9]|[1-9]\d+)["']/i;
 const COLSPAN_MERGE = /\bcolspan=["'](?:[2-9]|[1-9]\d+)["']/i;
+const RENDERED_MATH_WRAPPER =
+  /\bclass=["'][^"']*(?<![\w-])(?:math-inline|math-display)(?![\w-])[^"']*["'][^>]*>[\s\S]*?\bclass=["'][^"']*\bkatex(?:\b|-)/i;
+const DUPLICATED_KATEX_MATHML =
+  /<span\b[^>]*\bclass=["'][^"']*(?<![\w-])katex-mathml(?![\w-])[^"']*["']/i;
 
 function withoutFencedCode(raw: string): string {
   let fenceCharacter = "";
@@ -142,23 +146,23 @@ function hasUnsupportedDirectiveOutput(source: Content): boolean {
   const names = directiveNamesOutsideFences(source.raw);
   if (!names.length) return false;
 
-  const hasFallback = source.content.includes("luogu-directive-fallback");
-  if (names.some((name) => !LUOGU_DIRECTIVE_NAMES.has(name)) && !hasFallback) {
+  const hasFallback = source.content.includes("bytemd-directive-fallback");
+  if (names.some((name) => !BYTEMD_DIRECTIVE_NAMES.has(name)) && !hasFallback) {
     return true;
   }
 
   const expectedClasses: Record<string, string> = {
-    info: "luogu-callout",
-    success: "luogu-callout",
-    warning: "luogu-callout",
-    error: "luogu-callout",
-    align: "luogu-align-container",
-    epigraph: "luogu-epigraph",
-    "cute-table": "luogu-cute-table",
+    info: "bytemd-callout",
+    success: "bytemd-callout",
+    warning: "bytemd-callout",
+    error: "bytemd-callout",
+    align: "bytemd-align-container",
+    epigraph: "bytemd-epigraph",
+    "cute-table": "bytemd-cute-table",
   };
   return names.some(
     (name) =>
-      LUOGU_DIRECTIVE_NAMES.has(name) &&
+      BYTEMD_DIRECTIVE_NAMES.has(name) &&
       !source.content.includes(expectedClasses[name]) &&
       !hasFallback,
   );
@@ -171,11 +175,11 @@ function needsPublishedRenderRefresh(source: Content): boolean {
   // Older snapshots do not carry the stable wrapper used by the published
   // stylesheet. Re-render them on the next save instead of leaving them tied
   // to whichever theme happened to render the original Markdown.
-  if (!/\bclass=["'][^"']*\bluogu-markdown-body\b/.test(source.content)) {
+  if (!/\bclass=["'][^"']*\bbytemd-markdown-body\b/.test(source.content)) {
     return true;
   }
 
-  // The first Luogu renderer emitted direct `pre > code` nodes. Halo's theme
+  // The first Bytemd renderer emitted direct `pre > code` nodes. Halo's theme
   // highlighter takes over those nodes, so migrate fenced blocks to the
   // wrapped structure used by the current renderer.
   if (
@@ -190,11 +194,23 @@ function needsPublishedRenderRefresh(source: Content): boolean {
   // safe as well; escaped text does not match this expression.
   if (UNSAFE_PUBLISHED_MARKUP.test(source.content)) return true;
 
+  // The first Bytemd math renderer used the selectors consumed by both
+  // ByteMD's viewer hook and Halo's plugin-katex. Re-render once so the
+  // published snapshot gets the private wrapper classes used by the current
+  // renderer and cannot be parsed a second time.
+  if (RENDERED_MATH_WRAPPER.test(source.content)) return true;
+
+  // Previous published snapshots used KaTeX's default htmlAndMathml DOM.
+  // Halo's automatic excerpt service reads that DOM as text, so each formula
+  // leaks its MathML, TeX annotation, and visual value into post cards. A
+  // one-time re-render converts the snapshot to the excerpt-safe structure.
+  if (DUPLICATED_KATEX_MATHML.test(source.content)) return true;
+
   if (hasUnsupportedDirectiveOutput(source)) return true;
 
   if (
     /^\s*:{2,}\s*epigraph(?:\[|\s|\{|$)/m.test(semanticRaw) &&
-    !source.content.includes("luogu-epigraph")
+    !source.content.includes("bytemd-epigraph")
   ) {
     return true;
   }
@@ -231,6 +247,9 @@ export function useUcPostDraft(initialName = "") {
   let savePromise: Promise<boolean> | undefined;
   let saveActionPromise: Promise<boolean> | undefined;
   let saveRequested = false;
+  // A new post has no server-side draft until its first successful manual
+  // save. Do not let the timer attempt to create it before then.
+  let autosaveEnabled = Boolean(initialName);
   let renderRefreshRequested = false;
   // Updating a head snapshot does not update a published post's release
   // snapshot. Keep this bit until the corresponding publish request succeeds.
@@ -241,7 +260,7 @@ export function useUcPostDraft(initialName = "") {
   }>();
   let savedPostFingerprint = "";
   let savedContentFingerprint = "";
-  const renderCoordinator = createMarkdownRenderCoordinator("luogu-v1");
+  const renderCoordinator = createMarkdownRenderCoordinator("bytemd-v1");
 
   const isUpdate = computed(() => Boolean(post.value.metadata.creationTimestamp));
   // status.phase is reconciled asynchronously. spec.publish is the value changed by
@@ -386,6 +405,10 @@ export function useUcPostDraft(initialName = "") {
         content.value.raw.trim() ||
         content.value.content.trim(),
     );
+  }
+
+  function hasTitle() {
+    return Boolean(post.value.spec.title.trim());
   }
 
   function rememberSavedState() {
@@ -570,7 +593,11 @@ export function useUcPostDraft(initialName = "") {
     }
   }
 
-  function saveDraft() {
+  function saveDraft(isManualSave = true) {
+    if (!isManualSave && (!autosaveEnabled || !hasTitle())) {
+      return Promise.resolve(false);
+    }
+
     saveRequested = true;
     if (!savePromise) {
       savePromise = (async () => {
@@ -589,7 +616,8 @@ export function useUcPostDraft(initialName = "") {
   }
 
   function scheduleAutosave() {
-    if (loading.value || loadFailed.value) return;
+    if (loading.value || loadFailed.value || !autosaveEnabled) return;
+    if (!hasTitle()) return;
     if (!hasDraftInput()) return;
     if (saving.value || publishing.value || unpublishing.value || deleting.value) {
       saveRequested = true;
@@ -598,7 +626,7 @@ export function useUcPostDraft(initialName = "") {
     if (autosaveTimer) clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(() => {
       autosaveTimer = undefined;
-      void saveDraft();
+      void saveDraft(false);
     }, AUTOSAVE_DELAY_MS);
   }
 
@@ -679,12 +707,18 @@ export function useUcPostDraft(initialName = "") {
   }
 
   function save() {
+    if (!hasTitle()) {
+      error.value = "请输入标题";
+      return Promise.resolve(false);
+    }
+
     if (!saveActionPromise) {
       saveActionPromise = (async () => {
         let result = true;
         do {
-          result = await saveDraft();
+          result = await saveDraft(true);
           if (!result) return false;
+          autosaveEnabled = true;
           result = await syncPublicationState(publicationRefreshRequested);
         } while (result && (saveRequested || hasUnsavedChanges()));
         return result;

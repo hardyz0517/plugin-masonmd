@@ -101,7 +101,7 @@ const oldSnapshot = {
 };
 
 const savedHtml =
-  '<div class="luogu-markdown-body"><blockquote class="luogu-epigraph">Quote</blockquote>' +
+  '<div class="bytemd-markdown-body"><blockquote class="bytemd-epigraph">Quote</blockquote>' +
   '<table><tbody><tr><td rowspan="2">1</td><td>2</td></tr></tbody></table></div>';
 
 describe("UC published content synchronization", () => {
@@ -143,8 +143,8 @@ describe("UC published content synchronization", () => {
     const savedContent = JSON.parse(
       updateRequest.snapshot.metadata.annotations["content.halo.run/content-json"],
     );
-    expect(savedContent.content).toContain('class="luogu-markdown-body"');
-    expect(savedContent.content).toContain('class="luogu-epigraph"');
+    expect(savedContent.content).toContain('class="bytemd-markdown-body"');
+    expect(savedContent.content).toContain('class="bytemd-epigraph"');
     expect(savedContent.content).toContain('rowspan="2"');
     expect(mocks.ucApiClient.content.post.publishMyPost).toHaveBeenCalledTimes(1);
   });
@@ -196,7 +196,7 @@ describe("UC published content synchronization", () => {
         ...oldSnapshot.metadata,
         annotations: {
           "content.halo.run/patched-content":
-            '<div class="luogu-markdown-body"><pre class="language-cpp"><code>int main() {}</code></pre><p>标题</p><p>原样内容</p></div>',
+            '<div class="bytemd-markdown-body"><pre class="language-cpp"><code>int main() {}</code></pre><p>标题</p><p>原样内容</p></div>',
           "content.halo.run/patched-raw": legacyRaw,
         },
       },
@@ -228,7 +228,7 @@ describe("UC published content synchronization", () => {
           ...oldSnapshot.metadata,
           annotations: {
             "content.halo.run/patched-content":
-              '<div class="luogu-markdown-body"><table><tbody><tr><td>1</td><td>></td></tr></tbody></table></div>',
+              '<div class="bytemd-markdown-body"><table><tbody><tr><td>1</td><td>></td></tr></tbody></table></div>',
             "content.halo.run/patched-raw":
               "| A | B |\n| --- | --- |\n| 1 | > |",
           },
@@ -243,5 +243,123 @@ describe("UC published content synchronization", () => {
     expect(await draft.save()).toBe(true);
     expect(mocks.ucApiClient.content.post.updateMyPostDraft).not.toHaveBeenCalled();
     expect(mocks.ucApiClient.content.post.publishMyPost).not.toHaveBeenCalled();
+  });
+
+  it("does not treat the private Bytemd math classes as legacy wrappers", async () => {
+    const stablePost = post();
+    stablePost.spec.releaseSnapshot = stablePost.spec.headSnapshot;
+    mocks.ucApiClient.content.post.getMyPost.mockResolvedValue({
+      data: stablePost,
+    });
+    mocks.ucApiClient.content.post.getMyPostDraft.mockResolvedValue({
+      data: {
+        ...oldSnapshot,
+        metadata: {
+          ...oldSnapshot.metadata,
+          annotations: {
+            "content.halo.run/patched-content":
+              '<div class="bytemd-markdown-body"><p><span class="bytemd-math bytemd-math-inline"><span class="katex"><span class="katex-html">x</span></span></span></p></div>',
+            "content.halo.run/patched-raw": "$x$",
+          },
+        },
+      },
+    });
+
+    const draft = useUcPostDraft("post-1");
+    await draft.loadPage();
+
+    expect(draft.hasUnsavedChanges()).toBe(false);
+    expect(await draft.save()).toBe(true);
+    expect(mocks.ucApiClient.content.post.updateMyPostDraft).not.toHaveBeenCalled();
+    expect(mocks.ucApiClient.content.post.publishMyPost).not.toHaveBeenCalled();
+  });
+
+  it("refreshes old KaTeX dual output so automatic excerpts no longer repeat formulas", async () => {
+    const stablePost = post();
+    stablePost.spec.releaseSnapshot = stablePost.spec.headSnapshot;
+    const oldKaTeXSnapshot = {
+      ...oldSnapshot,
+      metadata: {
+        ...oldSnapshot.metadata,
+        annotations: {
+          "content.halo.run/patched-content":
+            '<div class="bytemd-markdown-body"><p>线性求 <span class="bytemd-math bytemd-math-inline"><span class="katex"><span class="katex-mathml"><math><mn>1</mn><annotation>1</annotation></math></span><span class="katex-html" aria-hidden="true">1</span></span></span> 到 n。</p></div>',
+          "content.halo.run/patched-raw": "线性求 $1$ 到 $n$。",
+        },
+      },
+    };
+    const refreshedHtml =
+      '<div class="bytemd-markdown-body"><p>线性求 <span class="bytemd-math bytemd-math-inline" role="math" aria-label="1"><span class="katex"><span class="katex-html" aria-hidden="true">1</span></span></span> 到 n。</p></div>';
+    mocks.ucApiClient.content.post.getMyPost.mockResolvedValue({ data: stablePost });
+    mocks.ucApiClient.content.post.getMyPostDraft.mockResolvedValue({ data: oldKaTeXSnapshot });
+    mocks.render.mockResolvedValue({ renderedHtml: refreshedHtml });
+
+    const draft = useUcPostDraft("post-1");
+    await draft.loadPage();
+
+    expect(draft.hasUnsavedChanges()).toBe(true);
+    expect(await draft.save()).toBe(true);
+    const updateRequest = mocks.ucApiClient.content.post.updateMyPostDraft.mock.calls[0][0];
+    const savedContent = JSON.parse(
+      updateRequest.snapshot.metadata.annotations["content.halo.run/content-json"],
+    );
+    expect(savedContent.content).toBe(refreshedHtml);
+    expect(savedContent.content).not.toContain("katex-mathml");
+    expect(mocks.ucApiClient.content.post.publishMyPost).toHaveBeenCalledTimes(1);
+  });
+
+  it("requires a title before a manual save sends a request", async () => {
+    const draft = useUcPostDraft();
+    await draft.loadPage();
+    draft.post.value.spec.title = "   ";
+    draft.content.value.raw = "draft content";
+
+    expect(await draft.save()).toBe(false);
+    expect(draft.error.value).toBe("请输入标题");
+    expect(mocks.render).not.toHaveBeenCalled();
+    expect(mocks.ucApiClient.content.post.createMyPost).not.toHaveBeenCalled();
+  });
+
+  it("does not autosave a new post until its first manual save succeeds", async () => {
+    vi.useFakeTimers();
+    try {
+      mocks.ucApiClient.content.post.createMyPost.mockResolvedValue({
+        data: post(),
+      });
+      const draft = useUcPostDraft();
+      await draft.loadPage();
+      draft.content.value.raw = "first draft";
+
+      draft.scheduleAutosave();
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
+      expect(
+        mocks.ucApiClient.content.post.createMyPost
+      ).not.toHaveBeenCalled();
+
+      draft.post.value.spec.title = "New post";
+      expect(await draft.save()).toBe(true);
+      expect(mocks.ucApiClient.content.post.createMyPost).toHaveBeenCalledTimes(
+        1
+      );
+      mocks.ucApiClient.content.post.updateMyPostDraft.mockClear();
+
+      draft.content.value.raw = "second draft";
+      draft.scheduleAutosave();
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
+      expect(
+        mocks.ucApiClient.content.post.updateMyPostDraft
+      ).toHaveBeenCalledTimes(1);
+
+      mocks.ucApiClient.content.post.updateMyPostDraft.mockClear();
+      draft.post.value.spec.title = "  ";
+      draft.content.value.raw = "draft without a title";
+      draft.scheduleAutosave();
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
+      expect(
+        mocks.ucApiClient.content.post.updateMyPostDraft
+      ).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

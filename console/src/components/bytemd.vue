@@ -2,9 +2,9 @@
 import { Editor } from "@bytemd/vue-next";
 import {
   markdownTable,
-  luoguToolbarIcons,
+  bytemdToolbarIcons,
 } from "../plugins";
-import type { LuoguToolbarIcon } from "../plugins";
+import type { BytemdToolbarIcon } from "../plugins";
 import type { BytemdEditorContext, BytemdPlugin } from "bytemd";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { AttachmentLike } from "@halo-dev/ui-shared";
@@ -23,10 +23,10 @@ import { createMarkdownRuntime } from "../markdown/pipeline";
 import { createMarkdownRenderCoordinator } from "../markdown/render-coordinator";
 import { codeLanguages } from "../markdown/language-registry";
 import {
-  createLuoguTableCells,
-  serializeLuoguTable,
+  createBytemdTableCells,
+  serializeBytemdTable,
 } from "../editor/table-source-model";
-import type { LuoguTableCell } from "../editor/table-source-model";
+import type { BytemdTableCell } from "../editor/table-source-model";
 import {
   createEditorContextBridge,
   markdownModeConfig,
@@ -46,16 +46,18 @@ import {
 import type { TablePoint, TableSelectionRect } from "../editor/table-commands";
 import "../styles/main.scss";
 
-defineOptions({ name: "ByteMdEditor" });
+defineOptions({ name: "MasonMarkdownEditor" });
 
-type LuoguToolbarButton = {
+type BytemdToolbarButton = {
   title: string;
-  icon: LuoguToolbarIcon;
+  icon: BytemdToolbarIcon;
   action: () => void | Promise<void>;
   disabled?: boolean;
 };
 
-type TableCell = LuoguTableCell;
+type EditorView = "split" | "write" | "preview";
+
+type TableCell = BytemdTableCell;
 
 type AutosaveRecord = {
   id: string;
@@ -64,7 +66,7 @@ type AutosaveRecord = {
   raw: string;
 };
 
-const markdownRuntime = createMarkdownRuntime("luogu-v1");
+const markdownRuntime = createMarkdownRuntime("bytemd-v1");
 const editorContextBridge = createEditorContextBridge({
   insertTable: () => insertTable(),
   insertLink: () => insertLink(),
@@ -83,10 +85,12 @@ const createPlugins = (useVimKeymap = false): BytemdPlugin[] =>
     useVimKeymap,
   });
 
-const renderCoordinator = createMarkdownRenderCoordinator("luogu-v1");
+const renderCoordinator = createMarkdownRenderCoordinator("bytemd-v1");
 
 const editorConfig = {
-  fixedGutter: false,
+  // Keep the line-number gutter outside CodeMirror's horizontal content scroll.
+  // With false, long lines can scroll the gutter out of view.
+  fixedGutter: true,
   lineWrapping: true,
   lineNumbers: true,
   mode: markdownModeConfig,
@@ -97,7 +101,7 @@ const DEFAULT_TABLE_COLUMNS = 1;
 const MAX_TABLE_SIZE = 100;
 
 const createTableCells = (rows: number, columns: number): TableCell[][] =>
-  createLuoguTableCells(rows, columns);
+  createBytemdTableCells(rows, columns);
 
 const plugins = ref<BytemdPlugin[]>(createPlugins());
 let contentRenderVersion = 0;
@@ -124,6 +128,7 @@ const emit = defineEmits<{
 }>();
 
 const editorValue = ref(props.raw);
+const editorView = ref<EditorView>("split");
 const characterCount = computed(() => Array.from(editorValue.value).length);
 const lineCount = computed(() => editorValue.value.split("\n").length);
 const lastSavedAt = ref<Date>();
@@ -757,7 +762,7 @@ const confirmTableDialog = () => {
     return;
   }
 
-  ctx.appendBlock(serializeLuoguTable(tableCells.value));
+  ctx.appendBlock(serializeBytemdTable(tableCells.value));
   tableDialogOpen.value = false;
   focusEditor();
 };
@@ -765,14 +770,97 @@ const confirmTableDialog = () => {
 const clickNativeToolbarButton = (path: string, right = true) => {
   const root = getEditorContext()?.root;
   const side = right ? "right" : "left";
-  root
-    ?.querySelector<HTMLElement>(
-      `.bytemd-toolbar-${side} .bytemd-toolbar-icon[bytemd-tippy-path="${path}"]`
-    )
-    ?.click();
+  const button = root?.querySelector<HTMLElement>(
+    `.bytemd-toolbar-${side} .bytemd-toolbar-icon[bytemd-tippy-path="${path}"]`
+  );
+
+  button?.click();
+  return Boolean(button);
 };
 
-const getToolbarButtonTitle = (button: LuoguToolbarButton) => {
+const getEditorView = (root = getEditorContext()?.root): EditorView => {
+  if (!root || root.classList.contains("bytemd-split")) {
+    return "split";
+  }
+
+  const editor = root.querySelector<HTMLElement>(".bytemd-editor");
+  const preview = root.querySelector<HTMLElement>(".bytemd-preview");
+
+  if (editor?.style.display === "none") {
+    return "preview";
+  }
+
+  if (preview?.style.display === "none") {
+    return "write";
+  }
+
+  return "split";
+};
+
+const syncEditorView = (root = getEditorContext()?.root) => {
+  editorView.value = getEditorView(root);
+};
+
+let editorViewObserver: MutationObserver | undefined;
+
+const observeEditorView = (context: BytemdEditorContext | undefined) => {
+  editorViewObserver?.disconnect();
+  editorViewObserver = undefined;
+
+  if (!context) {
+    editorView.value = "split";
+    return;
+  }
+
+  const { root } = context;
+  const observer = new MutationObserver(() => syncEditorView(root));
+  const editor = root.querySelector<HTMLElement>(".bytemd-editor");
+  const preview = root.querySelector<HTMLElement>(".bytemd-preview");
+
+  observer.observe(root, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+  if (editor) {
+    observer.observe(editor, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+  }
+  if (preview) {
+    observer.observe(preview, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+  }
+  editorViewObserver = observer;
+  syncEditorView(root);
+};
+
+const getToolbarButtonView = (button: BytemdToolbarButton) => {
+  if (button.icon === "writeOnly") {
+    return "write" as const;
+  }
+
+  if (button.icon === "previewOnly") {
+    return "preview" as const;
+  }
+
+  return undefined;
+};
+
+const isToolbarButtonActive = (button: BytemdToolbarButton) => {
+  const view = getToolbarButtonView(button);
+  return view !== undefined && editorView.value === view;
+};
+
+const getToolbarButtonTitle = (button: BytemdToolbarButton) => {
+  const view = getToolbarButtonView(button);
+
+  if (view && editorView.value === view) {
+    return `退出${button.title}`;
+  }
+
   if (button.icon === "fullscreen" && isEditorFullscreen.value) {
     return "退出全屏";
   }
@@ -781,6 +869,14 @@ const getToolbarButtonTitle = (button: LuoguToolbarButton) => {
 };
 
 const setEditorView = (view: "write" | "preview") => {
+  syncEditorView();
+  const wasActive = editorView.value === view;
+
+  if (clickNativeToolbarButton(view === "write" ? "2" : "3")) {
+    editorView.value = wasActive ? "split" : view;
+    return;
+  }
+
   const root = getEditorContext()?.root;
   const tabs = root?.querySelectorAll<HTMLElement>(
     ".bytemd-toolbar-left .bytemd-toolbar-tab"
@@ -788,13 +884,12 @@ const setEditorView = (view: "write" | "preview") => {
 
   if (tabs?.length) {
     tabs[view === "write" ? 0 : 1]?.click();
+    editorView.value = view;
     return;
   }
-
-  clickNativeToolbarButton(view === "write" ? "2" : "3");
 };
 
-const toolbarLeftGroups: LuoguToolbarButton[][] = [
+const toolbarLeftGroups: BytemdToolbarButton[][] = [
   [
     {
       title: "提升一级",
@@ -880,7 +975,7 @@ const toolbarLeftGroups: LuoguToolbarButton[][] = [
   ],
 ];
 
-const toolbarRightGroups: LuoguToolbarButton[][] = [
+const toolbarRightGroups: BytemdToolbarButton[][] = [
   [
     {
       title: "仅编辑",
@@ -895,14 +990,18 @@ const toolbarRightGroups: LuoguToolbarButton[][] = [
     {
       title: "全屏",
       icon: "fullscreen",
-      action: () => clickNativeToolbarButton("4"),
+      action: () => {
+        clickNativeToolbarButton("4");
+      },
     },
   ],
   [
     {
       title: "帮助",
       icon: "help",
-      action: () => clickNativeToolbarButton("1"),
+      action: () => {
+        clickNativeToolbarButton("1");
+      },
     },
     {
       title: "自动保存",
@@ -949,7 +1048,11 @@ onMounted(async () => {
   }
 });
 
+watch(activeEditorContext, observeEditorView, { immediate: true });
+
 onBeforeUnmount(() => {
+  editorViewObserver?.disconnect();
+
   if (saveResponseInterceptorId !== undefined) {
     axiosInstance.interceptors.response.eject(saveResponseInterceptorId);
   }
@@ -1021,52 +1124,68 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     class="bytemd-wrapper"
     :class="{ 'bytemd-wrapper-fullscreen': isEditorFullscreen }"
   >
-    <div class="luogu-bytemd-toolbar">
-      <div class="luogu-toolbar-side">
+    <div class="bytemd-bytemd-toolbar">
+      <div class="bytemd-toolbar-side">
         <span
           v-for="(group, groupIndex) in toolbarLeftGroups"
           :key="`left-${groupIndex}`"
-          class="luogu-toolbar-group"
+          class="bytemd-toolbar-group"
         >
           <button
             v-for="button in group"
             :key="button.title"
             type="button"
-            class="luogu-toolbar-tool"
-            :class="{ disabled: button.disabled }"
+            class="bytemd-toolbar-tool"
+            :class="{
+              disabled: button.disabled,
+              'is-active': isToolbarButtonActive(button),
+            }"
             :aria-label="getToolbarButtonTitle(button)"
+            :aria-pressed="
+              getToolbarButtonView(button)
+                ? isToolbarButtonActive(button)
+                : undefined
+            "
             :disabled="button.disabled"
             @click="button.action"
           >
             <span
-              class="luogu-toolbar-icon"
-              v-html="luoguToolbarIcons[button.icon]"
+              class="bytemd-toolbar-icon"
+              v-html="bytemdToolbarIcons[button.icon]"
             />
-            <span class="luogu-tooltip">{{ getToolbarButtonTitle(button) }}</span>
+            <span class="bytemd-tooltip">{{ getToolbarButtonTitle(button) }}</span>
           </button>
         </span>
       </div>
-      <div class="luogu-toolbar-side">
+      <div class="bytemd-toolbar-side">
         <span
           v-for="(group, groupIndex) in toolbarRightGroups"
           :key="`right-${groupIndex}`"
-          class="luogu-toolbar-group"
+          class="bytemd-toolbar-group"
         >
           <button
             v-for="button in group"
             :key="button.title"
             type="button"
-            class="luogu-toolbar-tool"
-            :class="{ disabled: button.disabled }"
+            class="bytemd-toolbar-tool"
+            :class="{
+              disabled: button.disabled,
+              'is-active': isToolbarButtonActive(button),
+            }"
             :aria-label="getToolbarButtonTitle(button)"
+            :aria-pressed="
+              getToolbarButtonView(button)
+                ? isToolbarButtonActive(button)
+                : undefined
+            "
             :disabled="button.disabled"
             @click="button.action"
           >
             <span
-              class="luogu-toolbar-icon"
-              v-html="luoguToolbarIcons[button.icon]"
+              class="bytemd-toolbar-icon"
+              v-html="bytemdToolbarIcons[button.icon]"
             />
-            <span class="luogu-tooltip">{{ getToolbarButtonTitle(button) }}</span>
+            <span class="bytemd-tooltip">{{ getToolbarButtonTitle(button) }}</span>
           </button>
         </span>
       </div>
@@ -1077,6 +1196,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
       :plugins="plugins"
       :sanitize="markdownRuntime.sanitize"
       :remark-rehype="markdownRuntime.remarkRehype"
+      mode="split"
       :locale="bytemdLocale"
       :editor-config="editorConfig"
       :upload-images="handleUploadImages"
@@ -1089,7 +1209,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     </div>
     <div
       v-if="autosaveDialogOpen"
-      class="luogu-table-dialog-container luogu-autosave-dialog-container"
+      class="bytemd-table-dialog-container bytemd-autosave-dialog-container"
       role="dialog"
       aria-modal="true"
       aria-labelledby="bytemd-autosave-dialog-title"
@@ -1170,7 +1290,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     </div>
     <div
       v-if="linkDialogOpen"
-      class="luogu-table-dialog-container luogu-simple-dialog-container"
+      class="bytemd-table-dialog-container bytemd-simple-dialog-container"
     >
       <form class="cs-dialog" @submit.prevent="confirmLinkDialog">
         <div class="cs-dialog-header">
@@ -1239,7 +1359,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     </div>
     <div
       v-if="imageDialogOpen"
-      class="luogu-table-dialog-container luogu-simple-dialog-container"
+      class="bytemd-table-dialog-container bytemd-simple-dialog-container"
     >
       <form class="cs-dialog" @submit.prevent="confirmImageDialog">
         <div class="cs-dialog-header">
@@ -1322,7 +1442,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     </div>
     <div
       v-if="codeDialogOpen"
-      class="luogu-table-dialog-container luogu-code-dialog-container"
+      class="bytemd-table-dialog-container bytemd-code-dialog-container"
     >
       <div class="cs-dialog">
         <div>
@@ -1391,7 +1511,7 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     </div>
     <div
       v-if="tableDialogOpen"
-      class="luogu-table-dialog-container"
+      class="bytemd-table-dialog-container"
       @mouseup="finishTableSelection"
       @mouseleave="finishTableSelection"
     >

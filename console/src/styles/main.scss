@@ -1,11 +1,11 @@
-@import "./luogu-markdown";
+@import "./bytemd-markdown";
 
 .bytemd-wrapper {
-  --luogu-toolbar-text: #333333;
-  --luogu-toolbar-border: #dddddd;
-  --luogu-toolbar-bg: #ffffff;
-  --luogu-toolbar-hover: rgb(51 51 51 / 20%);
-  --luogu-toolbar-height: calc(24px + 0.4em);
+  --bytemd-toolbar-text: #333333;
+  --bytemd-toolbar-border: #dddddd;
+  --bytemd-toolbar-bg: #ffffff;
+  --bytemd-toolbar-hover: rgb(51 51 51 / 20%);
+  --bytemd-toolbar-height: calc(24px + 0.4em);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -16,7 +16,7 @@
   min-height: 0;
 }
 
-.bytemd-wrapper > div:not(.luogu-bytemd-toolbar):not(.bytemd-custom-status) {
+.bytemd-wrapper > div:not(.bytemd-bytemd-toolbar):not(.bytemd-custom-status) {
   flex: 1;
 }
 .bytemd {
@@ -107,14 +107,14 @@
   z-index: 9999;
 }
 .bytemd-wrapper.bytemd-wrapper-fullscreen .bytemd.bytemd-fullscreen {
-  height: calc(100vh - var(--luogu-toolbar-height)) !important;
-  height: calc(100dvh - var(--luogu-toolbar-height)) !important;
-  inset: var(--luogu-toolbar-height) 0 0;
+  height: calc(100vh - var(--bytemd-toolbar-height)) !important;
+  height: calc(100dvh - var(--bytemd-toolbar-height)) !important;
+  inset: var(--bytemd-toolbar-height) 0 0;
 }
-.bytemd-wrapper.bytemd-wrapper-fullscreen > .luogu-bytemd-toolbar {
-  height: var(--luogu-toolbar-height);
+.bytemd-wrapper.bytemd-wrapper-fullscreen > .bytemd-bytemd-toolbar {
+  height: var(--bytemd-toolbar-height);
   left: 0;
-  min-height: var(--luogu-toolbar-height);
+  min-height: var(--bytemd-toolbar-height);
   position: fixed;
   right: 0;
   top: 0;
@@ -140,35 +140,35 @@
 .bytemd .markdown-body ol {
   list-style: decimal;
 }
-.luogu-bytemd-toolbar {
+.bytemd-bytemd-toolbar {
   align-items: center;
-  background-color: var(--luogu-toolbar-bg);
-  border-bottom: 1px solid var(--luogu-toolbar-border);
+  background-color: var(--bytemd-toolbar-bg);
+  border-bottom: 1px solid var(--bytemd-toolbar-border);
   box-sizing: border-box;
-  color: var(--luogu-toolbar-text);
+  color: var(--bytemd-toolbar-text);
   display: flex;
   flex: 0 0 auto;
-  height: var(--luogu-toolbar-height);
+  height: var(--bytemd-toolbar-height);
   justify-content: space-between;
   padding: 0.2em 0.5em;
   user-select: none;
   z-index: 2;
 }
-.luogu-toolbar-side {
+.bytemd-toolbar-side {
   align-items: center;
   display: inline-flex;
   min-width: 0;
 }
-.luogu-toolbar-group {
+.bytemd-toolbar-group {
   align-items: center;
   display: inline-flex;
 }
-.luogu-toolbar-group:not(:last-child) {
-  border-right: 2px solid var(--luogu-toolbar-border);
+.bytemd-toolbar-group:not(:last-child) {
+  border-right: 2px solid var(--bytemd-toolbar-border);
   margin-right: 0.2em;
   padding-right: 0.2em;
 }
-.luogu-toolbar-tool {
+.bytemd-toolbar-tool {
   background-color: transparent;
   border: 0;
   border-radius: 4px;
@@ -182,40 +182,43 @@
   transition: background-color 0.2s ease-in-out;
   width: 24px;
 }
-.luogu-toolbar-tool:not(:last-child) {
+.bytemd-toolbar-tool:not(:last-child) {
   margin-right: 0.2em;
 }
-.luogu-toolbar-tool:hover:not(:disabled),
-.luogu-toolbar-tool:focus-visible {
-  background-color: var(--luogu-toolbar-hover);
+.bytemd-toolbar-tool:hover:not(:disabled),
+.bytemd-toolbar-tool:focus-visible {
+  background-color: var(--bytemd-toolbar-hover);
 }
-.luogu-toolbar-tool:focus-visible {
+.bytemd-toolbar-tool.is-active:not(:disabled) {
+  background-color: var(--bytemd-toolbar-hover);
+}
+.bytemd-toolbar-tool:focus-visible {
   outline: 2px solid rgb(0 0 0 / 20%);
   outline-offset: 1px;
 }
-.luogu-toolbar-tool:disabled {
+.bytemd-toolbar-tool:disabled {
   cursor: default;
   opacity: 0.45;
 }
-.luogu-toolbar-icon {
+.bytemd-toolbar-icon {
   display: block;
   height: 100%;
   position: relative;
   width: 100%;
 }
-.luogu-toolbar-icon .cs-icon {
+.bytemd-toolbar-icon .cs-icon {
   height: 18px;
   inset: 0;
   margin: auto;
   position: absolute;
   width: 18px;
 }
-.luogu-toolbar-tool:hover > .luogu-tooltip,
-.luogu-toolbar-tool:focus-visible > .luogu-tooltip {
+.bytemd-toolbar-tool:hover > .bytemd-tooltip,
+.bytemd-toolbar-tool:focus-visible > .bytemd-tooltip {
   opacity: 1;
   transform: translate(-50%, 0);
 }
-.luogu-tooltip {
+.bytemd-tooltip {
   background-color: rgb(85 85 85);
   border-radius: 4px;
   bottom: -2.5em;
@@ -235,7 +238,7 @@
   width: fit-content;
   z-index: 4;
 }
-.luogu-table-dialog-container {
+.bytemd-table-dialog-container {
   align-items: center;
   background-color: rgb(0 0 0 / 20%);
   display: flex;
@@ -247,19 +250,19 @@
   width: 100%;
   z-index: 10000;
 }
-.luogu-table-dialog-container .cs-dialog {
+.bytemd-table-dialog-container .cs-dialog {
   background-color: white;
   border-radius: 5px;
-  color: var(--luogu-toolbar-text);
+  color: var(--bytemd-toolbar-text);
   padding: 1em;
   width: min(500px, 70%);
 }
-.luogu-table-dialog-container .cs-dialog-big {
+.bytemd-table-dialog-container .cs-dialog-big {
   display: flex;
   height: 70%;
   width: min(1080px, 70%);
 }
-.luogu-table-dialog-container .cs-dialog-sidebar {
+.bytemd-table-dialog-container .cs-dialog-sidebar {
   border-right: 1px dashed rgb(0 0 0 / 30%);
   display: flex;
   flex: 2 1 0%;
@@ -267,11 +270,11 @@
   margin-right: 1em;
   padding-right: 1em;
 }
-.luogu-table-dialog-container .cs-dialog-view {
+.bytemd-table-dialog-container .cs-dialog-view {
   flex: 4 1 0%;
   overflow: auto;
 }
-.luogu-table-dialog-container .cs-dialog-header {
+.bytemd-table-dialog-container .cs-dialog-header {
   border-bottom: 1px solid rgb(0 0 0 / 30%);
   font-size: large;
   height: 1.6em;
@@ -279,7 +282,7 @@
   padding-bottom: 0.2em;
   position: relative;
 }
-.luogu-table-dialog-container .cs-close-container {
+.bytemd-table-dialog-container .cs-close-container {
   align-items: center;
   background: transparent;
   border: 0;
@@ -294,40 +297,40 @@
   top: 0;
   width: 24px;
 }
-.luogu-table-dialog-container .cs-close-button {
+.bytemd-table-dialog-container .cs-close-button {
   height: 16px;
   transition:
     color 0.2s ease-in-out,
     transform 0.2s ease-in-out;
   width: 16px;
 }
-.luogu-table-dialog-container .cs-close-container:hover .cs-close-button {
+.bytemd-table-dialog-container .cs-close-container:hover .cs-close-button {
   transform: scale(1.3);
 }
-.luogu-table-dialog-container .cs-dialog-item {
+.bytemd-table-dialog-container .cs-dialog-item {
   display: flex;
   width: 100%;
 }
-.luogu-table-dialog-container .cs-dialog-item:not(:last-child) {
+.bytemd-table-dialog-container .cs-dialog-item:not(:last-child) {
   margin-bottom: 1em;
 }
-.luogu-table-dialog-container .cs-dialog-item-label {
+.bytemd-table-dialog-container .cs-dialog-item-label {
   display: inline-block;
   margin-right: 0.5em;
   width: 5em;
 }
-.luogu-table-dialog-container .cs-dialog-item-content {
+.bytemd-table-dialog-container .cs-dialog-item-content {
   flex-grow: 1;
 }
-.luogu-table-dialog-container .cs-dialog input {
+.bytemd-table-dialog-container .cs-dialog input {
   height: 24px;
   padding: 0;
 }
-.luogu-table-dialog-container .cs-dialog select {
+.bytemd-table-dialog-container .cs-dialog select {
   height: 24px;
 }
-.luogu-table-dialog-container .cs-dialog textarea {
-  border: 1px solid var(--luogu-toolbar-border);
+.bytemd-table-dialog-container .cs-dialog textarea {
+  border: 1px solid var(--bytemd-toolbar-border);
   border-radius: 5px;
   flex: 1;
   font-family: var(--lfe-code-font, monospace);
@@ -336,96 +339,96 @@
   padding: 0.5em;
   resize: vertical;
 }
-.luogu-code-dialog-container .code-label {
+.bytemd-code-dialog-container .code-label {
   align-self: flex-start;
   min-height: 0;
   padding-top: 8px;
 }
-.luogu-code-dialog-container .code-content {
+.bytemd-code-dialog-container .code-content {
   min-height: 50vh;
 }
-.luogu-code-dialog-container .cs-dialog {
+.bytemd-code-dialog-container .cs-dialog {
   box-sizing: border-box;
   padding: 24px;
   width: min(760px, calc(100% - 48px));
 }
-.luogu-code-dialog-container .cs-dialog-header {
+.bytemd-code-dialog-container .cs-dialog-header {
   margin-bottom: 24px;
 }
-.luogu-code-dialog-container .cs-dialog-item {
+.bytemd-code-dialog-container .cs-dialog-item {
   align-items: flex-start;
   margin-bottom: 24px;
 }
-.luogu-code-dialog-container .cs-dialog-item-label {
+.bytemd-code-dialog-container .cs-dialog-item-label {
   flex: 0 0 6em;
   font-size: 18px;
   margin-right: 12px;
   width: auto;
 }
-.luogu-code-dialog-container .code-language-select {
+.bytemd-code-dialog-container .code-language-select {
   background-color: #ffffff;
   border: 1px solid #888888;
   border-radius: 4px;
   box-sizing: border-box;
-  color: var(--luogu-toolbar-text);
+  color: var(--bytemd-toolbar-text);
   height: 42px;
   min-width: 0;
   padding: 0 12px;
 }
-.luogu-code-dialog-container .code-content {
+.bytemd-code-dialog-container .code-content {
   border-color: #dddddd;
   border-radius: 4px;
   box-sizing: border-box;
   min-width: 0;
   padding: 12px;
 }
-.luogu-code-dialog-container .cs-dialog-submit-area {
+.bytemd-code-dialog-container .cs-dialog-submit-area {
   display: flex;
   justify-content: flex-end;
 }
-.luogu-table-dialog-container .cs-dialog-area {
+.bytemd-table-dialog-container .cs-dialog-area {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   margin-bottom: 1em;
 }
-.luogu-table-dialog-container .cs-dialog-area h3 {
+.bytemd-table-dialog-container .cs-dialog-area h3 {
   font-size: 1.17em;
   margin: 1em 0;
 }
-.luogu-table-dialog-container .submit-area {
+.bytemd-table-dialog-container .submit-area {
   display: flex;
   justify-content: flex-end;
 }
-.luogu-table-dialog-container .cs-dialog-button {
+.bytemd-table-dialog-container .cs-dialog-button {
   background-color: rgb(250 250 250);
   border-radius: 4px;
   cursor: pointer;
   padding: 0.4em 1em;
   transition: background-color 0.2s ease-in-out;
 }
-.luogu-table-dialog-container .cs-dialog-button:not(:last-child) {
+.bytemd-table-dialog-container .cs-dialog-button:not(:last-child) {
   margin-right: 1em;
 }
-.luogu-table-dialog-container .cs-dialog-button-info {
+.bytemd-table-dialog-container .cs-dialog-button-info {
   background-color: #ffffff;
   border: 1px solid #cbd5e1;
   color: #334155;
 }
-.luogu-table-dialog-container .cs-dialog-button-info:hover {
+.bytemd-table-dialog-container .cs-dialog-button-info:hover {
   background-color: #f1f5f9;
   border-color: #94a3b8;
 }
-.luogu-table-dialog-container .cs-dialog-button-primary {
+.bytemd-table-dialog-container .cs-dialog-button-primary {
   background-color: #2563eb;
   border: 1px solid #2563eb;
   color: #ffffff;
 }
-.luogu-table-dialog-container .cs-dialog-button-primary:hover {
+.bytemd-table-dialog-container .cs-dialog-button-primary:hover {
   background-color: #1d4ed8;
   border-color: #1d4ed8;
 }
-.luogu-autosave-dialog-container .cs-autosave-dialog {
+.bytemd-autosave-dialog-container .cs-autosave-dialog {
   box-sizing: border-box;
   display: flex;
   height: min(720px, calc(100vh - 64px));
@@ -434,7 +437,7 @@
   padding: 24px;
   width: min(1080px, calc(100vw - 48px));
 }
-.luogu-autosave-dialog-container .cs-autosave-sidebar {
+.bytemd-autosave-dialog-container .cs-autosave-sidebar {
   border-right: 1px dashed rgb(0 0 0 / 30%);
   display: flex;
   flex: 0 0 304px;
@@ -442,15 +445,15 @@
   min-width: 0;
   padding-right: 24px;
 }
-.luogu-autosave-dialog-container .cs-autosave-sidebar .cs-dialog-header {
+.bytemd-autosave-dialog-container .cs-autosave-sidebar .cs-dialog-header {
   margin-bottom: 16px;
 }
-.luogu-autosave-dialog-container .cs-autosave-history {
+.bytemd-autosave-dialog-container .cs-autosave-history {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
 }
-.luogu-autosave-dialog-container .cs-autosave-record {
+.bytemd-autosave-dialog-container .cs-autosave-record {
   align-items: flex-start;
   background: transparent;
   border: 0;
@@ -465,51 +468,51 @@
   text-align: left;
   width: 100%;
 }
-.luogu-autosave-dialog-container .cs-autosave-record:hover,
-.luogu-autosave-dialog-container .cs-autosave-record:focus-visible,
-.luogu-autosave-dialog-container .cs-autosave-record.selected {
+.bytemd-autosave-dialog-container .cs-autosave-record:hover,
+.bytemd-autosave-dialog-container .cs-autosave-record:focus-visible,
+.bytemd-autosave-dialog-container .cs-autosave-record.selected {
   background-color: #eaf6ff;
 }
-.luogu-autosave-dialog-container .cs-autosave-record:focus-visible {
+.bytemd-autosave-dialog-container .cs-autosave-record:focus-visible {
   outline: 2px solid #60a5fa;
   outline-offset: -2px;
 }
-.luogu-autosave-dialog-container .cs-autosave-record time {
+.bytemd-autosave-dialog-container .cs-autosave-record time {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.luogu-autosave-dialog-container .cs-autosave-record span {
+.bytemd-autosave-dialog-container .cs-autosave-record span {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.luogu-autosave-dialog-container .cs-autosave-empty,
-.luogu-autosave-dialog-container .cs-autosave-preview-empty {
+.bytemd-autosave-dialog-container .cs-autosave-empty,
+.bytemd-autosave-dialog-container .cs-autosave-preview-empty {
   color: #64748b;
   margin: 16px 0;
 }
-.luogu-autosave-dialog-container .cs-autosave-actions {
+.bytemd-autosave-dialog-container .cs-autosave-actions {
   display: flex;
   justify-content: flex-end;
   padding-top: 16px;
 }
-.luogu-autosave-dialog-container .cs-autosave-actions .cs-dialog-button:disabled {
+.bytemd-autosave-dialog-container .cs-autosave-actions .cs-dialog-button:disabled {
   cursor: default;
   opacity: 0.55;
 }
-.luogu-autosave-dialog-container .cs-autosave-preview {
+.bytemd-autosave-dialog-container .cs-autosave-preview {
   flex: 1 1 auto;
   min-width: 0;
   overflow: auto;
   padding-left: 24px;
 }
-.luogu-autosave-dialog-container .cs-autosave-preview h2 {
+.bytemd-autosave-dialog-container .cs-autosave-preview h2 {
   font-size: 24px;
   line-height: 1.4;
   margin: 0 0 24px;
 }
-.luogu-autosave-dialog-container .cs-autosave-preview pre {
+.bytemd-autosave-dialog-container .cs-autosave-preview pre {
   font-family: var(--lfe-code-font, monospace);
   font-size: 14px;
   line-height: 1.7;
@@ -517,26 +520,26 @@
   min-width: max-content;
   white-space: pre;
 }
-.luogu-simple-dialog-container .cs-dialog {
+.bytemd-simple-dialog-container .cs-dialog {
   box-sizing: border-box;
   padding: 24px;
   width: min(760px, calc(100% - 48px));
 }
-.luogu-simple-dialog-container .cs-dialog-header {
+.bytemd-simple-dialog-container .cs-dialog-header {
   font-size: 20px;
   margin-bottom: 32px;
 }
-.luogu-simple-dialog-container .cs-dialog-item {
+.bytemd-simple-dialog-container .cs-dialog-item {
   align-items: center;
   margin-bottom: 24px;
 }
-.luogu-simple-dialog-container .cs-dialog-item-label {
+.bytemd-simple-dialog-container .cs-dialog-item-label {
   flex: 0 0 6em;
   font-size: 18px;
   margin-right: 12px;
   width: auto;
 }
-.luogu-simple-dialog-container .cs-dialog input.cs-dialog-item-content {
+.bytemd-simple-dialog-container .cs-dialog input.cs-dialog-item-content {
   border: 1px solid #888888;
   border-radius: 4px;
   box-sizing: border-box;
@@ -544,12 +547,12 @@
   min-width: 0;
   padding: 0 12px;
 }
-.luogu-simple-dialog-container .cs-dialog-upload-area {
+.bytemd-simple-dialog-container .cs-dialog-upload-area {
   display: flex;
   justify-content: flex-end;
   margin: -8px 0 24px;
 }
-.luogu-simple-dialog-container .cs-dialog-upload-button {
+.bytemd-simple-dialog-container .cs-dialog-upload-button {
   background: transparent;
   border: 1px solid #bbbbbb;
   border-radius: 4px;
@@ -557,61 +560,61 @@
   cursor: pointer;
   padding: 0.4em 1em;
 }
-.luogu-simple-dialog-container .cs-dialog-error {
+.bytemd-simple-dialog-container .cs-dialog-error {
   color: #b42318;
   font-size: 14px;
   margin: -12px 0 24px;
 }
-.luogu-simple-dialog-container .cs-dialog-submit-area {
+.bytemd-simple-dialog-container .cs-dialog-submit-area {
   display: flex;
   justify-content: flex-end;
 }
-.luogu-simple-dialog-container .cs-dialog-button {
+.bytemd-simple-dialog-container .cs-dialog-button {
   font-size: 18px;
   min-width: 88px;
 }
-.luogu-simple-dialog-container button:disabled {
+.bytemd-simple-dialog-container button:disabled {
   cursor: default;
   opacity: 0.55;
 }
 @media (max-width: 760px) {
-  .luogu-autosave-dialog-container .cs-autosave-dialog {
+  .bytemd-autosave-dialog-container .cs-autosave-dialog {
     flex-direction: column;
     height: min(760px, calc(100vh - 32px));
     max-height: calc(100vh - 32px);
     padding: 18px;
     width: calc(100vw - 32px);
   }
-  .luogu-autosave-dialog-container .cs-autosave-sidebar {
+  .bytemd-autosave-dialog-container .cs-autosave-sidebar {
     border-bottom: 1px dashed rgb(0 0 0 / 30%);
     border-right: 0;
     flex: 0 0 42%;
     padding: 0 0 16px;
   }
-  .luogu-autosave-dialog-container .cs-autosave-preview {
+  .bytemd-autosave-dialog-container .cs-autosave-preview {
     min-height: 0;
     padding: 16px 0 0;
   }
-  .luogu-autosave-dialog-container .cs-autosave-preview h2 {
+  .bytemd-autosave-dialog-container .cs-autosave-preview h2 {
     font-size: 18px;
     margin-bottom: 16px;
   }
 }
 @media (max-width: 640px) {
-  .luogu-simple-dialog-container .cs-dialog {
+  .bytemd-simple-dialog-container .cs-dialog {
     padding: 18px;
   }
-  .luogu-simple-dialog-container .cs-dialog-item {
+  .bytemd-simple-dialog-container .cs-dialog-item {
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
   }
-  .luogu-simple-dialog-container .cs-dialog-item-label {
+  .bytemd-simple-dialog-container .cs-dialog-item-label {
     flex-basis: auto;
     font-size: 16px;
   }
 }
-.luogu-table-dialog-container .cs-dialog-table-editor {
+.bytemd-table-dialog-container .cs-dialog-table-editor {
   border: 2px solid black;
   border-collapse: collapse;
   display: table;
@@ -621,10 +624,10 @@
   table-layout: fixed;
   width: 100%;
 }
-.luogu-table-dialog-container .cs-dialog-table-editor > tbody > tr {
+.bytemd-table-dialog-container .cs-dialog-table-editor > tbody > tr {
   overflow: hidden;
 }
-.luogu-table-dialog-container .cs-dialog-table-editor > tbody > tr > td {
+.bytemd-table-dialog-container .cs-dialog-table-editor > tbody > tr > td {
   border: 2px solid black;
   min-width: 40px;
   min-height: 32px;
@@ -633,10 +636,10 @@
   user-select: none;
   white-space: pre-wrap;
 }
-.luogu-table-dialog-container .cs-dialog-table-editor > tbody > tr > td:hover {
+.bytemd-table-dialog-container .cs-dialog-table-editor > tbody > tr > td:hover {
   background-color: rgb(255 238 102 / 40%);
 }
-.luogu-table-dialog-container
+.bytemd-table-dialog-container
   .cs-dialog-table-editor
   > tbody
   > tr
