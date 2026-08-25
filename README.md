@@ -1,11 +1,13 @@
 # Mason Markdown
 
-面向 Halo 的现代 Markdown 文章编辑工作台。它保留 Halo 的编辑器扩展机制，并提供 GFM、Mason Markdown 扩展语法、公式、Mermaid、代码高亮、表格和 UC 文章管理能力。
+面向 Halo 的现代 Markdown 写作工作台：提供 GFM 与 Mason Markdown 扩展语法、KaTeX 公式、Mermaid、代码高亮、表格合并，以及独立的 UC 文章编辑页。
 
 [![CI](https://github.com/hardyz0517/plugin-masonmd/actions/workflows/ci.yaml/badge.svg)](https://github.com/hardyz0517/plugin-masonmd/actions/workflows/ci.yaml)
 [![Latest Release](https://img.shields.io/github/v/release/hardyz0517/plugin-masonmd)](https://github.com/hardyz0517/plugin-masonmd/releases)
 [![License](https://img.shields.io/github/license/hardyz0517/plugin-masonmd)](./LICENSE)
 [![Halo](https://img.shields.io/badge/Halo-%3E%3D2.25.0-5a67d8)](https://www.halo.run/)
+
+[用户指南](./docs/user-guide.md) · [排错指南](./docs/troubleshooting.md) · [全语法测试](./docs/compatibility/bytemd-all-syntax-test.md) · [Halo 应用市场](https://www.halo.run/store/apps/app-HTyhC)
 
 <p align="center">
   <img src="./images/preview.png" alt="Mason Markdown 编辑器预览" width="960" />
@@ -18,7 +20,7 @@ Mason Markdown 有两种使用方式：
 - **Console 编辑器扩展**：在 Halo 原生文章编辑器中切换到 Mason Markdown。
 - **独立 UC 编辑页**：访问 `/uc/masonmd-editor`，使用全屏文章工作台完成新建、保存和发布。
 
-插件的显示品牌已经升级为 Mason Markdown。内部插件身份、编辑器标识和资源路径保持兼容，已有文章和现有 Halo 安装可以直接升级；同时提供新的 `/uc/masonmd-editor` 入口。
+Mason Markdown 是插件的用户界面品牌。为兼容已有 Halo 安装，内部插件身份、底层 ByteMD 依赖和 `bytemd-` 资源前缀保持稳定；已有文章可以直接升级，同时提供新的 `/uc/masonmd-editor` 入口。
 
 ## 核心能力
 
