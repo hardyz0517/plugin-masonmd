@@ -1,6 +1,6 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "math"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["katex", "katex-mathml", "mord", "style=\"height:"]}
+  "htmlSnapshot": {"contains": ["katex", "katex-html", "mord", "style=\"height:"], "notContains": ["katex-mathml"]}
 }

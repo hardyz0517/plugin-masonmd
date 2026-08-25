@@ -1,6 +1,6 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "cute-table"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["luogu-cute-table-tuack", "luogu-tuack-break", "<colgroup>"]}
+  "htmlSnapshot": {"contains": ["bytemd-cute-table-tuack", "bytemd-tuack-break", "<colgroup>"]}
 }

@@ -54,8 +54,8 @@ function markFallback(
 ) {
   node.data = {
     ...node.data,
-    luoguDirectiveFallback: true,
-    luoguDirectiveSource: sourceForNode(node, source),
+    bytemdDirectiveFallback: true,
+    bytemdDirectiveSource: sourceForNode(node, source),
   };
   message(reason, node);
 }
@@ -70,7 +70,7 @@ function normalizeDirective(
     if (literal) {
       // remark-directive treats the colon in values such as
       // `javascript:alert(...)` as an inline directive. Inline directives are
-      // not part of the Luogu grammar, so preserve their exact source as text.
+      // not part of the Bytemd grammar, so preserve their exact source as text.
       node.type = "text";
       node.value = literal;
       delete node.name;
@@ -173,9 +173,9 @@ function associateCuteTables(
 
     table.data = {
       ...table.data,
-      luoguTableStyle: style,
+      bytemdTableStyle: style,
       ...(style === "tuack" && typeof tuackColumn === "string" && tuackColumn
-        ? { luoguTuackColumn: Number(tuackColumn) }
+        ? { bytemdTuackColumn: Number(tuackColumn) }
         : {}),
     };
   }
@@ -195,7 +195,7 @@ function walk(
   }
 }
 
-export function remarkLuoguDirective() {
+export function remarkBytemdDirective() {
   return (tree: RootNode, file: DiagnosticFile) => {
     const source = typeof file.value === "string" ? file.value : "";
     const report = (reason: string, node: DirectiveNode) => file.message(reason, node);

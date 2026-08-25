@@ -1,7 +1,12 @@
 import { fromHtml } from "hast-util-from-html";
 import katex from "katex";
-import { renderLuoguCodeBlock } from "./rehype-luogu-code";
-import { resolveLuoguTableMergeTopology } from "./table-merge-resolver";
+import { renderBytemdCodeBlock } from "./rehype-bytemd-code";
+import { resolveBytemdTableMergeTopology } from "./table-merge-resolver";
+import {
+  BYTEMD_MATH_CLASS,
+  BYTEMD_MATH_DISPLAY_CLASS,
+  BYTEMD_MATH_INLINE_CLASS,
+} from "./math-classes";
 
 type HNode = {
   type: "element" | "text";
@@ -53,6 +58,8 @@ type MathNode = {
 
 const text = (value: string): HNode => ({ type: "text", value });
 
+const mathAccessibleLabel = (value: string) => value.replace(/\s+/g, " ").trim() || "math";
+
 const normalizeClassNames = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string");
   return typeof value === "string" ? [value] : [];
@@ -85,16 +92,16 @@ function sourceFallback(_state: State, node: DirectiveNode): HNode {
   // interpreted as HTML or as another supported directive. The original
   // source position is the only lossless and safe fallback.
   const source = String(
-    node.data?.luoguDirectiveSource || `::${node.name || "directive"}`,
+    node.data?.bytemdDirectiveSource || `::${node.name || "directive"}`,
   );
-  const fallback = renderLuoguCodeBlock("plaintext", "", source) as HNode;
-  addClass(fallback, "luogu-directive-fallback");
+  const fallback = renderBytemdCodeBlock("plaintext", "", source) as HNode;
+  addClass(fallback, "bytemd-directive-fallback");
   return fallback;
 }
 
 function directiveHandler(state: State, rawNode: unknown): HNode {
   const node = rawNode as DirectiveNode;
-  if (node.data?.luoguDirectiveFallback) return sourceFallback(state, node);
+  if (node.data?.bytemdDirectiveFallback) return sourceFallback(state, node);
 
   const name = node.name || "";
   const label = getDirectiveLabel(node);
@@ -106,21 +113,21 @@ function directiveHandler(state: State, rawNode: unknown): HNode {
   if (["info", "success", "warning", "error"].includes(name)) {
     const summary = text(label || name);
     const properties: Record<string, unknown> = {
-      className: ["luogu-callout", `luogu-callout-${name}`],
+      className: ["bytemd-callout", `bytemd-callout-${name}`],
     };
     if (Object.prototype.hasOwnProperty.call(node.attributes || {}, "open")) {
       properties.open = true;
     }
 
-    const bodyClassNames = ["luogu-callout-body"];
+    const bodyClassNames = ["bytemd-callout-body"];
     if (
       body.some(
         (child) =>
           child.type === "element" &&
-          normalizeClassNames(child.properties?.className).includes("luogu-table-scroll")
+          normalizeClassNames(child.properties?.className).includes("bytemd-table-scroll")
       )
     ) {
-      bodyClassNames.push("luogu-callout-body-with-table");
+      bodyClassNames.push("bytemd-callout-body-with-table");
     }
 
     return {
@@ -139,7 +146,7 @@ function directiveHandler(state: State, rawNode: unknown): HNode {
     const children = body.map((child) => {
       if (child.type !== "element") return child;
       if (["p", "h1", "h2", "h3", "h4", "h5", "h6"].includes(child.tagName || "")) {
-        addClass(child, `luogu-align-${alignment || "left"}`);
+        addClass(child, `bytemd-align-${alignment || "left"}`);
       }
       return child;
     });
@@ -147,7 +154,7 @@ function directiveHandler(state: State, rawNode: unknown): HNode {
     return {
       type: "element",
       tagName: "div",
-      properties: { className: ["luogu-align-container"] },
+      properties: { className: ["bytemd-align-container"] },
       children,
     };
   }
@@ -156,9 +163,9 @@ function directiveHandler(state: State, rawNode: unknown): HNode {
     return {
       type: "element",
       tagName: "blockquote",
-      properties: { className: ["luogu-epigraph"] },
+      properties: { className: ["bytemd-epigraph"] },
       children: [
-        { type: "element", tagName: "div", properties: { className: ["luogu-epigraph-body"] }, children: body },
+        { type: "element", tagName: "div", properties: { className: ["bytemd-epigraph-body"] }, children: body },
         { type: "element", tagName: "cite", properties: {}, children: [text(label || "")] },
       ],
     };
@@ -173,7 +180,7 @@ function codeHandler(_state: State, rawNode: unknown): HNode {
   const metaOnly = /(?:^|\s)lines?\s*=/i.test(info);
   const language = (metaOnly ? "cpp" : info || "cpp").toLowerCase();
   const meta = [metaOnly ? info : "", node.meta || ""].filter(Boolean).join(" ");
-  return renderLuoguCodeBlock(language, meta, node.value || "") as HNode;
+  return renderBytemdCodeBlock(language, meta, node.value || "") as HNode;
 }
 
 function mathHandler(_state: State, rawNode: unknown): HNode {
@@ -186,6 +193,13 @@ function mathHandler(_state: State, rawNode: unknown): HNode {
     // UC save HTML and published articles independent from that editor hook.
     const rendered = katex.renderToString(node.value || "", {
       displayMode,
+      // Halo generates automatic excerpts from the saved HTML's text nodes.
+      // KaTeX's default htmlAndMathml output intentionally carries the same
+      // formula three times (MathML, TeX annotation, visual HTML), which made
+      // a source `$1$` appear as `111` in article cards. The wrapper below
+      // retains an accessible math name while the saved DOM exposes one text
+      // representation to every generic HTML consumer.
+      output: "html",
       throwOnError: false,
       trust: false,
     });
@@ -193,14 +207,28 @@ function mathHandler(_state: State, rawNode: unknown): HNode {
     return {
       type: "element",
       tagName,
-      properties: { className: ["math", displayMode ? "math-display" : "math-inline"] },
+      properties: {
+        className: [
+          BYTEMD_MATH_CLASS,
+          displayMode ? BYTEMD_MATH_DISPLAY_CLASS : BYTEMD_MATH_INLINE_CLASS,
+        ],
+        role: "math",
+        ariaLabel: mathAccessibleLabel(node.value || ""),
+      },
       children: fragment.children as HNode[],
     };
   } catch {
     return {
       type: "element",
       tagName,
-      properties: { className: ["math", displayMode ? "math-display" : "math-inline"] },
+      properties: {
+        className: [
+          BYTEMD_MATH_CLASS,
+          displayMode ? BYTEMD_MATH_DISPLAY_CLASS : BYTEMD_MATH_INLINE_CLASS,
+        ],
+        role: "math",
+        ariaLabel: mathAccessibleLabel(node.value || ""),
+      },
       children: [{ type: "text", value: node.value || "" }],
     };
   }
@@ -210,14 +238,14 @@ function tableHandler(state: State, rawNode: unknown): HNode {
   const node = rawNode as TableNode;
   const rows = node.children || [];
   const columnCount = Math.max(0, ...rows.map((row) => row.children?.length || 0));
-  const resolution = resolveLuoguTableMergeTopology(
+  const resolution = resolveBytemdTableMergeTopology(
     rows.map((row) =>
-      (row.children || []).map((cell) => cell.data?.luoguTableMarker)
+      (row.children || []).map((cell) => cell.data?.bytemdTableMarker)
     )
   );
   const rowElements: HNode[] = [];
   const tuackColumn =
-    typeof node.data?.luoguTuackColumn === "number" ? node.data.luoguTuackColumn : undefined;
+    typeof node.data?.bytemdTuackColumn === "number" ? node.data.bytemdTuackColumn : undefined;
 
   rows.forEach((row, rowIndex) => {
     const cells: HNode[] = [];
@@ -242,13 +270,13 @@ function tableHandler(state: State, rawNode: unknown): HNode {
     rowElements.push({ type: "element", tagName: "tr", properties: {}, children: cells });
   });
 
-  const tableStyle = node.data?.luoguTableStyle;
-  const classNames = ["luogu-markdown-table"];
+  const tableStyle = node.data?.bytemdTableStyle;
+  const classNames = ["bytemd-markdown-table"];
   const cuteTableClass =
     tableStyle === "three"
-      ? "luogu-cute-table-three"
+      ? "bytemd-cute-table-three"
       : tableStyle === "tuack"
-        ? "luogu-cute-table-tuack"
+        ? "bytemd-cute-table-tuack"
         : undefined;
   if (cuteTableClass) classNames.push(cuteTableClass);
 
@@ -267,7 +295,7 @@ function tableHandler(state: State, rawNode: unknown): HNode {
               tuackColumn >= 1 &&
               tuackColumn < columnCount &&
               columnIndex === tuackColumn
-                ? { className: ["luogu-tuack-break"] }
+                ? { className: ["bytemd-tuack-break"] }
                 : {},
             children: [],
           })),
@@ -297,8 +325,8 @@ function tableHandler(state: State, rawNode: unknown): HNode {
     ],
   } as HNode;
 
-  const wrapperClassNames = ["luogu-table-scroll"];
-  if (cuteTableClass) wrapperClassNames.push("luogu-cute-table", cuteTableClass);
+  const wrapperClassNames = ["bytemd-table-scroll"];
+  if (cuteTableClass) wrapperClassNames.push("bytemd-cute-table", cuteTableClass);
 
   return {
     type: "element",
@@ -308,7 +336,7 @@ function tableHandler(state: State, rawNode: unknown): HNode {
   };
 }
 
-export function createLuoguRemarkRehypeOptions() {
+export function createBytemdRemarkRehypeOptions() {
   return {
     handlers: {
       containerDirective: directiveHandler as never,

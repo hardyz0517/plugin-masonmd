@@ -5,7 +5,7 @@ import { compileMarkdown, createMarkdownRuntime } from "../pipeline";
 import type { MarkdownFeature } from "../types";
 
 type FixtureExpectation = {
-  profile: "legacy" | "luogu-v1";
+  profile: "legacy" | "bytemd-v1";
   features: MarkdownFeature[];
   diagnostics: string[];
   htmlSnapshot: {
@@ -20,7 +20,7 @@ const fixtureNames = readdirSync(fixtureRoot, { withFileTypes: true })
   .map((entry) => entry.name)
   .sort();
 
-describe("Luogu Markdown fixture inventory", () => {
+describe("Mason Markdown fixture inventory", () => {
   it.each(fixtureNames)("renders %s according to its contract", async (name) => {
     const directory = join(fixtureRoot, name);
     const input = readFileSync(join(directory, "input.md"), "utf8");

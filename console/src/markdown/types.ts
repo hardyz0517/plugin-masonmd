@@ -1,6 +1,6 @@
 export type MarkdownTarget = "editor-preview" | "save-html";
 
-export type MarkdownCompatibilityProfile = "legacy" | "luogu-v1";
+export type MarkdownCompatibilityProfile = "legacy" | "bytemd-v1";
 
 export type MarkdownFeature =
   | "gfm"

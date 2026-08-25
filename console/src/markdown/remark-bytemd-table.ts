@@ -1,4 +1,4 @@
-import { resolveLuoguTableMergeTopology } from "./table-merge-resolver";
+import { resolveBytemdTableMergeTopology } from "./table-merge-resolver";
 
 type TableNode = {
   type: string;
@@ -49,23 +49,23 @@ function visit(
       return;
     }
 
-    node.data = { ...node.data, luoguTableMarker: marker };
+    node.data = { ...node.data, bytemdTableMarker: marker };
   }
 
   node.children?.forEach((child) => visit(child, source, report));
 
   if (node.type === "table") {
     const rows = (node.children || []).filter((child) => child.type === "tableRow");
-    const resolution = resolveLuoguTableMergeTopology(
+    const resolution = resolveBytemdTableMergeTopology(
       rows.map((row) =>
-        (row.children || []).map((cell) => cell.data?.luoguTableMarker)
+        (row.children || []).map((cell) => cell.data?.bytemdTableMarker)
       )
     );
     resolution.diagnostics.forEach((diagnostic) => report(diagnostic.message, node));
   }
 }
 
-export function remarkLuoguTable() {
+export function remarkBytemdTable() {
   return (tree: RootNode, file: DiagnosticFile) => {
     const source = typeof file.value === "string" ? file.value : "";
     visit(tree, source, (reason, node) => file.message(reason, node));

@@ -1,11 +1,11 @@
 import type { MarkdownCompatibilityProfile } from "./types";
 
 export const DEFAULT_MARKDOWN_PROFILE: MarkdownCompatibilityProfile =
-  "luogu-v1";
+  "bytemd-v1";
 
-export const isLuoguProfile = (
+export const isBytemdProfile = (
   profile: MarkdownCompatibilityProfile
-): boolean => profile === "luogu-v1";
+): boolean => profile === "bytemd-v1";
 
 export const usesHardBreaks = (
   profile: MarkdownCompatibilityProfile

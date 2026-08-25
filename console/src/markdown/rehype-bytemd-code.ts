@@ -1,15 +1,15 @@
 import Prism from "prismjs";
 import { getPrismGrammar, resolveCodeLanguage } from "./language-registry";
 
-export type LuoguCodeHNode = {
+export type BytemdCodeHNode = {
   type: string;
   tagName?: string;
   value?: string;
   properties?: Record<string, unknown>;
-  children?: LuoguCodeHNode[];
+  children?: BytemdCodeHNode[];
 };
 
-type HNode = LuoguCodeHNode;
+type HNode = BytemdCodeHNode;
 
 // Keep the semantic <code> element, but place it behind one phrasing-content
 // wrapper. Halo's Shiki integration claims every `pre > code` block and moves
@@ -22,7 +22,7 @@ const codeContent = (
 ): HNode => ({
   type: "element",
   tagName: "span",
-  properties: { className: ["luogu-code-content"] },
+  properties: { className: ["bytemd-code-content"] },
   children: [
     {
       type: "element",
@@ -69,7 +69,9 @@ const tokenNodes = (tokens: unknown[]): HNode[] => {
 
 const lineRanges = (meta: string, lineCount: number, report: (reason: string) => void) => {
   const match = meta.match(/(?:^|\s)lines?\s*=\s*([^\s]+)/i);
-  if (!match) return { ranges: new Set<number>(), hasInvalid: false };
+  if (!match) {
+    return { ranges: new Set<number>(), hasInvalid: false, hasMetadata: false };
+  }
   const result = new Set<number>();
   let hasInvalid = false;
   for (const part of match[1].split(",")) {
@@ -93,7 +95,7 @@ const lineRanges = (meta: string, lineCount: number, report: (reason: string) =>
     }
     for (let line = start; line <= end; line += 1) result.add(line);
   }
-  return { ranges: result, hasInvalid };
+  return { ranges: result, hasInvalid, hasMetadata: true };
 };
 
 const lineChildren = (line: string, language: ReturnType<typeof resolveCodeLanguage>) => {
@@ -117,7 +119,7 @@ const createFallbackCodeBlock = (
   type: "element",
   tagName: "pre",
   properties: {
-    className: [`language-${language.language}`, "luogu-code-fallback"],
+    className: [`language-${language.language}`, "bytemd-code-fallback"],
   },
   children: [codeContent(language, codeChildren(code, language))],
 });
@@ -129,13 +131,34 @@ const createPlainCodeBlock = (
   type: "element",
   tagName: "pre",
   properties: {
-    className: ["luogu-code-block", `language-${language.language}`],
+    className: [
+      "bytemd-code-block",
+      "bytemd-code-block--no-line-numbers",
+      `language-${language.language}`,
+    ],
     dataLanguage: language.language,
   },
   children: [codeContent(language, [{ type: "text", value: code }])],
 });
 
-export function renderLuoguCodeBlock(
+const createCodeBlockWithoutLineNumbers = (
+  language: ReturnType<typeof resolveCodeLanguage>,
+  code: string,
+): HNode => ({
+  type: "element",
+  tagName: "pre",
+  properties: {
+    className: [
+      "bytemd-code-block",
+      "bytemd-code-block--no-line-numbers",
+      `language-${language.language}`,
+    ],
+    dataLanguage: language.language,
+  },
+  children: [codeContent(language, codeChildren(code, language))],
+});
+
+export function renderBytemdCodeBlock(
   rawLanguage: string | null | undefined,
   rawMeta: string,
   code: string,
@@ -148,25 +171,28 @@ export function renderLuoguCodeBlock(
   if (language.isUnknown || rangeResult.hasInvalid) {
     return createFallbackCodeBlock(language, code);
   }
+  if (!rangeResult.hasMetadata) {
+    return createCodeBlockWithoutLineNumbers(language, code);
+  }
   const highlighted = rangeResult.ranges;
   const lineNodes = lines.map((line, index) => ({
     type: "element",
     tagName: "span",
     properties: {
-      className: ["luogu-code-line", ...(highlighted.has(index + 1) ? ["is-highlighted"] : [])],
+      className: ["bytemd-code-line", ...(highlighted.has(index + 1) ? ["is-highlighted"] : [])],
       dataLine: index + 1,
     },
     children: [
       {
         type: "element",
         tagName: "span",
-        properties: { className: ["luogu-code-line-number"], ariaHidden: "true" },
+        properties: { className: ["bytemd-code-line-number"], ariaHidden: "true" },
         children: [{ type: "text", value: String(index + 1) }],
       },
       {
         type: "element",
         tagName: "span",
-        properties: { className: ["luogu-code-line-content"] },
+        properties: { className: ["bytemd-code-line-content"] },
         children: lineChildren(line, language),
       },
     ],
@@ -176,7 +202,7 @@ export function renderLuoguCodeBlock(
     type: "element",
     tagName: "pre",
     properties: {
-      className: ["luogu-code-block", `language-${language.language}`],
+      className: ["bytemd-code-block", `language-${language.language}`],
       dataLanguage: language.language,
     },
     children: [codeContent(language, lineNodes)],

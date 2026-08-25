@@ -14,7 +14,7 @@ const addUnique = (values: unknown[] | undefined, additions: string[]) => [
 ];
 
 export const createMarkdownSanitizeSchema = (
-  _profile: "legacy" | "luogu-v1"
+  _profile: "legacy" | "bytemd-v1"
 ): NonNullable<ViewerProps["sanitize"]> => {
   return (schema: SanitizeSchema) => {
     schema.tagNames = addUnique(schema.tagNames, [
@@ -60,6 +60,8 @@ export const createMarkdownSanitizeSchema = (
     );
     schema.attributes.math = addUnique(schema.attributes.math, ["xmlns", "display"]);
     schema.attributes.annotation = addUnique(schema.attributes.annotation, ["encoding"]);
+    schema.attributes.span = addUnique(schema.attributes.span, ["role", "ariaLabel"]);
+    schema.attributes.div = addUnique(schema.attributes.div, ["role", "ariaLabel"]);
     schema.attributes.svg = addUnique(schema.attributes.svg, [
       "xmlns",
       "viewBox",

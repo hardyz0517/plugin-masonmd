@@ -2,7 +2,7 @@ import { getProcessor } from "bytemd";
 import type { BytemdPlugin } from "bytemd";
 import { collectMarkdownDiagnostics } from "./diagnostics";
 import { createMarkdownSanitizeSchema } from "./sanitize-schema";
-import { createLuoguRemarkRehypeOptions } from "./remark-rehype-luogu-handlers";
+import { createBytemdRemarkRehypeOptions } from "./remark-rehype-bytemd-handlers";
 import type { MarkdownCompatibilityProfile } from "./types";
 
 export interface MarkdownProcessorRuntime {
@@ -37,8 +37,8 @@ export function createMarkdownProcessorOptions(
   return {
     plugins,
     sanitize: createMarkdownSanitizeSchema(profile),
-    // Keep the rollback profile on ByteMD's native handlers. Luogu handlers
+    // Keep the rollback profile on ByteMD's native handlers. Bytemd handlers
     // are deliberately enabled only for the compatibility profile.
-    remarkRehype: profile === "luogu-v1" ? createLuoguRemarkRehypeOptions() : {},
+    remarkRehype: profile === "bytemd-v1" ? createBytemdRemarkRehypeOptions() : {},
   };
 }

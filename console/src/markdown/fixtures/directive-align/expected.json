@@ -1,6 +1,6 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "directive"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["luogu-align-center", "<strong>text</strong>"]}
+  "htmlSnapshot": {"contains": ["bytemd-align-center", "<strong>text</strong>"]}
 }

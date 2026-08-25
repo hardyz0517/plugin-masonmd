@@ -64,7 +64,7 @@ function visit(node: CodeNode, file: DiagnosticFile) {
   node.children?.forEach((child) => visit(child, file));
 }
 
-export function remarkLuoguCode() {
+export function remarkBytemdCode() {
   return (tree: RootNode, file: DiagnosticFile) => {
     tree.children.forEach((child) => visit(child, file));
   };

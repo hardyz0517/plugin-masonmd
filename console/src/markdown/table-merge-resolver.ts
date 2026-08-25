@@ -1,13 +1,13 @@
-export type LuoguTableMergeMarker = "^" | "<" | ">";
+export type BytemdTableMergeMarker = "^" | "<" | ">";
 
-export interface LuoguTableMergeOwner {
+export interface BytemdTableMergeOwner {
   row: number;
   column: number;
   rowspan: number;
   colspan: number;
 }
 
-export interface LuoguTableMergeDiagnostic {
+export interface BytemdTableMergeDiagnostic {
   code:
     | "invalid-table-shape"
     | "invalid-merge-marker"
@@ -18,11 +18,11 @@ export interface LuoguTableMergeDiagnostic {
   column?: number;
 }
 
-export interface LuoguTableMergeResolution {
-  ownerByCell: Array<Array<LuoguTableMergeOwner | undefined>>;
-  owners: LuoguTableMergeOwner[];
+export interface BytemdTableMergeResolution {
+  ownerByCell: Array<Array<BytemdTableMergeOwner | undefined>>;
+  owners: BytemdTableMergeOwner[];
   valid: boolean;
-  diagnostics: LuoguTableMergeDiagnostic[];
+  diagnostics: BytemdTableMergeDiagnostic[];
 }
 
 type MergeEdge = {
@@ -30,7 +30,7 @@ type MergeEdge = {
   to: number;
 };
 
-const markerAt = (value: unknown): LuoguTableMergeMarker | undefined =>
+const markerAt = (value: unknown): BytemdTableMergeMarker | undefined =>
   value === "^" || value === "<" || value === ">" ? value : undefined;
 
 class DisjointSet {
@@ -67,10 +67,10 @@ class DisjointSet {
 }
 
 const createUnmergedResolution = (
-  markerGrid: ReadonlyArray<ReadonlyArray<LuoguTableMergeMarker | undefined>>,
-  diagnostics: LuoguTableMergeDiagnostic[]
-): LuoguTableMergeResolution => {
-  const owners: LuoguTableMergeOwner[] = [];
+  markerGrid: ReadonlyArray<ReadonlyArray<BytemdTableMergeMarker | undefined>>,
+  diagnostics: BytemdTableMergeDiagnostic[]
+): BytemdTableMergeResolution => {
+  const owners: BytemdTableMergeOwner[] = [];
   const ownerByCell = markerGrid.map((row, rowIndex) =>
     row.map((_, columnIndex) => {
       const owner = { row: rowIndex, column: columnIndex, rowspan: 1, colspan: 1 };
@@ -88,15 +88,15 @@ const createUnmergedResolution = (
 };
 
 /**
- * Resolves Luogu's table merge markers into rectangular ownership regions.
+ * Resolves Bytemd's table merge markers into rectangular ownership regions.
  * `^` joins the cell above and `<` joins the cell to its left. `>` is not a
- * documented Luogu merge marker, so it remains ordinary source text.
+ * documented Bytemd merge marker, so it remains ordinary source text.
  */
-export function resolveLuoguTableMergeTopology(
+export function resolveBytemdTableMergeTopology(
   source: ReadonlyArray<ReadonlyArray<unknown>>
-): LuoguTableMergeResolution {
+): BytemdTableMergeResolution {
   const markerGrid = source.map((row) => row.map(markerAt));
-  const diagnostics: LuoguTableMergeDiagnostic[] = [];
+  const diagnostics: BytemdTableMergeDiagnostic[] = [];
   const rowCount = markerGrid.length;
   const columnCount = markerGrid[0]?.length || 0;
 
@@ -188,8 +188,8 @@ export function resolveLuoguTableMergeTopology(
     }
   }
 
-  const owners: LuoguTableMergeOwner[] = [];
-  const ownerByCell = markerGrid.map((row) => Array<LuoguTableMergeOwner | undefined>(row.length));
+  const owners: BytemdTableMergeOwner[] = [];
+  const ownerByCell = markerGrid.map((row) => Array<BytemdTableMergeOwner | undefined>(row.length));
 
   components.forEach((members) => {
     const minRow = Math.min(...members.map((member) => member.row));
@@ -235,6 +235,6 @@ export function resolveLuoguTableMergeTopology(
   };
 }
 
-export function isLuoguTableMergeMarker(value: unknown): value is LuoguTableMergeMarker {
+export function isBytemdTableMergeMarker(value: unknown): value is BytemdTableMergeMarker {
   return markerAt(value) !== undefined;
 }

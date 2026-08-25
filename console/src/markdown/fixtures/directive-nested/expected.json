@@ -1,6 +1,6 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "directive"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["luogu-callout-warning", "luogu-callout-info", "<details"]}
+  "htmlSnapshot": {"contains": ["bytemd-callout-warning", "bytemd-callout-info", "<details"]}
 }

@@ -3,7 +3,7 @@
     "dev": "rsbuild build --env-mode development --watch",
     "prebuild": "pnpm run sync:published-markdown-css",
     "build": "rsbuild build",
-    "sync:published-markdown-css": "sass --no-source-map src/styles/luogu-markdown.scss ../src/main/resources/assets/luogu-markdown.css",
+    "sync:published-markdown-css": "node scripts/sync-published-markdown-css.mjs",
     "type-check": "vue-tsc --noEmit -p tsconfig.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "test:unit": "vitest run"

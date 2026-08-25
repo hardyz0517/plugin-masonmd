@@ -1,5 +1,5 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "prism-code"],
   "diagnostics": ["Unknown code language"],
   "htmlSnapshot": {"contains": ["language-cpp", "token", "language-plaintext", "data-language=\"plaintext\""]}

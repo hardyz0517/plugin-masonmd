@@ -1,5 +1,5 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "math"],
   "diagnostics": ["Invalid math expression"],
   "htmlSnapshot": {"contains": ["katex"]}

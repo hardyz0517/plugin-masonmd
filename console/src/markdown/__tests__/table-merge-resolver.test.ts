@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveLuoguTableMergeTopology } from "../table-merge-resolver";
+import { resolveBytemdTableMergeTopology } from "../table-merge-resolver";
 
-describe("Luogu table merge topology", () => {
+describe("Bytemd table merge topology", () => {
   it("resolves documented vertical and leftward merge markers", () => {
-    const result = resolveLuoguTableMergeTopology([
+    const result = resolveBytemdTableMergeTopology([
       [undefined, undefined, undefined],
       ["A", "<", "<"],
       ["^", "^", "^"],
@@ -18,7 +18,7 @@ describe("Luogu table merge topology", () => {
   });
 
   it("keeps a valid vertical chain when adjacent unsupported markers are present", () => {
-    const result = resolveLuoguTableMergeTopology([
+    const result = resolveBytemdTableMergeTopology([
       [undefined, undefined, undefined, undefined],
       [undefined, undefined, undefined, undefined],
       ["^", "<", ">", undefined],
@@ -37,7 +37,7 @@ describe("Luogu table merge topology", () => {
   });
 
   it("keeps only malformed merge groups as source cells", () => {
-    const result = resolveLuoguTableMergeTopology([
+    const result = resolveBytemdTableMergeTopology([
       [undefined, undefined, undefined],
       ["A", "<", "B"],
       ["^", ">", "^"],
@@ -53,7 +53,7 @@ describe("Luogu table merge topology", () => {
   });
 
   it("does not create an L-shaped span from incomplete continuations", () => {
-    const result = resolveLuoguTableMergeTopology([
+    const result = resolveBytemdTableMergeTopology([
       [undefined, undefined],
       ["A", "<"],
       ["^", "B"],

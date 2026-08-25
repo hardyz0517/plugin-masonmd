@@ -1,9 +1,9 @@
 import {
-  isLuoguTableMergeMarker,
-  resolveLuoguTableMergeTopology,
+  isBytemdTableMergeMarker,
+  resolveBytemdTableMergeTopology,
 } from "../markdown/table-merge-resolver";
 
-export interface LuoguTableCell {
+export interface BytemdTableCell {
   row: number;
   column: number;
   rowspan: number;
@@ -12,17 +12,17 @@ export interface LuoguTableCell {
   hidden: boolean;
 }
 
-export type LuoguTableGrid = LuoguTableCell[][];
-export type LuoguTableAlignment = "left" | "center" | "right" | null;
+export type BytemdTableGrid = BytemdTableCell[][];
+export type BytemdTableAlignment = "left" | "center" | "right" | null;
 
-export interface LuoguTableModel {
-  cells: LuoguTableGrid;
-  alignments: LuoguTableAlignment[];
+export interface BytemdTableModel {
+  cells: BytemdTableGrid;
+  alignments: BytemdTableAlignment[];
   valid: boolean;
   diagnostics: string[];
 }
 
-export function createLuoguTableCells(rows: number, columns: number): LuoguTableGrid {
+export function createBytemdTableCells(rows: number, columns: number): BytemdTableGrid {
   const safeRows = Math.max(1, Math.floor(rows) || 1);
   const safeColumns = Math.max(1, Math.floor(columns) || 1);
   return Array.from({ length: safeRows }, (_, row) =>
@@ -37,7 +37,7 @@ export function createLuoguTableCells(rows: number, columns: number): LuoguTable
   );
 }
 
-const cloneGrid = (cells: LuoguTableGrid): LuoguTableGrid =>
+const cloneGrid = (cells: BytemdTableGrid): BytemdTableGrid =>
   cells.map((row, rowIndex) =>
     row.map((cell, columnIndex) => ({
       ...cell,
@@ -49,16 +49,16 @@ const cloneGrid = (cells: LuoguTableGrid): LuoguTableGrid =>
     }))
   );
 
-const isMarker = (value: string) => isLuoguTableMergeMarker(value.trim());
+const isMarker = (value: string) => isBytemdTableMergeMarker(value.trim());
 
 /** Resolve source markers through the shared Markdown merge-topology resolver. */
-export function resolveLuoguTableMerges(cells: LuoguTableGrid): {
-  grid: LuoguTableGrid;
+export function resolveBytemdTableMerges(cells: BytemdTableGrid): {
+  grid: BytemdTableGrid;
   valid: boolean;
   diagnostics: string[];
 } {
   const source = cloneGrid(cells);
-  const resolved = resolveLuoguTableMergeTopology(
+  const resolved = resolveBytemdTableMergeTopology(
     source.map((row) => row.map((cell) => cell.content.trim()))
   );
 
@@ -102,7 +102,7 @@ const splitTableRow = (line: string): string[] => {
   return cells;
 };
 
-const alignmentOf = (separator: string): LuoguTableAlignment => {
+const alignmentOf = (separator: string): BytemdTableAlignment => {
   const value = separator.trim();
   const left = value.startsWith(":");
   const right = value.endsWith(":");
@@ -112,8 +112,8 @@ const alignmentOf = (separator: string): LuoguTableAlignment => {
   return null;
 };
 
-/** Parse a standalone GFM/Luogu table source into the editor model. */
-export function parseLuoguTableSource(source: string): LuoguTableModel | null {
+/** Parse a standalone GFM/Bytemd table source into the editor model. */
+export function parseBytemdTableSource(source: string): BytemdTableModel | null {
   const lines = source
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -132,7 +132,7 @@ export function parseLuoguTableSource(source: string): LuoguTableModel | null {
 
   const rows = [header, ...lines.slice(2).map(splitTableRow)];
   const columnCount = header.length;
-  const cells = createLuoguTableCells(rows.length, columnCount);
+  const cells = createBytemdTableCells(rows.length, columnCount);
   const diagnostics: string[] = [];
   rows.forEach((row, rowIndex) => {
     if (row.length !== columnCount) {
@@ -145,7 +145,7 @@ export function parseLuoguTableSource(source: string): LuoguTableModel | null {
 
   const resolved = diagnostics.length
     ? { grid: cells, valid: false, diagnostics: [] as string[] }
-    : resolveLuoguTableMerges(cells);
+    : resolveBytemdTableMerges(cells);
   return {
     cells: resolved.grid,
     alignments: separator.map(alignmentOf),
@@ -160,11 +160,11 @@ const escapeCell = (value: string) => {
   return markerSafe.replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
 };
 
-export function serializeLuoguTable(
-  cells: LuoguTableGrid,
-  options: { alignments?: LuoguTableAlignment[] } = {}
+export function serializeBytemdTable(
+  cells: BytemdTableGrid,
+  options: { alignments?: BytemdTableAlignment[] } = {}
 ): string {
-  const rows = cells.length ? cells : createLuoguTableCells(1, 1);
+  const rows = cells.length ? cells : createBytemdTableCells(1, 1);
   const columnCount = rows[0]?.length || 1;
   const ownerAt = (row: number, column: number) => {
     for (const sourceRow of rows) {

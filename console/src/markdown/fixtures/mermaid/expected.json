@@ -1,6 +1,6 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "mermaid"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["language-mermaid"], "notContains": ["luogu-code-line-number"]}
+  "htmlSnapshot": {"contains": ["language-mermaid"], "notContains": ["bytemd-code-line-number"]}
 }

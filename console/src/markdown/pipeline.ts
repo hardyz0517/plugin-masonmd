@@ -9,19 +9,36 @@ import remarkDirective from "remark-directive";
 import { mermaidPlugin } from "../plugins/mermaid";
 import { pluginSlug } from "../plugins";
 import { createMarkdownProcessorOptions, processMarkdown, type MarkdownProcessorRuntime } from "./bytemd-processor";
-import { remarkLuoguCode } from "./remark-luogu-code";
-import { remarkLuoguDirective } from "./remark-luogu-directive";
-import { remarkLuoguMath } from "./remark-luogu-math";
-import { remarkLuoguTable } from "./remark-luogu-table";
+import { remarkBytemdCode } from "./remark-bytemd-code";
+import { remarkBytemdDirective } from "./remark-bytemd-directive";
+import { remarkBytemdMath } from "./remark-bytemd-math";
+import { remarkBytemdTable } from "./remark-bytemd-table";
 import { remarkStripUnsafeHtml } from "./remark-strip-unsafe-html";
 import type { MarkdownCompatibilityProfile, MarkdownCompileResult, MarkdownRenderRequest } from "./types";
+
+export function createMathSyntaxPlugin(
+  profile: MarkdownCompatibilityProfile
+): BytemdPlugin {
+  const mathPlugin = math({ locale: mathLocale });
+  if (profile === "legacy") {
+    return mathPlugin;
+  }
+
+  // The Bytemd rehype handler emits complete KaTeX HTML during compilation.
+  // ByteMD's viewerEffect is intended for raw math wrappers and would read
+  // KaTeX's hidden MathML plus visible HTML back into KaTeX a second time.
+  return {
+    ...mathPlugin,
+    viewerEffect: undefined,
+  };
+}
 
 export function createMarkdownSyntaxPlugins(
   profile: MarkdownCompatibilityProfile
 ): BytemdPlugin[] {
   const syntax: BytemdPlugin[] = [
     gfm({ locale: gfmLocale }),
-    math({ locale: mathLocale }),
+    createMathSyntaxPlugin(profile),
     pluginSlug(),
     mermaidPlugin(),
     { remark: (processor) => processor.use(remarkStripUnsafeHtml) },
@@ -31,10 +48,10 @@ export function createMarkdownSyntaxPlugins(
     syntax.push(highlight(), breaks());
   } else {
     syntax.push({ remark: (processor) => processor.use(remarkDirective) });
-    syntax.push({ remark: (processor) => processor.use(remarkLuoguDirective) });
-    syntax.push({ remark: (processor) => processor.use(remarkLuoguMath) });
-    syntax.push({ remark: (processor) => processor.use(remarkLuoguTable) });
-    syntax.push({ remark: (processor) => processor.use(remarkLuoguCode) });
+    syntax.push({ remark: (processor) => processor.use(remarkBytemdDirective) });
+    syntax.push({ remark: (processor) => processor.use(remarkBytemdMath) });
+    syntax.push({ remark: (processor) => processor.use(remarkBytemdTable) });
+    syntax.push({ remark: (processor) => processor.use(remarkBytemdCode) });
   }
 
   return syntax;

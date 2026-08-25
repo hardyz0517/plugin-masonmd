@@ -4,7 +4,7 @@ import { createMarkdownRuntime } from "../pipeline";
 
 describe("ByteMD public processor contract", () => {
   it("accepts the shared sanitizer and remark-rehype options", () => {
-    const runtime = createMarkdownRuntime("luogu-v1");
+    const runtime = createMarkdownRuntime("bytemd-v1");
     const processor = getProcessor({
       plugins: runtime.plugins,
       sanitize: runtime.sanitize,

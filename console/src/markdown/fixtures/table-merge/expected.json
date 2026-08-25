@@ -1,5 +1,5 @@
 {
-  "profile": "luogu-v1",
+  "profile": "bytemd-v1",
   "features": ["gfm", "table-merge"],
   "diagnostics": [],
   "htmlSnapshot": {"contains": ["rowspan=\"2\"", "colspan=\"2\""], "notContains": ["<table>"]}
