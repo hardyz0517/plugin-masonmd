@@ -1,6 +1,6 @@
 import type { BytemdEditorContext } from "bytemd";
 
-export const BYTEMD_SHORTCUTS = {
+export const MASON_SHORTCUTS = {
   headingUp: ["Ctrl-Shift-Up", "Cmd-Shift-Up"],
   headingDown: ["Ctrl-Shift-Down", "Cmd-Shift-Down"],
   horizontalRule: ["Ctrl-Shift-H", "Cmd-Shift-H"],
@@ -60,27 +60,27 @@ export function createMarkdownShortcutMap(
     });
   };
 
-  bind(BYTEMD_SHORTCUTS.headingUp, (ctx) => changeHeading(ctx, -1));
-  bind(BYTEMD_SHORTCUTS.headingDown, (ctx) => changeHeading(ctx, 1));
-  bind(BYTEMD_SHORTCUTS.horizontalRule, (ctx) => ctx.appendBlock("---"));
-  bind(BYTEMD_SHORTCUTS.bold, (ctx) => ctx.wrapText("**"));
-  bind(BYTEMD_SHORTCUTS.italic, (ctx) => ctx.wrapText("*"));
-  bind(BYTEMD_SHORTCUTS.strike, (ctx) => ctx.wrapText("~~"));
-  bind(BYTEMD_SHORTCUTS.math, (ctx) => ctx.wrapText("$"));
-  bind(BYTEMD_SHORTCUTS.quote, (ctx) => replaceLines(ctx, (line) => `> ${line}`));
-  bind(BYTEMD_SHORTCUTS.code, (ctx) => ctx.appendBlock("```cpp\n\n```"));
-  bind(BYTEMD_SHORTCUTS.table, shortcutActions.insertTable);
+  bind(MASON_SHORTCUTS.headingUp, (ctx) => changeHeading(ctx, -1));
+  bind(MASON_SHORTCUTS.headingDown, (ctx) => changeHeading(ctx, 1));
+  bind(MASON_SHORTCUTS.horizontalRule, (ctx) => ctx.appendBlock("---"));
+  bind(MASON_SHORTCUTS.bold, (ctx) => ctx.wrapText("**"));
+  bind(MASON_SHORTCUTS.italic, (ctx) => ctx.wrapText("*"));
+  bind(MASON_SHORTCUTS.strike, (ctx) => ctx.wrapText("~~"));
+  bind(MASON_SHORTCUTS.math, (ctx) => ctx.wrapText("$"));
+  bind(MASON_SHORTCUTS.quote, (ctx) => replaceLines(ctx, (line) => `> ${line}`));
+  bind(MASON_SHORTCUTS.code, (ctx) => ctx.appendBlock("```cpp\n\n```"));
+  bind(MASON_SHORTCUTS.table, shortcutActions.insertTable);
   bind(
-    BYTEMD_SHORTCUTS.link,
+    MASON_SHORTCUTS.link,
     shortcutActions.insertLink || ((ctx) => ctx.wrapText("[]()")),
   );
   bind(
-    BYTEMD_SHORTCUTS.image,
+    MASON_SHORTCUTS.image,
     shortcutActions.insertImage || ((ctx) => ctx.wrapText("![]()")),
   );
-  bind(BYTEMD_SHORTCUTS.unorderedList, (ctx) => replaceLines(ctx, (line) => `- ${line}`));
-  bind(BYTEMD_SHORTCUTS.orderedList, (ctx) => replaceLines(ctx, (line, index) => `${index + 1}. ${line}`));
-  bind(BYTEMD_SHORTCUTS.taskList, (ctx) => replaceLines(ctx, (line) => `- [ ] ${line}`));
+  bind(MASON_SHORTCUTS.unorderedList, (ctx) => replaceLines(ctx, (line) => `- ${line}`));
+  bind(MASON_SHORTCUTS.orderedList, (ctx) => replaceLines(ctx, (line, index) => `${index + 1}. ${line}`));
+  bind(MASON_SHORTCUTS.taskList, (ctx) => replaceLines(ctx, (line) => `- [ ] ${line}`));
 
   return context.codemirror.normalizeKeyMap(
     Object.fromEntries(

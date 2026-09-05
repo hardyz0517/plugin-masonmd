@@ -5,7 +5,7 @@ import { Window } from "happy-dom";
 import { describe, expect, it } from "vitest";
 
 const pluginStyles = compile(
-  join(__dirname, "../../styles/bytemd-markdown.scss"),
+  join(__dirname, "../../styles/mason-markdown.scss"),
 ).css;
 const editorStyles = compile(join(__dirname, "../../styles/main.scss")).css;
 const githubStyles = readFileSync(
@@ -24,7 +24,7 @@ function createWindow(styles: string, markup: string) {
 }
 
 const displayMath = `
-  <div class="bytemd-math bytemd-math-display">
+  <div class="mason-math mason-math-display">
     <span class="katex-display"><span class="katex"><span class="katex-html">x = 1</span></span></span>
   </div>
 `;
@@ -33,9 +33,9 @@ describe("display math style contract", () => {
   it("centers $$ formulas in published content", () => {
     const window = createWindow(
       pluginStyles,
-      `<div class="bytemd-markdown-body">${displayMath}</div>`,
+      `<div class="mason-markdown-body">${displayMath}</div>`,
     );
-    const wrapper = window.document.querySelector(".bytemd-math-display")!;
+    const wrapper = window.document.querySelector(".mason-math-display")!;
     const display = window.document.querySelector(".katex-display")!;
     const katex = window.document.querySelector(".katex")!;
 
@@ -55,10 +55,10 @@ describe("display math style contract", () => {
       editorStyles,
       `<div class="bytemd"><div class="bytemd-preview"><div class="markdown-body">${displayMath}</div></div></div>`,
     );
-    const wrapper = window.document.querySelector(".bytemd-math-display")!;
+    const wrapper = window.document.querySelector(".mason-math-display")!;
     const display = window.document.querySelector(".katex-display")!;
     const inlineMath = window.document.createElement("span");
-    inlineMath.className = "bytemd-math bytemd-math-inline";
+    inlineMath.className = "mason-math mason-math-inline";
     inlineMath.textContent = "x";
     window.document.querySelector(".markdown-body")!.append(inlineMath);
 
@@ -92,7 +92,7 @@ describe("display math style contract", () => {
     const window = createWindow(
       pluginStyles,
       `<div class="hardy-prose">
-        <p class="bytemd-math-paragraph-display"><span class="math math-inline"><span class="katex">x = 1</span></span></p>
+        <p class="mason-math-paragraph-display"><span class="math math-inline"><span class="katex">x = 1</span></span></p>
         <p>before <span class="math math-inline"><span class="katex">x = 1</span></span></p>
       </div>`,
     );

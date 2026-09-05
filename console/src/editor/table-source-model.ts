@@ -1,9 +1,9 @@
 import {
-  isBytemdTableMergeMarker,
-  resolveBytemdTableMergeTopology,
+  isMasonTableMergeMarker,
+  resolveMasonTableMergeTopology,
 } from "../markdown/table-merge-resolver";
 
-export interface BytemdTableCell {
+export interface MasonTableCell {
   row: number;
   column: number;
   rowspan: number;
@@ -12,17 +12,17 @@ export interface BytemdTableCell {
   hidden: boolean;
 }
 
-export type BytemdTableGrid = BytemdTableCell[][];
-export type BytemdTableAlignment = "left" | "center" | "right" | null;
+export type MasonTableGrid = MasonTableCell[][];
+export type MasonTableAlignment = "left" | "center" | "right" | null;
 
-export interface BytemdTableModel {
-  cells: BytemdTableGrid;
-  alignments: BytemdTableAlignment[];
+export interface MasonTableModel {
+  cells: MasonTableGrid;
+  alignments: MasonTableAlignment[];
   valid: boolean;
   diagnostics: string[];
 }
 
-export function createBytemdTableCells(rows: number, columns: number): BytemdTableGrid {
+export function createMasonTableCells(rows: number, columns: number): MasonTableGrid {
   const safeRows = Math.max(1, Math.floor(rows) || 1);
   const safeColumns = Math.max(1, Math.floor(columns) || 1);
   return Array.from({ length: safeRows }, (_, row) =>
@@ -37,7 +37,7 @@ export function createBytemdTableCells(rows: number, columns: number): BytemdTab
   );
 }
 
-const cloneGrid = (cells: BytemdTableGrid): BytemdTableGrid =>
+const cloneGrid = (cells: MasonTableGrid): MasonTableGrid =>
   cells.map((row, rowIndex) =>
     row.map((cell, columnIndex) => ({
       ...cell,
@@ -49,16 +49,16 @@ const cloneGrid = (cells: BytemdTableGrid): BytemdTableGrid =>
     }))
   );
 
-const isMarker = (value: string) => isBytemdTableMergeMarker(value.trim());
+const isMarker = (value: string) => isMasonTableMergeMarker(value.trim());
 
 /** Resolve source markers through the shared Markdown merge-topology resolver. */
-export function resolveBytemdTableMerges(cells: BytemdTableGrid): {
-  grid: BytemdTableGrid;
+export function resolveMasonTableMerges(cells: MasonTableGrid): {
+  grid: MasonTableGrid;
   valid: boolean;
   diagnostics: string[];
 } {
   const source = cloneGrid(cells);
-  const resolved = resolveBytemdTableMergeTopology(
+  const resolved = resolveMasonTableMergeTopology(
     source.map((row) => row.map((cell) => cell.content.trim()))
   );
 
@@ -102,7 +102,7 @@ const splitTableRow = (line: string): string[] => {
   return cells;
 };
 
-const alignmentOf = (separator: string): BytemdTableAlignment => {
+const alignmentOf = (separator: string): MasonTableAlignment => {
   const value = separator.trim();
   const left = value.startsWith(":");
   const right = value.endsWith(":");
@@ -112,8 +112,8 @@ const alignmentOf = (separator: string): BytemdTableAlignment => {
   return null;
 };
 
-/** Parse a standalone GFM/Bytemd table source into the editor model. */
-export function parseBytemdTableSource(source: string): BytemdTableModel | null {
+/** Parse a standalone GFM/Mason Markdown table source into the editor model. */
+export function parseMasonTableSource(source: string): MasonTableModel | null {
   const lines = source
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -132,7 +132,7 @@ export function parseBytemdTableSource(source: string): BytemdTableModel | null 
 
   const rows = [header, ...lines.slice(2).map(splitTableRow)];
   const columnCount = header.length;
-  const cells = createBytemdTableCells(rows.length, columnCount);
+  const cells = createMasonTableCells(rows.length, columnCount);
   const diagnostics: string[] = [];
   rows.forEach((row, rowIndex) => {
     if (row.length !== columnCount) {
@@ -145,7 +145,7 @@ export function parseBytemdTableSource(source: string): BytemdTableModel | null 
 
   const resolved = diagnostics.length
     ? { grid: cells, valid: false, diagnostics: [] as string[] }
-    : resolveBytemdTableMerges(cells);
+    : resolveMasonTableMerges(cells);
   return {
     cells: resolved.grid,
     alignments: separator.map(alignmentOf),
@@ -160,11 +160,11 @@ const escapeCell = (value: string) => {
   return markerSafe.replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
 };
 
-export function serializeBytemdTable(
-  cells: BytemdTableGrid,
-  options: { alignments?: BytemdTableAlignment[] } = {}
+export function serializeMasonTable(
+  cells: MasonTableGrid,
+  options: { alignments?: MasonTableAlignment[] } = {}
 ): string {
-  const rows = cells.length ? cells : createBytemdTableCells(1, 1);
+  const rows = cells.length ? cells : createMasonTableCells(1, 1);
   const columnCount = rows[0]?.length || 1;
   const ownerAt = (row: number, column: number) => {
     for (const sourceRow of rows) {

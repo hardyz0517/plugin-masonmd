@@ -5,11 +5,11 @@ import {
   mergeTableCells,
   splitTableCell,
 } from "../table-commands";
-import { createBytemdTableCells } from "../table-source-model";
+import { createMasonTableCells } from "../table-source-model";
 
-describe("Bytemd table commands", () => {
+describe("Mason Markdown table commands", () => {
   it("merges and splits a selected source-model range", () => {
-    const cells = createBytemdTableCells(2, 2);
+    const cells = createMasonTableCells(2, 2);
     cells[0][0].content = "A";
     cells[0][1].content = "B";
     const selection = getTableSelectionRect({ row: 0, column: 0 }, { row: 1, column: 1 });
@@ -24,7 +24,7 @@ describe("Bytemd table commands", () => {
   });
 
   it("rejects a merge that crosses an existing merged owner", () => {
-    const cells = createBytemdTableCells(2, 2);
+    const cells = createMasonTableCells(2, 2);
     cells[0][0].rowspan = 2;
     cells[1][0].hidden = true;
     const selection = getTableSelectionRect({ row: 0, column: 0 }, { row: 0, column: 1 });

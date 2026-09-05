@@ -14,7 +14,7 @@ const addUnique = (values: unknown[] | undefined, additions: string[]) => [
 ];
 
 export const createMarkdownSanitizeSchema = (
-  _profile: "legacy" | "bytemd-v1"
+  _profile: "legacy" | "mason-v1"
 ): NonNullable<ViewerProps["sanitize"]> => {
   return (schema: SanitizeSchema) => {
     schema.tagNames = addUnique(schema.tagNames, [

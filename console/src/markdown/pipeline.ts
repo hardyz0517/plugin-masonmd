@@ -8,11 +8,11 @@ import type { BytemdPlugin } from "bytemd";
 import remarkDirective from "remark-directive";
 import { mermaidPlugin } from "../plugins/mermaid";
 import { pluginSlug } from "../plugins";
-import { createMarkdownProcessorOptions, processMarkdown, type MarkdownProcessorRuntime } from "./bytemd-processor";
-import { remarkBytemdCode } from "./remark-bytemd-code";
-import { remarkBytemdDirective } from "./remark-bytemd-directive";
-import { remarkBytemdMath } from "./remark-bytemd-math";
-import { remarkBytemdTable } from "./remark-bytemd-table";
+import { createMarkdownProcessorOptions, processMarkdown, type MarkdownProcessorRuntime } from "./mason-markdown-processor";
+import { remarkMasonCode } from "./remark-mason-code";
+import { remarkMasonDirective } from "./remark-mason-directive";
+import { remarkMasonMath } from "./remark-mason-math";
+import { remarkMasonTable } from "./remark-mason-table";
 import { remarkStripUnsafeHtml } from "./remark-strip-unsafe-html";
 import type { MarkdownCompatibilityProfile, MarkdownCompileResult, MarkdownRenderRequest } from "./types";
 
@@ -24,7 +24,7 @@ export function createMathSyntaxPlugin(
     return mathPlugin;
   }
 
-  // The Bytemd rehype handler emits complete KaTeX HTML during compilation.
+  // Mason Markdown's rehype handler emits complete KaTeX HTML during compilation.
   // ByteMD's viewerEffect is intended for raw math wrappers and would read
   // KaTeX's hidden MathML plus visible HTML back into KaTeX a second time.
   return {
@@ -48,10 +48,10 @@ export function createMarkdownSyntaxPlugins(
     syntax.push(highlight(), breaks());
   } else {
     syntax.push({ remark: (processor) => processor.use(remarkDirective) });
-    syntax.push({ remark: (processor) => processor.use(remarkBytemdDirective) });
-    syntax.push({ remark: (processor) => processor.use(remarkBytemdMath) });
-    syntax.push({ remark: (processor) => processor.use(remarkBytemdTable) });
-    syntax.push({ remark: (processor) => processor.use(remarkBytemdCode) });
+    syntax.push({ remark: (processor) => processor.use(remarkMasonDirective) });
+    syntax.push({ remark: (processor) => processor.use(remarkMasonMath) });
+    syntax.push({ remark: (processor) => processor.use(remarkMasonTable) });
+    syntax.push({ remark: (processor) => processor.use(remarkMasonCode) });
   }
 
   return syntax;

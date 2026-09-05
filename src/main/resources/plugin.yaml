@@ -1,25 +1,21 @@
 apiVersion: plugin.halo.run/v1alpha1
 kind: Plugin
 metadata:
-  name: PluginBytemd
-  annotations:
-    # Add supports for Halo App Store
-    # https://www.halo.run/store/apps/app-HTyhC
-    "store.halo.run/app-id": "app-HTyhC"
+  name: PluginMasonMarkdown
 spec:
   enabled: true
   requires: ">=2.25.0"
   author:
-    name: Halo
-    website: https://github.com/halo-dev
-  logo: logo.png
-  homepage: https://www.halo.run/store/apps/app-HTyhC
+    name: Hardy Zheng
+    website: https://hardyzheng.com
+  logo: mason-markdown-logo.png
+  homepage: https://github.com/hardyz0517/plugin-masonmd
   repo: https://github.com/hardyz0517/plugin-masonmd
   issues: https://github.com/hardyz0517/plugin-masonmd/issues
   displayName: "Mason Markdown"
   description: "面向 Halo 的现代 Mason Markdown 文章编辑工作台，兼容 GFM 与扩展 Markdown 语法，支持公式、Mermaid、表格、附件和 UC 文章管理"
-  settingName: setting-plugin-bytemd
-  configMapName: configmap-plugin-bytemd
+  settingName: setting-plugin-masonmd
+  configMapName: configmap-plugin-masonmd
   license:
     - name: "GPL-3.0"
       url: "https://github.com/hardyz0517/plugin-masonmd/blob/main/LICENSE"

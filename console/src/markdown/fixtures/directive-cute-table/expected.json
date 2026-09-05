@@ -1,6 +1,6 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm", "cute-table"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["bytemd-cute-table-tuack", "bytemd-tuack-break", "<colgroup>"]}
+  "htmlSnapshot": {"contains": ["mason-cute-table-tuack", "mason-tuack-break", "<colgroup>"]}
 }

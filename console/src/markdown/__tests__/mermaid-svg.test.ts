@@ -21,10 +21,10 @@ describe("Mermaid SVG sanitizer", () => {
     expect(svg?.getAttribute("style")).toContain("height: auto");
     expect(svg?.querySelector("path")?.getAttribute("onload")).toBeNull();
     expect(svg?.querySelector("style")?.textContent).toContain(
-      "var(--bytemd-mermaid-line-color, #007acc)"
+      "var(--mason-mermaid-line-color, #007acc)"
     );
     expect(svg?.querySelector("style")?.textContent).toContain(
-      "plugin-bytemd Mermaid marker colors"
+      "mason-markdown Mermaid marker colors"
     );
     expect(svg?.querySelector("style")?.textContent).not.toContain(")333)");
   });

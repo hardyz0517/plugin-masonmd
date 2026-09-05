@@ -13,51 +13,51 @@ import {
   sanitizeMermaidSvg,
 } from "../../plugins/mermaid";
 import {
-  createBytemdTableCells,
-  parseBytemdTableSource,
-  serializeBytemdTable,
+  createMasonTableCells,
+  parseMasonTableSource,
+  serializeMasonTable,
 } from "../../editor/table-source-model";
 
 const render = (raw: string) =>
   compileMarkdown({
     raw,
-    profile: "bytemd-v1",
+    profile: "mason-v1",
     target: "save-html",
-    runtime: createMarkdownRuntime("bytemd-v1"),
+    runtime: createMarkdownRuntime("mason-v1"),
   });
 
 describe("Mason Markdown runtime", () => {
   it("wraps saved HTML in a theme-independent published-content container", async () => {
-    const saved = await createMarkdownRenderCoordinator("bytemd-v1").render(
+    const saved = await createMarkdownRenderCoordinator("mason-v1").render(
       "# Published title\n\n[Published link](https://example.com) and `inline code`",
       "save-html",
     );
     const preview = await compileMarkdown({
       raw: "# Preview title",
-      profile: "bytemd-v1",
+      profile: "mason-v1",
       target: "editor-preview",
-      runtime: createMarkdownRuntime("bytemd-v1"),
+      runtime: createMarkdownRuntime("mason-v1"),
     });
 
-    expect(saved.canonicalHtml).not.toContain("bytemd-markdown-body");
-    expect(saved.renderedHtml).toContain('<div class="bytemd-markdown-body">');
+    expect(saved.canonicalHtml).not.toContain("mason-markdown-body");
+    expect(saved.renderedHtml).toContain('<div class="mason-markdown-body">');
     expect(saved.renderedHtml).toContain(
       '<a href="https://example.com">Published link</a>',
     );
     expect(saved.renderedHtml).toContain("<code>inline code</code>");
-    expect(preview.renderedHtml).not.toContain("bytemd-markdown-body");
+    expect(preview.renderedHtml).not.toContain("mason-markdown-body");
   });
 
-  it("renders KaTeX once with private wrapper classes in the Bytemd profile", async () => {
+  it("renders KaTeX once with private wrapper classes in the Mason profile", async () => {
     const result = await render("Inline $x^2$\n\n$$\ny = mx + b\n$$");
 
-    expect(result.canonicalHtml).toContain("bytemd-math bytemd-math-inline");
-    expect(result.canonicalHtml).toContain("bytemd-math bytemd-math-display");
+    expect(result.canonicalHtml).toContain("mason-math mason-math-inline");
+    expect(result.canonicalHtml).toContain("mason-math mason-math-display");
     expect(result.canonicalHtml).not.toContain("class=\"math math-inline\"");
     expect(result.canonicalHtml).not.toContain("class=\"math math-display\"");
     expect((result.canonicalHtml.match(/class=\"katex\"/g) || []).length).toBe(2);
     expect(result.canonicalHtml).not.toContain("katex-mathml");
-    expect(createMathSyntaxPlugin("bytemd-v1").viewerEffect).toBeUndefined();
+    expect(createMathSyntaxPlugin("mason-v1").viewerEffect).toBeUndefined();
     expect(createMathSyntaxPlugin("legacy").viewerEffect).toEqual(expect.any(Function));
   });
 
@@ -66,7 +66,7 @@ describe("Mason Markdown runtime", () => {
     const window = new Window();
     window.document.body.innerHTML = result.canonicalHtml;
 
-    const math = window.document.querySelector(".bytemd-math")!;
+    const math = window.document.querySelector(".mason-math")!;
     const articleText = window.document.body.textContent || "";
 
     expect(math.getAttribute("role")).toBe("math");
@@ -82,10 +82,10 @@ describe("Mason Markdown runtime", () => {
     window.document.body.innerHTML = result.canonicalHtml;
 
     expect(
-      window.document.querySelector("div.bytemd-math.bytemd-math-display"),
+      window.document.querySelector("div.mason-math.mason-math-display"),
     ).not.toBeNull();
     expect(
-      window.document.querySelector("span.bytemd-math.bytemd-math-inline"),
+      window.document.querySelector("span.mason-math.mason-math-inline"),
     ).toBeNull();
   });
 
@@ -95,10 +95,10 @@ describe("Mason Markdown runtime", () => {
     window.document.body.innerHTML = result.canonicalHtml;
 
     expect(
-      window.document.querySelector("div.bytemd-math.bytemd-math-display"),
+      window.document.querySelector("div.mason-math.mason-math-display"),
     ).not.toBeNull();
     expect(
-      window.document.querySelector("span.bytemd-math.bytemd-math-inline"),
+      window.document.querySelector("span.mason-math.mason-math-inline"),
     ).toBeNull();
   });
 
@@ -108,10 +108,10 @@ describe("Mason Markdown runtime", () => {
     window.document.body.innerHTML = result.canonicalHtml;
 
     expect(
-      window.document.querySelector("span.bytemd-math.bytemd-math-inline"),
+      window.document.querySelector("span.mason-math.mason-math-inline"),
     ).not.toBeNull();
     expect(
-      window.document.querySelector("div.bytemd-math.bytemd-math-display"),
+      window.document.querySelector("div.mason-math.mason-math-display"),
     ).toBeNull();
   });
 
@@ -135,19 +135,19 @@ describe("Mason Markdown runtime", () => {
       "::::warning[Outer]{open}\nText\n:::info[Inner]\n**Body**\n:::\n::::"
     );
 
-    expect(result.canonicalHtml).toContain('class="bytemd-callout bytemd-callout-warning"');
+    expect(result.canonicalHtml).toContain('class="mason-callout mason-callout-warning"');
     expect(result.canonicalHtml).toContain("<details");
     expect(result.canonicalHtml).toContain("<summary>Inner</summary>");
     expect(result.canonicalHtml).toContain("<strong>Body</strong>");
   });
 
-  it("rejects directive attributes that are not part of the Bytemd grammar", async () => {
+  it("rejects directive attributes that are not part of the Mason grammar", async () => {
     const result = await render(
       ":::warning[Title]{open=true}\nBody\n:::\n\n::align{center=bad}\nText\n:::\n\n::epigraph[Author]{class=unsafe}\nQuote\n:::"
     );
 
     expect(result.diagnostics.length).toBeGreaterThanOrEqual(3);
-    expect(result.canonicalHtml).toContain("bytemd-directive-fallback");
+    expect(result.canonicalHtml).toContain("mason-directive-fallback");
     expect(result.canonicalHtml).not.toContain('class="unsafe"');
   });
 
@@ -156,12 +156,12 @@ describe("Mason Markdown runtime", () => {
       ":::align{center}\nCentered\n:::\n\n:::epigraph[-- author]\nQuote\n:::\n\n::cute-table{three}\n\n| A | B |\n| --- | --- |\n| 1 | 2 |"
     );
 
-    expect(result.canonicalHtml).toContain("bytemd-align-center");
-    expect(result.canonicalHtml).toContain("bytemd-epigraph");
-    expect(result.canonicalHtml).toContain("bytemd-cute-table-three");
+    expect(result.canonicalHtml).toContain("mason-align-center");
+    expect(result.canonicalHtml).toContain("mason-epigraph");
+    expect(result.canonicalHtml).toContain("mason-cute-table-three");
   });
 
-  it("renders Bytemd merge markers as bounded table spans", async () => {
+  it("renders Mason merge markers as bounded table spans", async () => {
     const result = await render(
       "| A | B | C |\n| --- | --- | --- |\n| 1 | 2 | 3 |\n| ^ | ^ | 4 |\n| 5 | < | 6 |"
     );
@@ -208,7 +208,7 @@ describe("Mason Markdown runtime", () => {
     );
 
     expect(result.canonicalHtml).toContain(
-      'class="bytemd-table-scroll bytemd-cute-table bytemd-cute-table-three"'
+      'class="mason-table-scroll mason-cute-table mason-cute-table-three"'
     );
     expect(result.canonicalHtml).toContain("<colgroup><col><col></colgroup>");
   });
@@ -219,10 +219,10 @@ describe("Mason Markdown runtime", () => {
     );
 
     expect(result.canonicalHtml).toContain(
-      '<colgroup><col><col><col class="bytemd-tuack-break"><col></colgroup>'
+      '<colgroup><col><col><col class="mason-tuack-break"><col></colgroup>'
     );
-    expect(result.canonicalHtml).not.toContain('<th class="bytemd-tuack-break"');
-    expect(result.canonicalHtml).not.toContain('<td class="bytemd-tuack-break"');
+    expect(result.canonicalHtml).not.toContain('<th class="mason-tuack-break"');
+    expect(result.canonicalHtml).not.toContain('<td class="mason-tuack-break"');
   });
 
   it("uses Prism output, defaults to C++, and handles line metadata", async () => {
@@ -230,9 +230,9 @@ describe("Mason Markdown runtime", () => {
       "``` lines=2-3\nint main() {\n  return 0;\n}\n```"
     );
 
-    expect(result.canonicalHtml).toContain("bytemd-code-block");
+    expect(result.canonicalHtml).toContain("mason-code-block");
     expect(result.canonicalHtml).toContain('data-language="cpp"');
-    expect(result.canonicalHtml).toContain("bytemd-code-line-number");
+    expect(result.canonicalHtml).toContain("mason-code-line-number");
     expect(result.canonicalHtml).toContain("is-highlighted");
   });
 
@@ -241,10 +241,10 @@ describe("Mason Markdown runtime", () => {
       "```javascript\nconst value = 1;\nconsole.log(value);\n```",
     );
 
-    expect(result.canonicalHtml).toContain("bytemd-code-block--no-line-numbers");
+    expect(result.canonicalHtml).toContain("mason-code-block--no-line-numbers");
     expect(result.canonicalHtml).toContain("token keyword");
-    expect(result.canonicalHtml).not.toContain("bytemd-code-line-number");
-    expect(result.canonicalHtml).not.toContain("bytemd-code-line");
+    expect(result.canonicalHtml).not.toContain("mason-code-line-number");
+    expect(result.canonicalHtml).not.toContain("mason-code-line");
   });
 
   it("preserves leading indentation in published ordinary code blocks", async () => {
@@ -256,20 +256,20 @@ describe("Mason Markdown runtime", () => {
       "}",
       "```",
     ].join("\n");
-    const published = await createMarkdownRenderCoordinator("bytemd-v1").render(
+    const published = await createMarkdownRenderCoordinator("mason-v1").render(
       source,
       "save-html",
     );
     const window = new Window();
     window.document.body.innerHTML = published.renderedHtml;
-    const code = window.document.querySelector(".bytemd-code-content > code");
+    const code = window.document.querySelector(".mason-code-content > code");
 
     expect(code?.textContent).toContain("\n  ios::sync_with_stdio(false);");
     expect(code?.textContent).toContain("\n    cin.tie(nullptr);");
   });
 
   it("keeps the saved article output on the same line-number contract", async () => {
-    const coordinator = createMarkdownRenderCoordinator("bytemd-v1");
+    const coordinator = createMarkdownRenderCoordinator("mason-v1");
     const ordinary = await coordinator.render(
       "```javascript\nconst value = 1;\n```",
       "save-html",
@@ -279,9 +279,9 @@ describe("Mason Markdown runtime", () => {
       "save-html",
     );
 
-    expect(ordinary.renderedHtml).toContain('<div class="bytemd-markdown-body">');
-    expect(ordinary.renderedHtml).not.toContain("bytemd-code-line-number");
-    expect(numbered.renderedHtml).toContain("bytemd-code-line-number");
+    expect(ordinary.renderedHtml).toContain('<div class="mason-markdown-body">');
+    expect(ordinary.renderedHtml).not.toContain("mason-code-line-number");
+    expect(numbered.renderedHtml).toContain("mason-code-line-number");
   });
 
   it("keeps every generated code block outside Shiki's direct-child hook", async () => {
@@ -301,7 +301,7 @@ describe("Mason Markdown runtime", () => {
       "```",
     ].join("\n");
     const result = await render(raw);
-    const saved = await createMarkdownRenderCoordinator("bytemd-v1").render(
+    const saved = await createMarkdownRenderCoordinator("mason-v1").render(
       raw,
       "save-html",
     );
@@ -311,15 +311,15 @@ describe("Mason Markdown runtime", () => {
     expect(result.canonicalHtml).not.toMatch(/<pre\b[^>]*>\s*<code\b/);
     expect(saved.renderedHtml).not.toMatch(/<pre\b[^>]*>\s*<code\b/);
     expect(result.canonicalHtml).toContain(
-      '<span class="bytemd-code-content"><code class="language-cpp">',
+      '<span class="mason-code-content"><code class="language-cpp">',
     );
     expect(result.canonicalHtml).toContain(
-      '<span class="bytemd-code-content"><code class="language-plaintext">plain fallback</code></span>',
+      '<span class="mason-code-content"><code class="language-plaintext">plain fallback</code></span>',
     );
     expect(result.canonicalHtml).toContain(
-      '<span class="bytemd-code-content"><code class="language-mermaid">graph TD; A-->B;</code></span>',
+      '<span class="mason-code-content"><code class="language-mermaid">graph TD; A-->B;</code></span>',
     );
-    expect((result.canonicalHtml.match(/class="bytemd-code-line"/g) || []).length).toBe(0);
+    expect((result.canonicalHtml.match(/class="mason-code-line"/g) || []).length).toBe(0);
   });
 
   it("reports malformed line metadata without highlighting an invented line", async () => {
@@ -334,7 +334,7 @@ describe("Mason Markdown runtime", () => {
       "```not-a-language\n<script>alert(1)</script>\n```\n\n<img src=javascript:alert(1) onerror=alert(1)>"
     );
 
-    expect(result.canonicalHtml).toContain('class="language-plaintext bytemd-code-fallback"');
+    expect(result.canonicalHtml).toContain('class="language-plaintext mason-code-fallback"');
     expect(result.canonicalHtml).not.toContain('data-language="plaintext"');
     expect(result.canonicalHtml).not.toContain("<script>");
     expect(result.canonicalHtml).not.toContain("onerror");
@@ -371,7 +371,7 @@ describe("Mason Markdown runtime", () => {
     expect(result.canonicalHtml).toContain('class="language-plaintext"');
     expect(result.canonicalHtml).toContain('class="language-cpp"');
     expect(result.canonicalHtml).not.toContain("is-highlighted");
-    expect(result.canonicalHtml).toContain("bytemd-directive-fallback");
+    expect(result.canonicalHtml).toContain("mason-directive-fallback");
     expect(result.canonicalHtml).toContain("language-plaintext");
     expect(result.canonicalHtml).toContain(":::unknown-directive[不应被执行]");
     expect(result.canonicalHtml).toContain("原样内容");
@@ -382,12 +382,12 @@ describe("Mason Markdown runtime", () => {
     expect(result.diagnostics.some((item) => item.message.includes("Unsupported directive"))).toBe(true);
   });
 
-  it("does not treat raw HTML code blocks as internal Bytemd code nodes", async () => {
+  it("does not treat raw HTML code blocks as internal Mason code nodes", async () => {
     const result = await render(
-      '<pre data-bytemd-language="cpp"><code>int main() {}</code></pre>'
+      '<pre data-mason-language="cpp"><code>int main() {}</code></pre>'
     );
 
-    expect(result.canonicalHtml).not.toContain("bytemd-code-line-number");
+    expect(result.canonicalHtml).not.toContain("mason-code-line-number");
     expect(result.canonicalHtml).not.toContain("data-language=\"cpp\"");
   });
 
@@ -399,11 +399,11 @@ describe("Mason Markdown runtime", () => {
       runtime: createMarkdownRuntime("legacy"),
     });
 
-    expect(result.canonicalHtml).not.toContain("bytemd-code-block");
+    expect(result.canonicalHtml).not.toContain("mason-code-block");
   });
 
-  it("serializes the editor table model back to Bytemd source", () => {
-    const cells = createBytemdTableCells(3, 3);
+  it("serializes the editor table model back to Mason source", () => {
+    const cells = createMasonTableCells(3, 3);
     cells[0][0].content = "A";
     cells[1][0].content = "B";
     cells[1][0].rowspan = 2;
@@ -412,13 +412,13 @@ describe("Mason Markdown runtime", () => {
     cells[2][1].colspan = 2;
     cells[2][2].hidden = true;
 
-    const source = serializeBytemdTable(cells);
+    const source = serializeMasonTable(cells);
     expect(source).toContain("^ |");
     expect(source).toContain("< |");
     expect(source).not.toContain("<table>");
   });
 
-  it("round-trips Bytemd table source without changing merge topology", () => {
+  it("round-trips Mason table source without changing merge topology", () => {
     const source = [
       "| A | B | C |",
       "| :--- | :---: | ---: |",
@@ -426,7 +426,7 @@ describe("Mason Markdown runtime", () => {
       "| ^ | ^ | 4 |",
       "| 5 | < | 6 |",
     ].join("\n");
-    const parsed = parseBytemdTableSource(source);
+    const parsed = parseMasonTableSource(source);
 
     expect(parsed?.valid).toBe(true);
     expect(parsed?.alignments).toEqual(["left", "center", "right"]);
@@ -434,8 +434,8 @@ describe("Mason Markdown runtime", () => {
     expect(parsed?.cells[1][1].rowspan).toBe(2);
     expect(parsed?.cells[3][0].colspan).toBe(2);
 
-    const serialized = serializeBytemdTable(parsed!.cells, { alignments: parsed!.alignments });
-    const reparsed = parseBytemdTableSource(serialized);
+    const serialized = serializeMasonTable(parsed!.cells, { alignments: parsed!.alignments });
+    const reparsed = parseMasonTableSource(serialized);
     expect(reparsed?.valid).toBe(true);
     expect(reparsed?.cells[1][0].rowspan).toBe(2);
     expect(reparsed?.cells[3][0].colspan).toBe(2);
@@ -443,20 +443,20 @@ describe("Mason Markdown runtime", () => {
   });
 
   it("keeps escaped marker text as ordinary table content", () => {
-    const parsed = parseBytemdTableSource("| A | B |\n| --- | --- |\n| \\^ | \\| | ");
+    const parsed = parseMasonTableSource("| A | B |\n| --- | --- |\n| \\^ | \\| | ");
     expect(parsed?.valid).toBe(true);
     expect(parsed?.cells[1][0].content).toBe("\\^");
     expect(parsed?.cells[1][1].content).toBe("|");
-    expect(serializeBytemdTable(parsed!.cells)).toContain("\\^");
+    expect(serializeMasonTable(parsed!.cells)).toContain("\\^");
   });
 
   it("normalizes Mermaid colors and intrinsic dimensions without recursive replacements", () => {
     const stylesheet = ".marker{fill:#333333;stroke:#333}.node{fill:#ECECFF}";
     const rewritten = rewriteMermaidThemeCss(stylesheet);
 
-    expect(rewritten).toContain("var(--bytemd-mermaid-line-color, #007acc)");
-    expect(rewritten).toContain("var(--bytemd-mermaid-text-color, #3b3b3b)");
-    expect(rewritten).toContain("var(--bytemd-mermaid-primary-color, #f8f8f8)");
+    expect(rewritten).toContain("var(--mason-mermaid-line-color, #007acc)");
+    expect(rewritten).toContain("var(--mason-mermaid-text-color, #3b3b3b)");
+    expect(rewritten).toContain("var(--mason-mermaid-primary-color, #f8f8f8)");
     expect(rewritten).not.toContain("#ECECFF");
     expect(rewritten).not.toContain("#9370DB");
     expect(rewritten).not.toContain(")333)");

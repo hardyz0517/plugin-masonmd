@@ -1,6 +1,6 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm", "directive"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["bytemd-align-center", "<strong>text</strong>"]}
+  "htmlSnapshot": {"contains": ["mason-align-center", "<strong>text</strong>"]}
 }

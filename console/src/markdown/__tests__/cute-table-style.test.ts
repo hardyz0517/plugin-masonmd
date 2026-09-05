@@ -4,7 +4,7 @@ import { compile } from "sass-embedded";
 import { Window } from "happy-dom";
 import { describe, expect, it } from "vitest";
 
-const stylePath = join(__dirname, "../../styles/bytemd-markdown.scss");
+const stylePath = join(__dirname, "../../styles/mason-markdown.scss");
 const pluginStyles = compile(stylePath).css;
 const editorStyles = compile(join(__dirname, "../../styles/main.scss")).css;
 const githubStyles = readFileSync(
@@ -22,7 +22,7 @@ function createDocument(markup: string) {
 describe("Cute Table style contract", () => {
   it("keeps a direct Three table intrinsic-width and centered after GitHub CSS", () => {
     const window = createDocument(`
-      <table class="bytemd-markdown-table bytemd-cute-table-three">
+      <table class="mason-markdown-table mason-cute-table-three">
         <thead><tr><th>Name</th><th>Value</th></tr></thead>
         <tbody><tr><td>Alpha</td><td>1</td></tr></tbody>
       </table>
@@ -46,9 +46,9 @@ describe("Cute Table style contract", () => {
 
   it("renders Tuack column and row rules from the table semantic class", () => {
     const window = createDocument(`
-      <div class="bytemd-table-scroll bytemd-cute-table bytemd-cute-table-tuack">
-        <table class="bytemd-markdown-table bytemd-cute-table-tuack">
-          <colgroup><col><col class="bytemd-tuack-break"><col></colgroup>
+      <div class="mason-table-scroll mason-cute-table mason-cute-table-tuack">
+        <table class="mason-markdown-table mason-cute-table-tuack">
+          <colgroup><col><col class="mason-tuack-break"><col></colgroup>
           <thead><tr><th>A</th><th>B</th><th>C</th></tr></thead>
           <tbody>
             <tr><td>1</td><td>2</td><td>3</td></tr>
@@ -70,13 +70,13 @@ describe("Cute Table style contract", () => {
 
   it("keeps epigraphs right-aligned and overrides GitHub blockquote defaults", () => {
     const window = createDocument(`
-      <blockquote class="bytemd-epigraph">
-        <div class="bytemd-epigraph-body"><p>Quote</p></div>
+      <blockquote class="mason-epigraph">
+        <div class="mason-epigraph-body"><p>Quote</p></div>
         <cite>-- author</cite>
       </blockquote>
     `);
     const epigraph = window.document.querySelector("blockquote");
-    const body = window.document.querySelector(".bytemd-epigraph-body");
+    const body = window.document.querySelector(".mason-epigraph-body");
     const cite = window.document.querySelector("cite");
 
     expect(window.getComputedStyle(epigraph!).width).toBe("40%");
@@ -90,7 +90,7 @@ describe("Cute Table style contract", () => {
 
   it("removes list markers from task lists in published and editor previews", () => {
     const publishedWindow = createDocument(`
-      <div class="bytemd-markdown-body">
+      <div class="mason-markdown-body">
         <ul class="contains-task-list">
           <li class="task-list-item"><input type="checkbox">Done</li>
         </ul>

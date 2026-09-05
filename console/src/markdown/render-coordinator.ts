@@ -7,10 +7,10 @@ import type {
 } from "./types";
 
 const wrapPublishedMarkdown = (html: string) =>
-  `<div class="bytemd-markdown-body">${html}</div>`;
+  `<div class="mason-markdown-body">${html}</div>`;
 
 export function createMarkdownRenderCoordinator(
-  profile: MarkdownCompatibilityProfile = "bytemd-v1"
+  profile: MarkdownCompatibilityProfile = "mason-v1"
 ) {
   const cache = new Map<string, Promise<MarkdownCompileResult>>();
 

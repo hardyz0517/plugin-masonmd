@@ -4,7 +4,7 @@ plugins {
     id "run.halo.plugin.devtools" version "0.6.2"
 }
 
-group 'run.halo.bytemd'
+group 'com.hardyzheng.masonmd'
 
 repositories {
     mavenCentral()

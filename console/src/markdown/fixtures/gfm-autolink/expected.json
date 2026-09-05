@@ -1,5 +1,5 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm"],
   "diagnostics": [],
   "htmlSnapshot": {"contains": ["href=\"https://example.com\"", "mailto:test@example.com"]}

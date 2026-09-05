@@ -3,5 +3,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'plugin-bytemd'
+rootProject.name = 'plugin-masonmd'
 include 'console'

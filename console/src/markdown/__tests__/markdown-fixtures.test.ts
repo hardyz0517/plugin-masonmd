@@ -5,7 +5,7 @@ import { compileMarkdown, createMarkdownRuntime } from "../pipeline";
 import type { MarkdownFeature } from "../types";
 
 type FixtureExpectation = {
-  profile: "legacy" | "bytemd-v1";
+  profile: "legacy" | "mason-v1";
   features: MarkdownFeature[];
   diagnostics: string[];
   htmlSnapshot: {

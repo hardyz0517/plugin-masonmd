@@ -1,6 +1,6 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm", "directive"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["bytemd-callout-info", "<summary>Title</summary>", "bytemd-callout-success", " open"]}
+  "htmlSnapshot": {"contains": ["mason-callout-info", "<summary>Title</summary>", "mason-callout-success", " open"]}
 }

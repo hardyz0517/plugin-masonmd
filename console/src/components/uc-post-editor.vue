@@ -3,7 +3,7 @@ import { consoleApiClient, ucApiClient } from "@halo-dev/api-client";
 import type { Attachment } from "@halo-dev/api-client";
 import { stores } from "@halo-dev/ui-shared";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import MasonMarkdown from "./bytemd.vue";
+import MasonMarkdown from "./mason-markdown-editor.vue";
 import { useUcPostDraft } from "../composables/use-uc-post-draft";
 import "../styles/uc-post-editor.scss";
 import "../styles/vscode-modern-theme.scss";
@@ -91,12 +91,20 @@ function getThemeMode() {
   const root = document.documentElement;
   let storedMode: string | null = null;
   try {
-    storedMode = window.localStorage.getItem("hardy:color-scheme");
+    storedMode =
+      window.localStorage.getItem("mason:color-scheme") ||
+      window.localStorage.getItem("hardy:color-scheme");
   } catch {
     storedMode = null;
   }
 
-  return storedMode || root.dataset.hardyColorScheme || root.dataset.colorScheme || "auto";
+  return (
+    storedMode ||
+    root.dataset.masonColorScheme ||
+    root.dataset.hardyColorScheme ||
+    root.dataset.colorScheme ||
+    "auto"
+  );
 }
 
 function syncEditorColorScheme() {
@@ -114,7 +122,12 @@ function setupThemeSync() {
   themeObserver = new MutationObserver(syncEditorColorScheme);
   themeObserver.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ["class", "data-color-scheme", "data-hardy-color-scheme"],
+    attributeFilter: [
+      "class",
+      "data-color-scheme",
+      "data-mason-color-scheme",
+      "data-hardy-color-scheme",
+    ],
   });
   themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
   themeMediaQuery.addEventListener("change", syncEditorColorScheme);
@@ -538,25 +551,25 @@ onBeforeUnmount(() => {
 
 <template>
   <main
-    class="hardy-post-editor"
-    :class="{ 'hardy-post-editor--dark': editorColorScheme === 'dark' }"
+    class="mason-post-editor"
+    :class="{ 'mason-post-editor--dark': editorColorScheme === 'dark' }"
   >
-    <header class="hardy-editor-header">
-      <div class="hardy-editor-header-inner">
-        <div class="hardy-editor-heading">
-          <a class="hardy-editor-site-brand" :href="siteHomeUrl" :title="`返回 ${siteTitle} 首页`">
+    <header class="mason-editor-header">
+      <div class="mason-editor-header-inner">
+        <div class="mason-editor-heading">
+          <a class="mason-editor-site-brand" :href="siteHomeUrl" :title="`返回 ${siteTitle} 首页`">
             <img v-if="siteLogo" :src="siteLogo" :alt="siteTitle" @error="handleSiteLogoError" />
             <span v-else aria-hidden="true">{{ siteTitle.slice(0, 1).toUpperCase() }}</span>
           </a>
-          <div class="hardy-editor-breadcrumb">
+          <div class="mason-editor-breadcrumb">
             <p>我的文章</p>
             <h1>{{ post.spec.title || "新建文章" }}</h1>
           </div>
         </div>
-        <div class="hardy-editor-actions">
+        <div class="mason-editor-actions">
           <a
             v-if="hasSavedPost"
-            class="hardy-button primary hardy-view-article"
+            class="mason-button primary mason-view-article"
             :class="{ disabled: !articleLink }"
             :href="articleLink || undefined"
             :aria-disabled="!articleLink"
@@ -568,7 +581,7 @@ onBeforeUnmount(() => {
           <button
             v-if="hasSavedPost"
             type="button"
-            class="hardy-button danger"
+            class="mason-button danger"
             :disabled="loading || saving || publishing || unpublishing || deleting"
             @click="openDeleteDialog"
           >
@@ -578,47 +591,47 @@ onBeforeUnmount(() => {
       </div>
     </header>
 
-    <div v-if="loading" class="hardy-editor-loading">正在加载编辑器...</div>
-    <div v-else-if="loadFailed" class="hardy-editor-load-error">
+    <div v-if="loading" class="mason-editor-loading">正在加载编辑器...</div>
+    <div v-else-if="loadFailed" class="mason-editor-load-error">
       <strong>{{ error }}</strong>
-      <button class="hardy-button secondary" @click="draft.loadPage">重新加载</button>
+      <button class="mason-button secondary" @click="draft.loadPage">重新加载</button>
     </div>
     <template v-else>
-      <div class="hardy-editor-content">
-        <section class="hardy-post-form" aria-label="文章编辑">
-          <div class="hardy-form-row">
-            <label class="hardy-form-label" for="hardy-post-title">文章标题</label>
-            <div class="hardy-form-control">
-              <input id="hardy-post-title" v-model="post.spec.title" class="hardy-input hardy-title-input" placeholder="请输入文章标题" />
+      <div class="mason-editor-content">
+        <section class="mason-post-form" aria-label="文章编辑">
+          <div class="mason-form-row">
+            <label class="mason-form-label" for="mason-post-title">文章标题</label>
+            <div class="mason-form-control">
+              <input id="mason-post-title" v-model="post.spec.title" class="mason-input mason-title-input" placeholder="请输入文章标题" />
             </div>
           </div>
 
-          <div class="hardy-form-row">
-            <span class="hardy-form-label" id="hardy-post-category-label">文章分类</span>
-            <div class="hardy-form-control hardy-form-control-compact">
-              <div ref="categoryMenuRef" class="hardy-category-select" @click.stop>
+          <div class="mason-form-row">
+            <span class="mason-form-label" id="mason-post-category-label">文章分类</span>
+            <div class="mason-form-control mason-form-control-compact">
+              <div ref="categoryMenuRef" class="mason-category-select" @click.stop>
                 <button
-                  id="hardy-post-category"
+                  id="mason-post-category"
                   type="button"
-                  class="hardy-category-trigger"
+                  class="mason-category-trigger"
                   role="combobox"
                   aria-haspopup="listbox"
-                  aria-controls="hardy-post-category-options"
+                  aria-controls="mason-post-category-options"
                   :aria-expanded="categoryMenuOpen"
-                  aria-labelledby="hardy-post-category-label"
+                  aria-labelledby="mason-post-category-label"
                   @click="toggleCategoryMenu"
                   @keydown="handleCategoryKeydown"
                 >
                   <span>{{ selectedCategoryLabel }}</span>
-                  <span class="hardy-category-chevron" aria-hidden="true" />
+                  <span class="mason-category-chevron" aria-hidden="true" />
                 </button>
-                <Transition name="hardy-category-menu">
-                  <div id="hardy-post-category-options" v-if="categoryMenuOpen" class="hardy-category-menu" role="listbox" aria-labelledby="hardy-post-category-label">
+                <Transition name="mason-category-menu">
+                  <div id="mason-post-category-options" v-if="categoryMenuOpen" class="mason-category-menu" role="listbox" aria-labelledby="mason-post-category-label">
                     <button
                       v-for="(option, index) in categoryOptions"
                       :key="option.value || '__uncategorized__'"
                       type="button"
-                      class="hardy-category-option"
+                      class="mason-category-option"
                       :class="{
                         selected: option.value === selectedCategory,
                         highlighted: index === categoryHighlightIndex,
@@ -632,30 +645,30 @@ onBeforeUnmount(() => {
                     >
                       <span
                         v-if="option.depth"
-                        class="hardy-category-branch"
+                        class="mason-category-branch"
                         aria-hidden="true"
                       />
-                      <span :class="{ 'hardy-category-parent-label': option.hasChildren }">
+                      <span :class="{ 'mason-category-parent-label': option.hasChildren }">
                         {{ option.label }}
                       </span>
                     </button>
                   </div>
                 </Transition>
               </div>
-              <p v-if="optionsError" class="hardy-options-error" role="status">
+              <p v-if="optionsError" class="mason-options-error" role="status">
                 {{ optionsError }}
                 <button type="button" @click="draft.loadOptions">重试</button>
               </p>
             </div>
           </div>
 
-          <div class="hardy-form-row">
-            <label class="hardy-form-label" for="hardy-post-cover">文章封面</label>
-            <div class="hardy-form-control hardy-cover-control">
-              <div class="hardy-cover-input-row">
-                <input id="hardy-post-cover" v-model="post.spec.cover" class="hardy-input" placeholder="封面地址（可选）" />
-                <button type="button" class="hardy-button" @click="openAttachmentPicker">从附件选择</button>
-                <label class="hardy-button hardy-upload-button" :class="{ 'is-loading': attachmentUploading }">
+          <div class="mason-form-row">
+            <label class="mason-form-label" for="mason-post-cover">文章封面</label>
+            <div class="mason-form-control mason-cover-control">
+              <div class="mason-cover-input-row">
+                <input id="mason-post-cover" v-model="post.spec.cover" class="mason-input" placeholder="封面地址（可选）" />
+                <button type="button" class="mason-button" @click="openAttachmentPicker">从附件选择</button>
+                <label class="mason-button mason-upload-button" :class="{ 'is-loading': attachmentUploading }">
                   {{ attachmentUploading ? "上传中..." : "本地上传" }}
                   <input
                     ref="coverFileInput"
@@ -666,17 +679,17 @@ onBeforeUnmount(() => {
                   />
                 </label>
               </div>
-              <div v-if="post.spec.cover" class="hardy-cover-preview">
+              <div v-if="post.spec.cover" class="mason-cover-preview">
                 <img :src="post.spec.cover" alt="文章封面预览" />
-                <button type="button" class="hardy-cover-clear" aria-label="移除封面" @click="clearCover">移除</button>
+                <button type="button" class="mason-cover-clear" aria-label="移除封面" @click="clearCover">移除</button>
               </div>
             </div>
           </div>
 
-          <div class="hardy-form-row">
-            <span class="hardy-form-label">文章标签</span>
+          <div class="mason-form-row">
+            <span class="mason-form-label">文章标签</span>
             <div
-              class="hardy-form-control hardy-tags-control"
+              class="mason-form-control mason-tags-control"
               role="button"
               tabindex="0"
               aria-haspopup="dialog"
@@ -685,21 +698,21 @@ onBeforeUnmount(() => {
               @click="openTagPicker"
               @keydown="handleTagPickerTriggerKeydown"
             >
-              <span v-for="tag in post.spec.tags || []" :key="tag" class="hardy-tag">
+              <span v-for="tag in post.spec.tags || []" :key="tag" class="mason-tag">
                 {{ tagDisplayName(tag) }}
                 <button type="button" aria-label="删除标签" @click.stop="removeTag(tag)">×</button>
               </span>
-              <span v-if="!(post.spec.tags || []).length" class="hardy-tags-placeholder">
+              <span v-if="!(post.spec.tags || []).length" class="mason-tags-placeholder">
                 点击选择标签
               </span>
-              <span class="hardy-tags-picker-hint" aria-hidden="true">选择</span>
+              <span class="mason-tags-picker-hint" aria-hidden="true">选择</span>
             </div>
           </div>
 
-          <div class="hardy-form-row hardy-content-row">
-            <span class="hardy-form-label">文章内容</span>
-            <div class="hardy-form-control hardy-content-control">
-              <div class="hardy-editor-surface">
+          <div class="mason-form-row mason-content-row">
+            <span class="mason-form-label">文章内容</span>
+            <div class="mason-form-control mason-content-control">
+              <div class="mason-editor-surface">
                 <MasonMarkdown
                   v-model:raw="content.raw"
                   v-model:content="content.content"
@@ -708,29 +721,29 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div class="hardy-form-row">
-            <span class="hardy-form-label">文章状态</span>
-            <div class="hardy-form-control hardy-radio-group">
-              <label class="hardy-radio"><input v-model="post.spec.visible" type="radio" value="PRIVATE" /> <span>私有</span></label>
-              <label class="hardy-radio"><input v-model="post.spec.visible" type="radio" value="PUBLIC" /> <span>公开</span></label>
+          <div class="mason-form-row">
+            <span class="mason-form-label">文章状态</span>
+            <div class="mason-form-control mason-radio-group">
+              <label class="mason-radio"><input v-model="post.spec.visible" type="radio" value="PRIVATE" /> <span>私有</span></label>
+              <label class="mason-radio"><input v-model="post.spec.visible" type="radio" value="PUBLIC" /> <span>公开</span></label>
             </div>
           </div>
 
-          <div class="hardy-form-row">
-            <span class="hardy-form-label">置顶文章</span>
-            <div class="hardy-form-control hardy-radio-group">
-              <label class="hardy-switch-line"><input v-model="post.spec.pinned" type="checkbox" /> <span>在文章列表顶部显示</span></label>
+          <div class="mason-form-row">
+            <span class="mason-form-label">置顶文章</span>
+            <div class="mason-form-control mason-radio-group">
+              <label class="mason-switch-line"><input v-model="post.spec.pinned" type="checkbox" /> <span>在文章列表顶部显示</span></label>
             </div>
           </div>
-          <div class="hardy-form-actions">
-            <button class="hardy-button primary" :disabled="loading || saving || publishing || unpublishing || deleting" @click="draft.save">保存</button>
-            <span v-if="statusText" class="hardy-save-state" :class="{ error }">{{ statusText }}</span>
+          <div class="mason-form-actions">
+            <button class="mason-button primary" :disabled="loading || saving || publishing || unpublishing || deleting" @click="draft.save">保存</button>
+            <span v-if="statusText" class="mason-save-state" :class="{ error }">{{ statusText }}</span>
           </div>
         </section>
 
-        <div v-if="error" class="hardy-editor-message hardy-editor-error">
+        <div v-if="error" class="mason-editor-message mason-editor-error">
           <span>{{ error }}</span>
-          <button class="hardy-button secondary" @click="draft.save">重试保存</button>
+          <button class="mason-button secondary" @click="draft.save">重试保存</button>
         </div>
       </div>
     </template>
@@ -738,27 +751,27 @@ onBeforeUnmount(() => {
     <Teleport to="body">
       <div
         v-if="deleteDialogOpen"
-        class="hardy-attachment-dialog-container hardy-delete-dialog-container"
-        :class="{ 'hardy-attachment-dialog-container--dark': editorColorScheme === 'dark' }"
+        class="mason-attachment-dialog-container mason-delete-dialog-container"
+        :class="{ 'mason-attachment-dialog-container--dark': editorColorScheme === 'dark' }"
         role="presentation"
         tabindex="-1"
         @keydown.esc="closeDeleteDialog"
         @mousedown.self="closeDeleteDialog"
       >
         <section
-          class="hardy-delete-dialog"
+          class="mason-delete-dialog"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="hardy-delete-dialog-title"
+          aria-labelledby="mason-delete-dialog-title"
         >
-          <div class="hardy-delete-dialog-icon" aria-hidden="true">!</div>
-          <h2 id="hardy-delete-dialog-title">真的要删除这篇文章吗?</h2>
+          <div class="mason-delete-dialog-icon" aria-hidden="true">!</div>
+          <h2 id="mason-delete-dialog-title">真的要删除这篇文章吗?</h2>
           <p>删除以后您无法找回</p>
-          <p v-if="error" class="hardy-delete-dialog-error" role="alert">{{ error }}</p>
-          <div class="hardy-delete-dialog-actions">
+          <p v-if="error" class="mason-delete-dialog-error" role="alert">{{ error }}</p>
+          <div class="mason-delete-dialog-actions">
             <button
               type="button"
-              class="hardy-button primary hardy-delete-confirm"
+              class="mason-button primary mason-delete-confirm"
               :disabled="deleting"
               @click="confirmDelete"
             >
@@ -766,7 +779,7 @@ onBeforeUnmount(() => {
             </button>
             <button
               type="button"
-              class="hardy-button hardy-delete-cancel"
+              class="mason-button mason-delete-cancel"
               :disabled="deleting"
               @click="closeDeleteDialog"
             >
@@ -778,31 +791,31 @@ onBeforeUnmount(() => {
 
       <div
         v-if="attachmentPickerOpen"
-        class="hardy-attachment-dialog-container"
-        :class="{ 'hardy-attachment-dialog-container--dark': editorColorScheme === 'dark' }"
+        class="mason-attachment-dialog-container"
+        :class="{ 'mason-attachment-dialog-container--dark': editorColorScheme === 'dark' }"
         role="presentation"
         tabindex="-1"
         @keydown.esc="closeAttachmentPicker"
         @mousedown.self="closeAttachmentPicker"
       >
-        <section class="hardy-attachment-dialog" role="dialog" aria-modal="true" aria-labelledby="hardy-attachment-dialog-title">
-          <header class="hardy-attachment-dialog-header">
-            <h2 id="hardy-attachment-dialog-title">选择文章封面</h2>
-            <button type="button" class="hardy-dialog-close" aria-label="关闭" @click="closeAttachmentPicker">×</button>
+        <section class="mason-attachment-dialog" role="dialog" aria-modal="true" aria-labelledby="mason-attachment-dialog-title">
+          <header class="mason-attachment-dialog-header">
+            <h2 id="mason-attachment-dialog-title">选择文章封面</h2>
+            <button type="button" class="mason-dialog-close" aria-label="关闭" @click="closeAttachmentPicker">×</button>
           </header>
-          <div class="hardy-attachment-dialog-toolbar">
-            <input v-model="attachmentKeyword" class="hardy-input" type="search" placeholder="搜索附件名称" />
-            <button type="button" class="hardy-button" :disabled="attachmentLoading" @click="loadAttachments">刷新附件</button>
+          <div class="mason-attachment-dialog-toolbar">
+            <input v-model="attachmentKeyword" class="mason-input" type="search" placeholder="搜索附件名称" />
+            <button type="button" class="mason-button" :disabled="attachmentLoading" @click="loadAttachments">刷新附件</button>
           </div>
-          <p v-if="attachmentError" class="hardy-attachment-error" role="alert">{{ attachmentError }}</p>
-          <div v-if="attachmentLoading" class="hardy-attachment-empty">正在加载附件...</div>
-          <div v-else-if="!filteredAttachments.length" class="hardy-attachment-empty">暂无可用图片附件</div>
-          <div v-else class="hardy-attachment-grid">
+          <p v-if="attachmentError" class="mason-attachment-error" role="alert">{{ attachmentError }}</p>
+          <div v-if="attachmentLoading" class="mason-attachment-empty">正在加载附件...</div>
+          <div v-else-if="!filteredAttachments.length" class="mason-attachment-empty">暂无可用图片附件</div>
+          <div v-else class="mason-attachment-grid">
             <button
               v-for="attachment in filteredAttachments"
               :key="attachment.metadata.name"
               type="button"
-              class="hardy-attachment-item"
+              class="mason-attachment-item"
               :title="attachmentName(attachment)"
               @click="selectAttachment(attachment)"
             >
@@ -815,60 +828,60 @@ onBeforeUnmount(() => {
 
       <div
         v-if="tagPickerOpen"
-        class="hardy-attachment-dialog-container hardy-tag-picker-container"
-        :class="{ 'hardy-attachment-dialog-container--dark': editorColorScheme === 'dark' }"
+        class="mason-attachment-dialog-container mason-tag-picker-container"
+        :class="{ 'mason-attachment-dialog-container--dark': editorColorScheme === 'dark' }"
         role="presentation"
         tabindex="-1"
         @keydown.esc="closeTagPicker"
         @mousedown.self="closeTagPicker"
       >
         <section
-          class="hardy-attachment-dialog hardy-tag-picker-dialog"
+          class="mason-attachment-dialog mason-tag-picker-dialog"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="hardy-tag-picker-title"
+          aria-labelledby="mason-tag-picker-title"
         >
-          <header class="hardy-attachment-dialog-header">
-            <h2 id="hardy-tag-picker-title">选择标签</h2>
-            <button type="button" class="hardy-dialog-close" aria-label="关闭" @click="closeTagPicker">×</button>
+          <header class="mason-attachment-dialog-header">
+            <h2 id="mason-tag-picker-title">选择标签</h2>
+            <button type="button" class="mason-dialog-close" aria-label="关闭" @click="closeTagPicker">×</button>
           </header>
-          <div class="hardy-tag-picker-toolbar">
-            <label class="hardy-tag-picker-search">
+          <div class="mason-tag-picker-toolbar">
+            <label class="mason-tag-picker-search">
               <span aria-hidden="true">⌕</span>
               <input
                 v-model="tagPickerKeyword"
-                class="hardy-input"
+                class="mason-input"
                 type="search"
                 placeholder="搜索全部标签"
                 autofocus
               />
             </label>
-            <span class="hardy-tag-picker-count">已选标签（{{ tagPickerSelectionCount }}）</span>
+            <span class="mason-tag-picker-count">已选标签（{{ tagPickerSelectionCount }}）</span>
           </div>
-          <div v-if="optionsError" class="hardy-attachment-error" role="alert">{{ optionsError }}</div>
-          <div v-if="!filteredTags.length" class="hardy-attachment-empty">
+          <div v-if="optionsError" class="mason-attachment-error" role="alert">{{ optionsError }}</div>
+          <div v-if="!filteredTags.length" class="mason-attachment-empty">
             {{ tagPickerKeyword ? "没有匹配的标签" : "暂无标签" }}
           </div>
-          <div v-else class="hardy-tag-picker-list">
+          <div v-else class="mason-tag-picker-list">
             <h3>全部标签</h3>
-            <div class="hardy-tag-picker-options">
+            <div class="mason-tag-picker-options">
               <button
                 v-for="tag in filteredTags"
                 :key="tag.metadata.name"
                 type="button"
-                class="hardy-tag-picker-option"
+                class="mason-tag-picker-option"
                 :class="{ selected: isTagSelected(tag.metadata.name) }"
                 :aria-pressed="isTagSelected(tag.metadata.name)"
                 @click="toggleTagSelection(tag.metadata.name)"
               >
                 <span>{{ displayName(tag) }}</span>
-                <span class="hardy-tag-picker-check" aria-hidden="true">✓</span>
+                <span class="mason-tag-picker-check" aria-hidden="true">✓</span>
               </button>
             </div>
           </div>
-          <footer class="hardy-tag-picker-footer">
-            <button type="button" class="hardy-button" @click="closeTagPicker">取消</button>
-            <button type="button" class="hardy-button primary" @click="confirmTagPicker">确认</button>
+          <footer class="mason-tag-picker-footer">
+            <button type="button" class="mason-button" @click="closeTagPicker">取消</button>
+            <button type="button" class="mason-button primary" @click="confirmTagPicker">确认</button>
           </footer>
         </section>
       </div>

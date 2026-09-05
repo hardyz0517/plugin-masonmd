@@ -1,13 +1,13 @@
-export type BytemdTableMergeMarker = "^" | "<" | ">";
+export type MasonTableMergeMarker = "^" | "<" | ">";
 
-export interface BytemdTableMergeOwner {
+export interface MasonTableMergeOwner {
   row: number;
   column: number;
   rowspan: number;
   colspan: number;
 }
 
-export interface BytemdTableMergeDiagnostic {
+export interface MasonTableMergeDiagnostic {
   code:
     | "invalid-table-shape"
     | "invalid-merge-marker"
@@ -18,11 +18,11 @@ export interface BytemdTableMergeDiagnostic {
   column?: number;
 }
 
-export interface BytemdTableMergeResolution {
-  ownerByCell: Array<Array<BytemdTableMergeOwner | undefined>>;
-  owners: BytemdTableMergeOwner[];
+export interface MasonTableMergeResolution {
+  ownerByCell: Array<Array<MasonTableMergeOwner | undefined>>;
+  owners: MasonTableMergeOwner[];
   valid: boolean;
-  diagnostics: BytemdTableMergeDiagnostic[];
+  diagnostics: MasonTableMergeDiagnostic[];
 }
 
 type MergeEdge = {
@@ -30,7 +30,7 @@ type MergeEdge = {
   to: number;
 };
 
-const markerAt = (value: unknown): BytemdTableMergeMarker | undefined =>
+const markerAt = (value: unknown): MasonTableMergeMarker | undefined =>
   value === "^" || value === "<" || value === ">" ? value : undefined;
 
 class DisjointSet {
@@ -67,10 +67,10 @@ class DisjointSet {
 }
 
 const createUnmergedResolution = (
-  markerGrid: ReadonlyArray<ReadonlyArray<BytemdTableMergeMarker | undefined>>,
-  diagnostics: BytemdTableMergeDiagnostic[]
-): BytemdTableMergeResolution => {
-  const owners: BytemdTableMergeOwner[] = [];
+  markerGrid: ReadonlyArray<ReadonlyArray<MasonTableMergeMarker | undefined>>,
+  diagnostics: MasonTableMergeDiagnostic[]
+): MasonTableMergeResolution => {
+  const owners: MasonTableMergeOwner[] = [];
   const ownerByCell = markerGrid.map((row, rowIndex) =>
     row.map((_, columnIndex) => {
       const owner = { row: rowIndex, column: columnIndex, rowspan: 1, colspan: 1 };
@@ -88,15 +88,15 @@ const createUnmergedResolution = (
 };
 
 /**
- * Resolves Bytemd's table merge markers into rectangular ownership regions.
+ * Resolves Mason Markdown table merge markers into rectangular ownership regions.
  * `^` joins the cell above and `<` joins the cell to its left. `>` is not a
- * documented Bytemd merge marker, so it remains ordinary source text.
+ * documented Mason Markdown merge marker, so it remains ordinary source text.
  */
-export function resolveBytemdTableMergeTopology(
+export function resolveMasonTableMergeTopology(
   source: ReadonlyArray<ReadonlyArray<unknown>>
-): BytemdTableMergeResolution {
+): MasonTableMergeResolution {
   const markerGrid = source.map((row) => row.map(markerAt));
-  const diagnostics: BytemdTableMergeDiagnostic[] = [];
+  const diagnostics: MasonTableMergeDiagnostic[] = [];
   const rowCount = markerGrid.length;
   const columnCount = markerGrid[0]?.length || 0;
 
@@ -188,8 +188,8 @@ export function resolveBytemdTableMergeTopology(
     }
   }
 
-  const owners: BytemdTableMergeOwner[] = [];
-  const ownerByCell = markerGrid.map((row) => Array<BytemdTableMergeOwner | undefined>(row.length));
+  const owners: MasonTableMergeOwner[] = [];
+  const ownerByCell = markerGrid.map((row) => Array<MasonTableMergeOwner | undefined>(row.length));
 
   components.forEach((members) => {
     const minRow = Math.min(...members.map((member) => member.row));
@@ -235,6 +235,6 @@ export function resolveBytemdTableMergeTopology(
   };
 }
 
-export function isBytemdTableMergeMarker(value: unknown): value is BytemdTableMergeMarker {
+export function isMasonTableMergeMarker(value: unknown): value is MasonTableMergeMarker {
   return markerAt(value) !== undefined;
 }

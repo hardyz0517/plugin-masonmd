@@ -1,5 +1,5 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm"],
   "diagnostics": [],
   "htmlSnapshot": {"contains": ["中文", "✅", "混合宽度内容"]}

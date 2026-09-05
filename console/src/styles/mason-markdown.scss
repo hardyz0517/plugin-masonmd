@@ -1,0 +1,1087 @@
+/* Shared semantic styles for the editor preview and published content. */
+
+/*
+ * Saved posts carry this class themselves, so published rendering is not
+ * coupled to a theme's prose class or page structure.
+ */
+.mason-markdown-body {
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+}
+
+.mason-markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.mason-markdown-body > :last-child {
+  margin-bottom: 0;
+}
+
+.mason-markdown-body h1,
+.mason-markdown-body h2,
+.mason-markdown-body h3,
+.mason-markdown-body h4,
+.mason-markdown-body h5,
+.mason-markdown-body h6 {
+  color: inherit;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.45em 0 0.6em;
+}
+
+.mason-markdown-body h1 {
+  border-bottom: 1px solid var(--mason-markdown-table-border, #d0d7de);
+  font-size: 2em;
+  padding-bottom: 0.3em;
+}
+
+.mason-markdown-body h2 {
+  border-bottom: 1px solid var(--mason-markdown-table-border, #d0d7de);
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+}
+
+.mason-markdown-body h3 {
+  font-size: 1.25em;
+}
+
+.mason-markdown-body h4 {
+  font-size: 1em;
+}
+
+.mason-markdown-body h5,
+.mason-markdown-body h6 {
+  font-size: 0.875em;
+}
+
+.mason-markdown-body p,
+.mason-markdown-body ul,
+.mason-markdown-body ol,
+.mason-markdown-body dl {
+  margin: 0 0 1em;
+}
+
+.mason-markdown-body ul,
+.mason-markdown-body ol {
+  padding-left: 2em;
+}
+
+.mason-markdown-body li + li {
+  margin-top: 0.25em;
+}
+
+.mason-markdown-body li > p {
+  margin: 0.5em 0;
+}
+
+.mason-markdown-body ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.mason-markdown-body li.task-list-item {
+  list-style: none;
+}
+
+.mason-markdown-body .task-list-item input[type="checkbox"] {
+  accent-color: var(--mason-markdown-link, #0969da);
+  margin: 0 0.45em 0 0;
+  pointer-events: none;
+  vertical-align: middle;
+}
+
+.mason-markdown-body a {
+  color: var(--mason-markdown-link, #0969da);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.mason-markdown-body a:hover {
+  color: var(--mason-markdown-link-hover, #0550ae);
+}
+
+.mason-markdown-body blockquote {
+  border-left: 4px solid var(--mason-markdown-quote-border, #d0d7de);
+  color: inherit;
+  margin: 1em 0;
+  padding: 0 1em;
+}
+
+.mason-markdown-body blockquote > :first-child {
+  margin-top: 0;
+}
+
+.mason-markdown-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.mason-markdown-body hr {
+  background: var(--mason-markdown-table-border, #d0d7de);
+  border: 0;
+  height: 1px;
+  margin: 1.5em 0;
+}
+
+.mason-markdown-body img,
+.mason-markdown-body video,
+.mason-markdown-body audio {
+  height: auto;
+  max-width: 100%;
+}
+
+.mason-markdown-body :not(pre) > code,
+.mason-markdown-body tt {
+  background: var(--mason-markdown-inline-code-background, #f0f0f0);
+  border-radius: 3px;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.875em;
+  padding: 0.15em 0.35em;
+}
+
+.mason-markdown-body kbd {
+  background: var(--mason-markdown-kbd-background, #f6f8fa);
+  border: 1px solid var(--mason-markdown-kbd-border, #d0d7de);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.8em;
+  padding: 0.15em 0.35em;
+}
+
+.mason-markdown-body pre:not(.mason-code-block) {
+  background: var(--mason-markdown-code-background, #fafafa);
+  border: 1px solid var(--mason-markdown-code-border, #d0d7de);
+  border-radius: 3px;
+  box-sizing: border-box;
+  margin: 1em 0;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+  padding: 0.9em 1em;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.mason-markdown-body pre:not(.mason-code-block) > code {
+  background: transparent;
+  color: inherit;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.875em;
+  padding: 0;
+  white-space: inherit;
+}
+
+.mason-markdown-body table:not(.mason-markdown-table) {
+  border-collapse: collapse;
+  display: block;
+  margin: 1em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  width: max-content;
+}
+
+.mason-markdown-body table:not(.mason-markdown-table) th,
+.mason-markdown-body table:not(.mason-markdown-table) td {
+  border: 1px solid var(--mason-markdown-table-border, #d0d7de);
+  padding: 0.45em 0.65em;
+}
+
+.mason-markdown-body table:not(.mason-markdown-table) th {
+  background: var(--mason-markdown-table-header, #f6f8fa);
+  font-weight: 600;
+}
+
+.mason-markdown-body details:not(.mason-callout) {
+  margin: 1em 0;
+}
+
+.mason-markdown-body details > summary {
+  cursor: pointer;
+}
+
+.mason-markdown-body .footnotes {
+  border-top: 1px solid var(--mason-markdown-table-border, #d0d7de);
+  color: inherit;
+  font-size: 0.9em;
+  margin-top: 2em;
+  padding-top: 1em;
+}
+
+.mason-markdown-body .footnote-backref {
+  text-decoration: none;
+}
+
+.mason-markdown-body a[data-footnote-ref] {
+  text-decoration: none;
+}
+
+/*
+ * KaTeX's stylesheet is loaded by the editor and may be reordered or
+ * omitted by a published theme. Keep the display-math layout contract here:
+ * the plugin wrapper owns overflow, while the KaTeX descendants own the
+ * centered line box. The legacy classes are intentional: articles saved by
+ * older plugin versions can be rendered before they are opened and saved
+ * again in the current editor.
+ */
+.mason-math-display,
+.math.math-display,
+.math-display,
+.markdown-body .mason-math-display,
+.mason-markdown-body .mason-math-display {
+  display: block;
+  box-sizing: border-box;
+  margin: 1em 0;
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+}
+
+/* Keep snapshots produced by the previous renderer readable as well. */
+.mason-markdown-body .katex-display,
+.math-display > .katex-display,
+.math.math-display > .katex-display,
+.mason-math-display > .katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+}
+
+.mason-math-display > .katex-display,
+.math.math-display > .katex-display,
+.math-display > .katex-display,
+.markdown-body .mason-math-display > .katex-display,
+.mason-markdown-body .mason-math-display > .katex-display {
+  box-sizing: border-box;
+  display: block;
+  margin: 0;
+  min-width: 0;
+  overflow: visible;
+  text-align: center;
+  width: 100%;
+}
+
+.mason-math-display > .katex-display > .katex,
+.math.math-display > .katex-display > .katex,
+.math-display > .katex-display > .katex,
+.markdown-body .mason-math-display > .katex-display > .katex,
+.mason-markdown-body .mason-math-display > .katex-display > .katex {
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mason-math-paragraph-display {
+  text-align: center;
+}
+
+@mixin mermaid-light-theme {
+  --mason-mermaid-background: #ffffff;
+  --mason-mermaid-primary-color: #f8f8f8;
+  --mason-mermaid-primary-text-color: #3b3b3b;
+  --mason-mermaid-primary-border-color: #007acc;
+  --mason-mermaid-secondary-color: #f3f3f3;
+  --mason-mermaid-secondary-text-color: #3b3b3b;
+  --mason-mermaid-secondary-border-color: #bdbdbd;
+  --mason-mermaid-tertiary-color: #ffffff;
+  --mason-mermaid-tertiary-text-color: #3b3b3b;
+  --mason-mermaid-tertiary-border-color: #bdbdbd;
+  --mason-mermaid-note-bkg-color: #fff8c5;
+  --mason-mermaid-note-text-color: #3b3b3b;
+  --mason-mermaid-note-border-color: #c8a600;
+  --mason-mermaid-line-color: #007acc;
+  --mason-mermaid-text-color: #3b3b3b;
+  --mason-mermaid-main-bkg: #f8f8f8;
+  --mason-mermaid-error-bkg-color: #fce4e4;
+  --mason-mermaid-error-text-color: #a1260d;
+  --mason-mermaid-node-border: #007acc;
+  --mason-mermaid-cluster-bkg: #f3f3f3;
+  --mason-mermaid-cluster-border: #bdbdbd;
+  --mason-mermaid-default-link-color: #007acc;
+  --mason-mermaid-title-color: #3b3b3b;
+  --mason-mermaid-edge-label-background: #ffffff;
+  --mason-mermaid-actor-bkg: #f8f8f8;
+  --mason-mermaid-actor-border: #007acc;
+  --mason-mermaid-actor-text-color: #3b3b3b;
+  --mason-mermaid-actor-line-color: #6e6e6e;
+  --mason-mermaid-signal-color: #007acc;
+  --mason-mermaid-signal-text-color: #3b3b3b;
+  --mason-mermaid-label-box-bkg-color: #f8f8f8;
+  --mason-mermaid-label-box-border-color: #007acc;
+  --mason-mermaid-label-text-color: #3b3b3b;
+  --mason-mermaid-loop-text-color: #3b3b3b;
+  --mason-mermaid-activation-border-color: #6e6e6e;
+  --mason-mermaid-activation-bkg-color: #eeeeee;
+  --mason-mermaid-sequence-number-color: #fefefe;
+  --mason-mermaid-alt-background: #f3f3f3;
+  --mason-mermaid-class-text: #3b3b3b;
+}
+
+@mixin mermaid-dark-theme {
+  --mason-mermaid-background: #1f1f1f;
+  --mason-mermaid-primary-color: #252526;
+  --mason-mermaid-primary-text-color: #cccccc;
+  --mason-mermaid-primary-border-color: #0078d4;
+  --mason-mermaid-secondary-color: #2d2d30;
+  --mason-mermaid-secondary-text-color: #cccccc;
+  --mason-mermaid-secondary-border-color: #3c3c3c;
+  --mason-mermaid-tertiary-color: #1f1f1f;
+  --mason-mermaid-tertiary-text-color: #cccccc;
+  --mason-mermaid-tertiary-border-color: #3c3c3c;
+  --mason-mermaid-note-bkg-color: #2d2d30;
+  --mason-mermaid-note-text-color: #cccccc;
+  --mason-mermaid-note-border-color: #0078d4;
+  --mason-mermaid-line-color: #0078d4;
+  --mason-mermaid-text-color: #cccccc;
+  --mason-mermaid-main-bkg: #252526;
+  --mason-mermaid-error-bkg-color: #3b1e1e;
+  --mason-mermaid-error-text-color: #f85149;
+  --mason-mermaid-node-border: #0078d4;
+  --mason-mermaid-cluster-bkg: #2d2d30;
+  --mason-mermaid-cluster-border: #3c3c3c;
+  --mason-mermaid-default-link-color: #0078d4;
+  --mason-mermaid-title-color: #cccccc;
+  --mason-mermaid-edge-label-background: #1f1f1f;
+  --mason-mermaid-actor-bkg: #252526;
+  --mason-mermaid-actor-border: #0078d4;
+  --mason-mermaid-actor-text-color: #cccccc;
+  --mason-mermaid-actor-line-color: #858585;
+  --mason-mermaid-signal-color: #cccccc;
+  --mason-mermaid-signal-text-color: #cccccc;
+  --mason-mermaid-label-box-bkg-color: #252526;
+  --mason-mermaid-label-box-border-color: #0078d4;
+  --mason-mermaid-label-text-color: #cccccc;
+  --mason-mermaid-loop-text-color: #cccccc;
+  --mason-mermaid-activation-border-color: #858585;
+  --mason-mermaid-activation-bkg-color: #252526;
+  --mason-mermaid-sequence-number-color: #fefefe;
+  --mason-mermaid-alt-background: #2d2d30;
+  --mason-mermaid-class-text: #cccccc;
+}
+
+.mason-mermaid {
+  @include mermaid-light-theme;
+  display: flow-root;
+  margin: 1em 0;
+}
+
+.mason-mermaid > svg {
+  display: block;
+  height: auto;
+  margin-inline: auto;
+  max-width: 100%;
+}
+
+// Mermaid's supported HTML-label renderer places text in XHTML inside SVG.
+// Reset article-level paragraph rules at this boundary so labels keep the
+// dimensions Mermaid measured in the browser.
+.mason-mermaid foreignObject > div {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.mason-mermaid foreignObject p {
+  margin: 0;
+  padding: 0;
+}
+
+// Sequence diagrams place actor coordinates at the rectangle center. Keep
+// old SVG output centered even when its embedded Mermaid stylesheet omitted
+// text-anchor, and isolate the label from article-level line-height rules.
+.mason-mermaid > svg[aria-roledescription="sequence"] text.actor {
+  dominant-baseline: central;
+  line-height: normal;
+  text-anchor: middle;
+}
+
+.mason-mermaid-error {
+  color: #b42318;
+  padding: 0.75em;
+}
+.mason-callout {
+  background: transparent;
+  border: 0;
+  border-left: 5px solid var(--mason-markdown-callout-border, #d9d9d9);
+  border-radius: 0;
+  margin: 1em 0 1em 0.2em;
+  overflow: hidden;
+  padding: 0.5em 1em;
+}
+
+.mason-callout > summary {
+  color: var(--mason-markdown-callout-color, inherit);
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+  margin: 0;
+  outline: 0;
+  padding-left: 24px;
+  position: relative;
+  user-select: none;
+}
+
+/* github-markdown-css gives these elements higher-specificity defaults in the editor preview. */
+.markdown-body .mason-callout {
+  margin: 1em 0 1em 0.2em;
+}
+
+.markdown-body .mason-callout > summary {
+  list-style: none;
+}
+
+.mason-callout > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mason-callout > summary::marker {
+  content: "";
+}
+
+.mason-callout > summary::before {
+  background: var(--mason-markdown-callout-color, #d9d9d9);
+  content: "";
+  height: 16px;
+  left: 0;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+}
+
+.mason-callout > summary::after {
+  background: currentcolor;
+  content: "";
+  height: 16px;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 512'%3E%3Cpath d='M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9S64 114.9 64 127.9v256c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l128-128z'/%3E%3C/svg%3E");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s;
+  width: 16px;
+}
+
+.mason-callout[open] > summary::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.mason-callout[open] > summary {
+  margin-bottom: 0.5em;
+}
+
+.mason-callout-body {
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.mason-callout-body-with-table {
+  margin-top: 1rem;
+}
+
+.mason-callout-body > :first-child {
+  margin-top: 0;
+}
+
+.mason-callout-body > :last-child {
+  margin-bottom: 0;
+}
+
+.mason-callout-body .mason-table-scroll {
+  margin-left: 1rem;
+  max-width: 100%;
+  width: max-content;
+}
+
+.mason-callout-body .mason-table-scroll > table.mason-markdown-table {
+  min-width: 0;
+  width: auto;
+}
+
+.mason-callout-body .mason-table-scroll > table.mason-markdown-table th,
+.mason-callout-body .mason-table-scroll > table.mason-markdown-table td {
+  padding: 0.375em 0.75em;
+}
+
+.mason-callout-info {
+  --mason-markdown-callout-border: #3498db;
+  --mason-markdown-callout-color: #3498db;
+}
+
+.mason-callout-success {
+  --mason-markdown-callout-border: #52c41a;
+  --mason-markdown-callout-color: #52c41a;
+}
+
+.mason-callout-warning {
+  --mason-markdown-callout-border: #ffc116;
+  --mason-markdown-callout-color: #ffc116;
+}
+
+.mason-callout-error {
+  --mason-markdown-callout-border: #e74c3c;
+  --mason-markdown-callout-color: #e74c3c;
+}
+
+.mason-callout-info > summary::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z'/%3E%3C/svg%3E");
+}
+
+.mason-callout-success > summary::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z'/%3E%3C/svg%3E");
+}
+
+.mason-callout-warning > summary::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1-64 0z'/%3E%3C/svg%3E");
+}
+
+.mason-callout-error > summary::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z'/%3E%3C/svg%3E");
+}
+
+.mason-align-left {
+  text-align: left;
+}
+
+.mason-align-center {
+  text-align: center;
+}
+
+.mason-align-right {
+  text-align: right;
+}
+
+.mason-epigraph {
+  border: 0;
+  margin: 1rem 0 1rem 60%;
+  padding: 0;
+  text-align: left;
+  width: 40%;
+}
+
+.markdown-body blockquote.mason-epigraph,
+.mason-markdown-body blockquote.mason-epigraph {
+  border: 0;
+  margin: 1rem 0 1rem 60%;
+  padding: 0;
+  width: 40%;
+}
+
+.mason-epigraph-body {
+  text-align: left;
+}
+
+.mason-epigraph-body > :last-child {
+  margin-bottom: 0;
+}
+
+.mason-epigraph cite {
+  border-top: 1px solid var(--mason-markdown-table-border, #888);
+  display: block;
+  font-style: normal;
+  margin-top: 0;
+  text-align: right;
+}
+
+.mason-table-scroll {
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table.mason-markdown-table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0;
+  min-width: 100%;
+  width: max-content;
+}
+
+table.mason-markdown-table th,
+table.mason-markdown-table td {
+  border: 1px solid var(--mason-markdown-table-border, #d9d9d9);
+  padding: 0.45rem 0.65rem;
+  vertical-align: top;
+}
+
+table.mason-markdown-table thead th {
+  background: var(--mason-markdown-table-header, #f5f5f5);
+  font-weight: 600;
+}
+
+.mason-table-scroll.mason-cute-table {
+  margin: 0.5em 0;
+  overflow-x: auto;
+}
+
+/*
+ * Cute Table's variant is a semantic class on the table itself. The wrapper
+ * is only a responsive overflow layer, and may be removed by a host theme or
+ * by content normalization when an article is rendered.
+ */
+table.mason-markdown-table.mason-cute-table-three,
+table.mason-markdown-table.mason-cute-table-tuack {
+  display: table;
+  margin: 0.5em auto;
+  min-width: 0;
+  width: auto;
+}
+
+table.mason-markdown-table.mason-cute-table-three tr,
+table.mason-markdown-table.mason-cute-table-three th,
+table.mason-markdown-table.mason-cute-table-three td,
+table.mason-markdown-table.mason-cute-table-tuack tr,
+table.mason-markdown-table.mason-cute-table-tuack th,
+table.mason-markdown-table.mason-cute-table-tuack td {
+  background-color: transparent;
+  border: 0;
+}
+
+table.mason-markdown-table.mason-cute-table-three th,
+table.mason-markdown-table.mason-cute-table-tuack th {
+  font-weight: 400;
+}
+
+table.mason-markdown-table.mason-cute-table-three,
+table.mason-markdown-table.mason-cute-table-tuack {
+  border-bottom: 5px solid var(--mason-cute-table-rule, currentColor);
+  border-top: 5px solid var(--mason-cute-table-rule, currentColor);
+}
+
+table.mason-markdown-table.mason-cute-table-three > thead,
+table.mason-markdown-table.mason-cute-table-tuack > thead {
+  border-bottom: 3px solid var(--mason-cute-table-rule, currentColor);
+}
+
+table.mason-markdown-table.mason-cute-table-tuack
+  > colgroup
+  > col:not(:first-child) {
+  border-left: 1px solid var(--mason-cute-table-rule, currentColor);
+}
+
+table.mason-markdown-table.mason-cute-table-tuack
+  > colgroup
+  > col.mason-tuack-break {
+  border-left-width: 3px;
+}
+
+table.mason-markdown-table.mason-cute-table-tuack
+  > tbody
+  > tr:not(:last-child) {
+  border-bottom: 1px solid var(--mason-cute-table-rule, currentColor);
+}
+
+.mason-code-block {
+  background: var(--mason-markdown-code-background, #fafafa);
+  border: 1px solid var(--mason-markdown-code-border, #d9d9d9);
+  border-radius: 3px;
+  box-sizing: border-box;
+  color: var(--mason-markdown-code-foreground, #24292f);
+  display: block;
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  // plugin-shiki injects `pre:has(code)` with !important declarations while
+  // its renderer is active. These blocks are already highlighted by ByteMD,
+  // so keep them visible and retain the plugin's intended padding.
+  filter: none !important;
+  padding: 0.7rem 0 !important;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+// Ordinary fenced blocks keep the conventional code-block inset. Numbered
+// blocks intentionally use the full width for their line highlight rows.
+.mason-code-block--no-line-numbers {
+  padding: 0.7rem 1rem !important;
+}
+
+.mason-code-content {
+  display: block !important;
+  min-width: 0;
+  // Article themes frequently style nested code spans. Pin the whitespace
+  // contract on every structural layer so Prism token boundaries cannot
+  // collapse indentation after a post is published.
+  white-space: pre-wrap !important;
+}
+
+.mason-code-block > code,
+.mason-code-block .mason-code-content > code {
+  display: block !important;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.9em;
+  line-height: 1.55;
+  white-space: pre-wrap !important;
+}
+
+.mason-code-content > code .token {
+  white-space: pre-wrap !important;
+}
+
+// The wrapper makes the semantic code element a non-pre descendant, so host
+// Markdown rules such as `.markdown-body :not(pre) > code` would otherwise
+// add a second inline-code surface on top of the block background.
+.mason-code-block .mason-code-content > code {
+  background: transparent !important;
+  border-radius: 0;
+  color: inherit;
+  padding: 0;
+}
+
+.mason-code-line {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  min-height: 1.55em;
+  padding: 0 0.8rem 0 0;
+  white-space: inherit;
+}
+
+/* Article themes commonly reset every span under a code element to inline.
+ * Code lines are structural rows, so keep this layout rule authoritative. */
+.mason-code-block > code > .mason-code-line,
+.mason-code-content > code > .mason-code-line {
+  display: grid !important;
+}
+
+.mason-code-line.is-highlighted {
+  background: var(--mason-markdown-code-highlight, rgb(255 224 138 / 28%));
+}
+
+.mason-code-line-number {
+  color: var(--mason-markdown-code-line-number, #8b949e);
+  padding-right: 0.5rem;
+  text-align: right;
+  user-select: none;
+}
+
+.mason-code-line-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap !important;
+}
+
+.mason-code-fallback {
+  background: var(--mason-markdown-code-background, #fafafa);
+  border: 1px solid var(--mason-markdown-code-border, #d9d9d9);
+  border-radius: 3px;
+  box-sizing: border-box;
+  color: var(--mason-markdown-code-foreground, #24292f);
+  display: block;
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  filter: none !important;
+  padding: 0.9em 1em !important;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.mason-code-fallback > code,
+.mason-code-fallback .mason-code-content > code {
+  background: transparent !important;
+  border-radius: 0;
+  color: inherit;
+  display: block;
+  font-family: Consolas, "Cascadia Code", "Courier New", monospace;
+  font-size: 0.9em;
+  line-height: 1.55;
+  padding: 0;
+  white-space: pre-wrap !important;
+}
+
+.mason-code-fallback .token {
+  white-space: pre-wrap !important;
+}
+
+// Published code actions are mounted by the plugin runtime rather than saved
+// into post HTML. This keeps article snapshots portable and theme-neutral.
+[data-mason-markdown-code-copy] {
+  padding-right: 3.2rem !important;
+  position: relative;
+}
+
+.mason-code-copy-button {
+  align-items: center !important;
+  appearance: none !important;
+  background: var(--mason-markdown-code-copy-background, rgb(255 255 255 / 92%)) !important;
+  border: 1px solid var(--mason-markdown-code-copy-border, #d0d7de) !important;
+  border-radius: 3px !important;
+  box-sizing: border-box !important;
+  color: var(--mason-markdown-code-copy-foreground, #57606a) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 2rem !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  opacity: 0.78;
+  padding: 0 !important;
+  position: absolute !important;
+  right: 0.55rem !important;
+  top: 0.55rem !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+    opacity 0.15s ease;
+  user-select: none;
+  width: 2rem !important;
+  z-index: 1;
+}
+
+.mason-code-copy-button::before,
+.mason-code-copy-button::after {
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  box-sizing: border-box;
+  content: "";
+  height: 0.7rem;
+  position: absolute;
+  width: 0.65rem;
+}
+
+.mason-code-copy-button::before {
+  left: 0.55rem;
+  top: 0.48rem;
+}
+
+.mason-code-copy-button::after {
+  left: 0.72rem;
+  top: 0.67rem;
+}
+
+.mason-code-copy-button:hover {
+  background: var(--mason-markdown-code-copy-hover-background, #f6f8fa) !important;
+  border-color: var(--mason-markdown-code-copy-hover-border, #0969da) !important;
+  color: var(--mason-markdown-code-copy-hover-foreground, #0969da) !important;
+  opacity: 1;
+}
+
+.mason-code-copy-button:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--mason-markdown-code-copy-focus, #0969da) !important;
+  outline-offset: 2px;
+}
+
+.mason-code-copy-button:disabled {
+  cursor: default !important;
+  opacity: 1;
+}
+
+.mason-code-copy-button[data-copy-state="success"] {
+  background: var(--mason-markdown-code-copy-success-background, #dafbe1) !important;
+  border-color: var(--mason-markdown-code-copy-success-border, #1a7f37) !important;
+  color: var(--mason-markdown-code-copy-success-foreground, #1a7f37) !important;
+}
+
+.mason-code-copy-button[data-copy-state="success"]::before {
+  border: 0;
+  border-bottom: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  border-radius: 0;
+  height: 0.42rem;
+  left: 0.52rem;
+  top: 0.58rem;
+  transform: rotate(-45deg);
+  width: 0.88rem;
+}
+
+.mason-code-copy-button[data-copy-state="success"]::after {
+  display: none;
+}
+
+.mason-code-copy-button[data-copy-state="error"] {
+  background: var(--mason-markdown-code-copy-error-background, #ffebe9) !important;
+  border-color: var(--mason-markdown-code-copy-error-border, #cf222e) !important;
+  color: var(--mason-markdown-code-copy-error-foreground, #cf222e) !important;
+}
+
+.mason-code-content .token.comment,
+.mason-code-content .token.prolog,
+.mason-code-content .token.doctype,
+.mason-code-content .token.cdata,
+.mason-code-line-content .token.comment,
+.mason-code-line-content .token.prolog,
+.mason-code-line-content .token.doctype,
+.mason-code-line-content .token.cdata,
+.mason-code-fallback .token.comment,
+.mason-code-fallback .token.prolog,
+.mason-code-fallback .token.doctype,
+.mason-code-fallback .token.cdata {
+  color: var(--mason-markdown-token-comment, #6a9955);
+}
+
+.mason-code-content .token.punctuation,
+.mason-code-content .token.operator,
+.mason-code-line-content .token.punctuation,
+.mason-code-line-content .token.operator,
+.mason-code-fallback .token.punctuation,
+.mason-code-fallback .token.operator {
+  color: var(--mason-markdown-token-operator, #586069);
+}
+
+.mason-code-content .token.keyword,
+.mason-code-content .token.atrule,
+.mason-code-content .token.selector,
+.mason-code-line-content .token.keyword,
+.mason-code-line-content .token.atrule,
+.mason-code-line-content .token.selector,
+.mason-code-fallback .token.keyword,
+.mason-code-fallback .token.atrule,
+.mason-code-fallback .token.selector {
+  color: var(--mason-markdown-token-keyword, #005cc5);
+}
+
+.mason-code-content .token.string,
+.mason-code-content .token.char,
+.mason-code-content .token.attr-value,
+.mason-code-content .token.regex,
+.mason-code-line-content .token.string,
+.mason-code-line-content .token.char,
+.mason-code-line-content .token.attr-value,
+.mason-code-line-content .token.regex,
+.mason-code-fallback .token.string,
+.mason-code-fallback .token.char,
+.mason-code-fallback .token.attr-value,
+.mason-code-fallback .token.regex {
+  color: var(--mason-markdown-token-string, #032f62);
+}
+
+.mason-code-content .token.function,
+.mason-code-content .token.class-name,
+.mason-code-line-content .token.function,
+.mason-code-line-content .token.class-name,
+.mason-code-fallback .token.function,
+.mason-code-fallback .token.class-name {
+  color: var(--mason-markdown-token-function, #6f42c1);
+}
+
+.mason-code-content .token.number,
+.mason-code-content .token.boolean,
+.mason-code-content .token.constant,
+.mason-code-line-content .token.number,
+.mason-code-line-content .token.boolean,
+.mason-code-line-content .token.constant,
+.mason-code-fallback .token.number,
+.mason-code-fallback .token.boolean,
+.mason-code-fallback .token.constant {
+  color: var(--mason-markdown-token-number, #005cc5);
+}
+
+.mason-directive-fallback {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto .mason-markdown-body,
+  [data-color-scheme="auto"] .mason-markdown-body,
+  .color-scheme-auto .mason-markdown-table,
+  [data-color-scheme="auto"] .mason-markdown-table,
+  .color-scheme-dark .mason-markdown-table,
+  [data-color-scheme="dark"] .mason-markdown-table,
+  .color-scheme-auto .mason-code-fallback,
+  [data-color-scheme="auto"] .mason-code-fallback {
+    --mason-markdown-table-border: #3c3c3c;
+    --mason-markdown-table-header: #252526;
+    --mason-markdown-code-background: #1e1e1e;
+    --mason-markdown-code-border: #3c3c3c;
+    --mason-markdown-code-foreground: #d4d4d4;
+    --mason-markdown-code-line-number: #858585;
+    --mason-markdown-token-comment: #6a9955;
+    --mason-markdown-token-operator: #d4d4d4;
+    --mason-markdown-token-keyword: #569cd6;
+    --mason-markdown-token-string: #ce9178;
+    --mason-markdown-token-function: #dcdcaa;
+    --mason-markdown-token-number: #b5cea8;
+    --mason-markdown-inline-code-background: #2b2d30;
+    --mason-markdown-kbd-background: #252526;
+    --mason-markdown-kbd-border: #3c3c3c;
+    --mason-markdown-quote-border: #3c3c3c;
+    --mason-markdown-link: #4daafc;
+    --mason-markdown-link-hover: #79c0ff;
+  }
+
+  .color-scheme-auto .mason-mermaid,
+  [data-color-scheme="auto"] .mason-mermaid {
+    @include mermaid-dark-theme;
+  }
+}
+
+.color-scheme-dark .mason-markdown-body,
+.dark .mason-markdown-body,
+[data-color-scheme="dark"] .mason-markdown-body,
+.color-scheme-dark .mason-code-block,
+.dark .mason-code-block,
+.color-scheme-dark .mason-code-fallback,
+.dark .mason-code-fallback,
+[data-color-scheme="dark"] .mason-code-block,
+[data-color-scheme="dark"] .mason-code-fallback {
+  --mason-markdown-code-background: #1e1e1e;
+  --mason-markdown-code-border: #3c3c3c;
+  --mason-markdown-code-foreground: #d4d4d4;
+  --mason-markdown-code-line-number: #858585;
+  --mason-markdown-token-comment: #6a9955;
+  --mason-markdown-token-operator: #d4d4d4;
+  --mason-markdown-token-keyword: #569cd6;
+  --mason-markdown-token-string: #ce9178;
+  --mason-markdown-token-function: #dcdcaa;
+  --mason-markdown-token-number: #b5cea8;
+  --mason-markdown-inline-code-background: #2b2d30;
+  --mason-markdown-kbd-background: #252526;
+  --mason-markdown-kbd-border: #3c3c3c;
+  --mason-markdown-quote-border: #3c3c3c;
+  --mason-markdown-link: #4daafc;
+  --mason-markdown-link-hover: #79c0ff;
+}
+
+.color-scheme-dark .mason-mermaid,
+.dark .mason-mermaid,
+[data-color-scheme="dark"] .mason-mermaid {
+  @include mermaid-dark-theme;
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto .mason-code-copy-button,
+  [data-color-scheme="auto"] .mason-code-copy-button {
+    --mason-markdown-code-copy-background: rgb(45 45 45 / 92%);
+    --mason-markdown-code-copy-border: #555555;
+    --mason-markdown-code-copy-foreground: #cccccc;
+    --mason-markdown-code-copy-hover-background: #3c3c3c;
+    --mason-markdown-code-copy-hover-border: #007acc;
+    --mason-markdown-code-copy-hover-foreground: #ffffff;
+    --mason-markdown-code-copy-focus: #007acc;
+    --mason-markdown-code-copy-success-background: #163b24;
+    --mason-markdown-code-copy-success-border: #3fb950;
+    --mason-markdown-code-copy-success-foreground: #3fb950;
+    --mason-markdown-code-copy-error-background: #4b1f24;
+    --mason-markdown-code-copy-error-border: #f85149;
+    --mason-markdown-code-copy-error-foreground: #ff7b72;
+  }
+}
+
+.color-scheme-dark .mason-code-copy-button,
+.dark .mason-code-copy-button,
+[data-color-scheme="dark"] .mason-code-copy-button {
+  --mason-markdown-code-copy-background: rgb(45 45 45 / 92%);
+  --mason-markdown-code-copy-border: #555555;
+  --mason-markdown-code-copy-foreground: #cccccc;
+  --mason-markdown-code-copy-hover-background: #3c3c3c;
+  --mason-markdown-code-copy-hover-border: #007acc;
+  --mason-markdown-code-copy-hover-foreground: #ffffff;
+  --mason-markdown-code-copy-focus: #007acc;
+  --mason-markdown-code-copy-success-background: #163b24;
+  --mason-markdown-code-copy-success-border: #3fb950;
+  --mason-markdown-code-copy-success-foreground: #3fb950;
+  --mason-markdown-code-copy-error-background: #4b1f24;
+  --mason-markdown-code-copy-error-border: #f85149;
+  --mason-markdown-code-copy-error-foreground: #ff7b72;
+}

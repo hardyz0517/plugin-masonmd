@@ -1,4 +1,4 @@
-import type { BytemdTableCell, BytemdTableGrid } from "./table-source-model";
+import type { MasonTableCell, MasonTableGrid } from "./table-source-model";
 
 export interface TablePoint {
   row: number;
@@ -26,10 +26,10 @@ export function getTableSelectionRect(start: TablePoint, end: TablePoint): Table
 }
 
 export function findTableCellOwner(
-  cells: BytemdTableGrid,
+  cells: MasonTableGrid,
   row: number,
   column: number,
-): BytemdTableCell | undefined {
+): MasonTableCell | undefined {
   for (const tableRow of cells) {
     for (const cell of tableRow) {
       if (
@@ -47,7 +47,7 @@ export function findTableCellOwner(
 }
 
 export function isTableCellSelected(
-  cell: BytemdTableCell,
+  cell: MasonTableCell,
   selection: TableSelectionRect,
 ): boolean {
   return (
@@ -59,10 +59,10 @@ export function isTableCellSelected(
 }
 
 export function mergeTableCells(
-  cells: BytemdTableGrid,
+  cells: MasonTableGrid,
   selection: TableSelectionRect,
 ): boolean {
-  const owners = new Map<string, BytemdTableCell>();
+  const owners = new Map<string, MasonTableCell>();
   for (let row = selection.minRow; row <= selection.maxRow; row += 1) {
     for (let column = selection.minColumn; column <= selection.maxColumn; column += 1) {
       const owner = findTableCellOwner(cells, row, column);
@@ -101,7 +101,7 @@ export function mergeTableCells(
   return true;
 }
 
-export function splitTableCell(cells: BytemdTableGrid, cell: BytemdTableCell): void {
+export function splitTableCell(cells: MasonTableGrid, cell: MasonTableCell): void {
   const { row, column, rowspan, colspan, content } = cell;
   for (let currentRow = row; currentRow < row + rowspan; currentRow += 1) {
     for (

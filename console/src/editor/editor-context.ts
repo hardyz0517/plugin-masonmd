@@ -6,16 +6,16 @@ import useStexMode from "codemirror-ssr/mode/stex/stex.js";
 import { createMarkdownShortcutMap } from "./markdown-shortcuts";
 import type { MarkdownShortcutActions } from "./markdown-shortcuts";
 
-const MODERN_MARKDOWN_MODE = "hardy-modern-markdown";
+const MODERN_MARKDOWN_MODE = "mason-modern-markdown";
 
 export const markdownModeConfig = {
   name: "gfm",
   gitHubSpice: false,
   highlightFormatting: true,
   tokenTypeOverrides: {
-    list1: "hardy-list",
-    list2: "hardy-list",
-    list3: "hardy-list",
+    list1: "mason-list",
+    list2: "mason-list",
+    list3: "mason-list",
   },
 } as unknown as Parameters<BytemdEditorContext["codemirror"]["getMode"]>[1];
 
@@ -47,14 +47,14 @@ function configureModernMarkdownMode(ctx: BytemdEditorContext) {
         close: "$$",
         mode: mathMode,
         delimStyle: "formatting-math",
-        innerStyle: "hardy-math",
+        innerStyle: "mason-math",
       },
       {
         open: "$",
         close: "$",
         mode: mathMode,
         delimStyle: "formatting-math",
-        innerStyle: "hardy-math",
+        innerStyle: "mason-math",
       },
     );
   });

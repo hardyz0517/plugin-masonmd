@@ -37,7 +37,7 @@ function createEmptyPost(): Post {
     metadata: {
       name: utils.id.uuid(),
       annotations: {
-        [contentAnnotations.PREFERRED_EDITOR]: "bytemd",
+        [contentAnnotations.PREFERRED_EDITOR]: "mason-markdown",
       },
     },
     spec: {
@@ -79,7 +79,7 @@ function errorMessage(error: unknown, fallback: string) {
   ) || fallback;
 }
 
-const BYTEMD_DIRECTIVE_NAMES = new Set([
+const MASON_DIRECTIVE_NAMES = new Set([
   "info",
   "success",
   "warning",
@@ -96,7 +96,7 @@ const DIRECT_CODE_BLOCK = /<pre\b[^>]*>\s*<code\b/i;
 const UNSAFE_PUBLISHED_MARKUP =
   /<\s*\/?\s*(?:script|iframe|object|embed|applet|base|form|meta|link)\b|<[^>]*\bon[a-z][\w:-]*\s*=|\b(?:href|src|action|formaction|xlink:href)\s*=\s*["']?\s*(?:javascript|vbscript|data|file):/i;
 // The compatibility resolver supports `^` and the leftward `<` marker.
-// Bytemd's malformed forward `>` marker is deliberately rendered as text, so
+// Mason Markdown treats a malformed forward `>` marker as plain text, so
 // it must not make an otherwise stable snapshot look perpetually migratable.
 const VERTICAL_MERGE_MARKER = /(?:^|\|)\s*\^\s*(?:\||$)/m;
 const HORIZONTAL_MERGE_MARKER = /(?:^|\|)\s*<\s*(?:\||$)/m;
@@ -146,23 +146,23 @@ function hasUnsupportedDirectiveOutput(source: Content): boolean {
   const names = directiveNamesOutsideFences(source.raw);
   if (!names.length) return false;
 
-  const hasFallback = source.content.includes("bytemd-directive-fallback");
-  if (names.some((name) => !BYTEMD_DIRECTIVE_NAMES.has(name)) && !hasFallback) {
+  const hasFallback = source.content.includes("mason-directive-fallback");
+  if (names.some((name) => !MASON_DIRECTIVE_NAMES.has(name)) && !hasFallback) {
     return true;
   }
 
   const expectedClasses: Record<string, string> = {
-    info: "bytemd-callout",
-    success: "bytemd-callout",
-    warning: "bytemd-callout",
-    error: "bytemd-callout",
-    align: "bytemd-align-container",
-    epigraph: "bytemd-epigraph",
-    "cute-table": "bytemd-cute-table",
+    info: "mason-callout",
+    success: "mason-callout",
+    warning: "mason-callout",
+    error: "mason-callout",
+    align: "mason-align-container",
+    epigraph: "mason-epigraph",
+    "cute-table": "mason-cute-table",
   };
   return names.some(
     (name) =>
-      BYTEMD_DIRECTIVE_NAMES.has(name) &&
+      MASON_DIRECTIVE_NAMES.has(name) &&
       !source.content.includes(expectedClasses[name]) &&
       !hasFallback,
   );
@@ -175,11 +175,11 @@ function needsPublishedRenderRefresh(source: Content): boolean {
   // Older snapshots do not carry the stable wrapper used by the published
   // stylesheet. Re-render them on the next save instead of leaving them tied
   // to whichever theme happened to render the original Markdown.
-  if (!/\bclass=["'][^"']*\bbytemd-markdown-body\b/.test(source.content)) {
+  if (!/\bclass=["'][^"']*\bmason-markdown-body\b/.test(source.content)) {
     return true;
   }
 
-  // The first Bytemd renderer emitted direct `pre > code` nodes. Halo's theme
+  // The first Mason Markdown renderer emitted direct `pre > code` nodes. Halo's theme
   // highlighter takes over those nodes, so migrate fenced blocks to the
   // wrapped structure used by the current renderer.
   if (
@@ -194,7 +194,7 @@ function needsPublishedRenderRefresh(source: Content): boolean {
   // safe as well; escaped text does not match this expression.
   if (UNSAFE_PUBLISHED_MARKUP.test(source.content)) return true;
 
-  // The first Bytemd math renderer used the selectors consumed by both
+  // The first Mason Markdown math renderer used the selectors consumed by both
   // ByteMD's viewer hook and Halo's plugin-katex. Re-render once so the
   // published snapshot gets the private wrapper classes used by the current
   // renderer and cannot be parsed a second time.
@@ -210,7 +210,7 @@ function needsPublishedRenderRefresh(source: Content): boolean {
 
   if (
     /^\s*:{2,}\s*epigraph(?:\[|\s|\{|$)/m.test(semanticRaw) &&
-    !source.content.includes("bytemd-epigraph")
+    !source.content.includes("mason-epigraph")
   ) {
     return true;
   }
@@ -260,7 +260,7 @@ export function useUcPostDraft(initialName = "") {
   }>();
   let savedPostFingerprint = "";
   let savedContentFingerprint = "";
-  const renderCoordinator = createMarkdownRenderCoordinator("bytemd-v1");
+  const renderCoordinator = createMarkdownRenderCoordinator("mason-v1");
 
   const isUpdate = computed(() => Boolean(post.value.metadata.creationTimestamp));
   // status.phase is reconciled asynchronously. spec.publish is the value changed by

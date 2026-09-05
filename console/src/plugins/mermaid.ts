@@ -86,7 +86,7 @@ function registerMermaidColor(color: string, key: MermaidThemeVariable) {
   if (!MERMAID_COLOR_VARIABLES.has(normalized)) {
     MERMAID_COLOR_VARIABLES.set(
       normalized,
-      `var(--bytemd-mermaid-${toKebabCase(key)}, ${MERMAID_THEME_FALLBACKS[key]})`
+      `var(--mason-mermaid-${toKebabCase(key)}, ${MERMAID_THEME_FALLBACKS[key]})`
     );
   }
 }
@@ -120,7 +120,7 @@ function stableHash(value: string): string {
 }
 
 export function createDeterministicMermaidId(definition: string, occurrence = 0) {
-  return `bytemd-mermaid-${stableHash(`${occurrence}\u0000${definition}`)}`;
+  return `mason-mermaid-${stableHash(`${occurrence}\u0000${definition}`)}`;
 }
 
 /**
@@ -135,12 +135,12 @@ export function rewriteMermaidThemeCss(stylesheet: string): string {
 }
 
 const MERMAID_MARKER_STYLE_MARKER =
-  "/* plugin-bytemd Mermaid marker colors */";
+  "/* mason-markdown Mermaid marker colors */";
 const MERMAID_MARKER_STYLE =
   MERMAID_MARKER_STYLE_MARKER +
   ".arrowheadPath,.arrowMarkerPath{" +
-  "fill:var(--bytemd-mermaid-line-color,#007acc)!important;" +
-  "stroke:var(--bytemd-mermaid-line-color,#007acc)!important;}";
+  "fill:var(--mason-mermaid-line-color,#007acc)!important;" +
+  "stroke:var(--mason-mermaid-line-color,#007acc)!important;}";
 
 export interface MermaidSvgDimensions {
   width: number;
@@ -461,14 +461,14 @@ async function renderMermaidElement(
   const container = codeElement.closest("pre");
   if (!container) return;
   const wrapper = document.createElement("div");
-  wrapper.className = "bytemd-mermaid";
+  wrapper.className = "mason-mermaid";
 
   try {
     const svg = await renderMermaidDefinition(codeElement.textContent || "", occurrence);
     if (shouldRender()) wrapper.replaceChildren(svg.cloneNode(true));
   } catch {
     if (shouldRender()) {
-      wrapper.classList.add("bytemd-mermaid-error");
+      wrapper.classList.add("mason-mermaid-error");
       wrapper.textContent = "Mermaid render failed";
     }
   }
@@ -490,7 +490,7 @@ export async function renderMermaidInHtml(html: string): Promise<string> {
     try {
       const svg = await renderMermaidDefinition(codeElement.textContent || "", occurrence);
       const wrapper = htmlDocument.createElement("div");
-      wrapper.className = "bytemd-mermaid";
+      wrapper.className = "mason-mermaid";
       wrapper.replaceChildren(svg.cloneNode(true));
       container.replaceWith(wrapper);
     } catch {

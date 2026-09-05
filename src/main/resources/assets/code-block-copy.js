@@ -1,20 +1,17 @@
 (function () {
   "use strict";
 
-  var INSTALL_MARKER = "__pluginBytemdCodeCopyInstalled";
+  var INSTALL_MARKER = "__masonMarkdownCodeCopyInstalled";
   var BLOCK_SELECTOR = [
-    "pre.bytemd-code-block",
-    "pre.bytemd-code-fallback",
-    "pre.luogu-code-block",
-    "pre.luogu-code-fallback",
+    "pre.mason-code-block",
+    "pre.mason-code-fallback",
   ].join(", ");
-  var CODE_LINE_SELECTOR = ".bytemd-code-line, .luogu-code-line";
-  var CODE_LINE_CONTENT_SELECTOR =
-    ".bytemd-code-line-content, .luogu-code-line-content";
-  var CODE_LINE_NUMBER_SELECTOR =
-    ".bytemd-code-line-number, .luogu-code-line-number";
-  var BUTTON_CLASS = "bytemd-code-copy-button";
-  var BLOCK_MARKER = "data-plugin-bytemd-code-copy";
+  var CODE_LINE_SELECTOR = ".mason-code-line";
+  var CODE_LINE_CONTENT_SELECTOR = ".mason-code-line-content";
+  var CODE_LINE_NUMBER_SELECTOR = ".mason-code-line-number";
+  var BUTTON_CLASS = "mason-code-copy-button";
+  var BUTTON_SELECTOR = "." + BUTTON_CLASS;
+  var BLOCK_MARKER = "data-mason-markdown-code-copy";
   var RESET_DELAY = 1800;
 
   if (window[INSTALL_MARKER]) {
@@ -45,9 +42,7 @@
         return;
       }
 
-      // Old saved snapshots may contain a line number without the current
-      // content wrapper. Remove it from a clone so copying never includes a
-      // visual gutter that was not part of the author's source.
+      // A line number is presentation-only and must never enter the clipboard.
       var sourceRow = row.cloneNode(true);
       var lineNumber = sourceRow.querySelector(CODE_LINE_NUMBER_SELECTOR);
       if (lineNumber) {
@@ -59,7 +54,10 @@
   }
 
   function installButton(block) {
-    if (block.hasAttribute(BLOCK_MARKER) || !codeElement(block)) {
+    if (
+      block.hasAttribute(BLOCK_MARKER) ||
+      !codeElement(block)
+    ) {
       return;
     }
 
@@ -132,8 +130,8 @@
   }
 
   function showState(button, state) {
-    if (button._pluginBytemdCopyTimer) {
-      window.clearTimeout(button._pluginBytemdCopyTimer);
+    if (button._masonMarkdownCopyTimer) {
+      window.clearTimeout(button._masonMarkdownCopyTimer);
     }
 
     button.disabled = true;
@@ -146,19 +144,19 @@
       "title",
       state === "success" ? "代码已复制" : "复制代码失败"
     );
-    button._pluginBytemdCopyTimer = window.setTimeout(function () {
+    button._masonMarkdownCopyTimer = window.setTimeout(function () {
       button.disabled = false;
       button.removeAttribute("data-copy-state");
       button.setAttribute("aria-label", "复制代码");
       button.setAttribute("title", "复制代码");
-      button._pluginBytemdCopyTimer = undefined;
+      button._masonMarkdownCopyTimer = undefined;
     }, RESET_DELAY);
   }
 
   function handleClick(event) {
     var target = event.target;
     var button = target && typeof target.closest === "function"
-      ? target.closest("." + BUTTON_CLASS)
+      ? target.closest(BUTTON_SELECTOR)
       : null;
     if (!button) {
       return;

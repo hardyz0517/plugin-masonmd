@@ -21,12 +21,12 @@ afterEach(() => {
 describe("published Mermaid layout normalizer", () => {
   it("restores intrinsic dimensions for legacy SVGs saved with width=100%", () => {
     document.body.innerHTML = `
-      <div class="bytemd-mermaid">
+      <div class="mason-mermaid">
         <svg viewBox="-8 -8 165.4 320" width="100%"></svg>
       </div>
     `;
 
-    const svg = document.querySelector(".bytemd-mermaid > svg");
+    const svg = document.querySelector(".mason-mermaid > svg");
     const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
     style.textContent =
       ".marker { fill: var(--broken, #333))))333); } .node rect { fill: #ECECFF; stroke: #9370DB; }";
@@ -39,13 +39,13 @@ describe("published Mermaid layout normalizer", () => {
     expect(svg?.getAttribute("preserveAspectRatio")).toBe("xMidYMid meet");
     expect(svg?.getAttribute("style")).toContain("width: 165.4px");
     expect(svg?.querySelector("style")?.textContent).toContain(
-      "plugin-bytemd legacy Mermaid line repair"
+      "mason-markdown Mermaid line repair"
     );
     expect(svg?.querySelector("style")?.textContent).toContain(
-      "var(--bytemd-mermaid-primary-color,#f8f8f8)"
+      "var(--mason-mermaid-primary-color,#f8f8f8)"
     );
     expect(svg?.querySelector("style")?.textContent).toContain(
-      "var(--bytemd-mermaid-node-border,#007acc)"
+      "var(--mason-mermaid-node-border,#007acc)"
     );
     expect(svg?.querySelector("style")?.textContent).not.toContain(
       "#ECECFF"
@@ -58,21 +58,21 @@ describe("published Mermaid layout normalizer", () => {
 
   it("preserves a numeric width while deriving a missing matching height", () => {
     document.body.innerHTML = `
-      <div class="bytemd-mermaid">
+      <div class="mason-mermaid">
         <svg viewBox="0 0 400 200" width="300"></svg>
       </div>
     `;
 
     runNormalizer();
 
-    const svg = document.querySelector(".bytemd-mermaid > svg");
+    const svg = document.querySelector(".mason-mermaid > svg");
     expect(svg?.getAttribute("width")).toBe("300");
     expect(svg?.getAttribute("height")).toBe("150");
   });
 
   it("centers labels in legacy SVG-only flowcharts without touching the shape layout", () => {
     document.body.innerHTML = `
-      <div class="bytemd-mermaid">
+      <div class="mason-mermaid">
         <svg aria-roledescription="flowchart-v2" viewBox="0 0 160 120" width="100%">
           <g transform="translate(80, 20)" class="node default flowchart-label">
             <rect class="label-container" x="-24" y="-16.7" width="48" height="33.4"></rect>
@@ -92,7 +92,7 @@ describe("published Mermaid layout normalizer", () => {
 
     runNormalizer();
 
-    const svg = document.querySelector(".bytemd-mermaid > svg");
+    const svg = document.querySelector(".mason-mermaid > svg");
     const nodeLabel = svg?.querySelector(".node.flowchart-label > .label");
     const edgeLabel = svg?.querySelector(".edgeLabel > .label");
     const nodeText = nodeLabel?.querySelector("text");
@@ -117,7 +117,7 @@ describe("published Mermaid layout normalizer", () => {
 
   it("leaves modern foreignObject labels unchanged", () => {
     document.body.innerHTML = `
-      <div class="bytemd-mermaid">
+      <div class="mason-mermaid">
         <svg aria-roledescription="flowchart-v2" viewBox="0 0 100 60" width="100%">
           <foreignObject x="0" y="0" width="100" height="60">
             <div xmlns="http://www.w3.org/1999/xhtml">现代标签</div>
@@ -144,7 +144,7 @@ describe("published Mermaid layout normalizer", () => {
 
   it("centers sequence actor labels and is idempotent", () => {
     document.body.innerHTML = `
-      <div class="bytemd-mermaid">
+      <div class="mason-mermaid">
         <svg aria-roledescription="sequence" viewBox="0 0 240 120" width="100%">
           <g>
             <rect class="actor actor-bottom" x="20" y="40" width="100" height="40"></rect>

@@ -101,7 +101,7 @@ const oldSnapshot = {
 };
 
 const savedHtml =
-  '<div class="bytemd-markdown-body"><blockquote class="bytemd-epigraph">Quote</blockquote>' +
+  '<div class="mason-markdown-body"><blockquote class="mason-epigraph">Quote</blockquote>' +
   '<table><tbody><tr><td rowspan="2">1</td><td>2</td></tr></tbody></table></div>';
 
 describe("UC published content synchronization", () => {
@@ -143,8 +143,8 @@ describe("UC published content synchronization", () => {
     const savedContent = JSON.parse(
       updateRequest.snapshot.metadata.annotations["content.halo.run/content-json"],
     );
-    expect(savedContent.content).toContain('class="bytemd-markdown-body"');
-    expect(savedContent.content).toContain('class="bytemd-epigraph"');
+    expect(savedContent.content).toContain('class="mason-markdown-body"');
+    expect(savedContent.content).toContain('class="mason-epigraph"');
     expect(savedContent.content).toContain('rowspan="2"');
     expect(mocks.ucApiClient.content.post.publishMyPost).toHaveBeenCalledTimes(1);
   });
@@ -196,7 +196,7 @@ describe("UC published content synchronization", () => {
         ...oldSnapshot.metadata,
         annotations: {
           "content.halo.run/patched-content":
-            '<div class="bytemd-markdown-body"><pre class="language-cpp"><code>int main() {}</code></pre><p>标题</p><p>原样内容</p></div>',
+            '<div class="mason-markdown-body"><pre class="language-cpp"><code>int main() {}</code></pre><p>标题</p><p>原样内容</p></div>',
           "content.halo.run/patched-raw": legacyRaw,
         },
       },
@@ -228,7 +228,7 @@ describe("UC published content synchronization", () => {
           ...oldSnapshot.metadata,
           annotations: {
             "content.halo.run/patched-content":
-              '<div class="bytemd-markdown-body"><table><tbody><tr><td>1</td><td>></td></tr></tbody></table></div>',
+              '<div class="mason-markdown-body"><table><tbody><tr><td>1</td><td>></td></tr></tbody></table></div>',
             "content.halo.run/patched-raw":
               "| A | B |\n| --- | --- |\n| 1 | > |",
           },
@@ -245,7 +245,7 @@ describe("UC published content synchronization", () => {
     expect(mocks.ucApiClient.content.post.publishMyPost).not.toHaveBeenCalled();
   });
 
-  it("does not treat the private Bytemd math classes as legacy wrappers", async () => {
+  it("does not treat the private Mason math classes as legacy wrappers", async () => {
     const stablePost = post();
     stablePost.spec.releaseSnapshot = stablePost.spec.headSnapshot;
     mocks.ucApiClient.content.post.getMyPost.mockResolvedValue({
@@ -258,7 +258,7 @@ describe("UC published content synchronization", () => {
           ...oldSnapshot.metadata,
           annotations: {
             "content.halo.run/patched-content":
-              '<div class="bytemd-markdown-body"><p><span class="bytemd-math bytemd-math-inline"><span class="katex"><span class="katex-html">x</span></span></span></p></div>',
+              '<div class="mason-markdown-body"><p><span class="mason-math mason-math-inline"><span class="katex"><span class="katex-html">x</span></span></span></p></div>',
             "content.halo.run/patched-raw": "$x$",
           },
         },
@@ -283,13 +283,13 @@ describe("UC published content synchronization", () => {
         ...oldSnapshot.metadata,
         annotations: {
           "content.halo.run/patched-content":
-            '<div class="bytemd-markdown-body"><p>线性求 <span class="bytemd-math bytemd-math-inline"><span class="katex"><span class="katex-mathml"><math><mn>1</mn><annotation>1</annotation></math></span><span class="katex-html" aria-hidden="true">1</span></span></span> 到 n。</p></div>',
+            '<div class="mason-markdown-body"><p>线性求 <span class="mason-math mason-math-inline"><span class="katex"><span class="katex-mathml"><math><mn>1</mn><annotation>1</annotation></math></span><span class="katex-html" aria-hidden="true">1</span></span></span> 到 n。</p></div>',
           "content.halo.run/patched-raw": "线性求 $1$ 到 $n$。",
         },
       },
     };
     const refreshedHtml =
-      '<div class="bytemd-markdown-body"><p>线性求 <span class="bytemd-math bytemd-math-inline" role="math" aria-label="1"><span class="katex"><span class="katex-html" aria-hidden="true">1</span></span></span> 到 n。</p></div>';
+      '<div class="mason-markdown-body"><p>线性求 <span class="mason-math mason-math-inline" role="math" aria-label="1"><span class="katex"><span class="katex-html" aria-hidden="true">1</span></span></span> 到 n。</p></div>';
     mocks.ucApiClient.content.post.getMyPost.mockResolvedValue({ data: stablePost });
     mocks.ucApiClient.content.post.getMyPostDraft.mockResolvedValue({ data: oldKaTeXSnapshot });
     mocks.render.mockResolvedValue({ renderedHtml: refreshedHtml });

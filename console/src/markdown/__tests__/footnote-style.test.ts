@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 
 const pluginStyles = compile(
-  join(__dirname, "../../styles/bytemd-markdown.scss"),
+  join(__dirname, "../../styles/mason-markdown.scss"),
 ).css;
 const editorStyles = compile(join(__dirname, "../../styles/main.scss")).css;
 
@@ -19,7 +19,7 @@ describe("footnote reference style", () => {
   it("removes the underline from published and editor footnote references only", () => {
     const published = createWindow(
       pluginStyles,
-      `<div class="bytemd-markdown-body">
+      `<div class="mason-markdown-body">
         <a data-footnote-ref href="#user-content-fn-1">1</a>
         <a href="https://example.com">normal link</a>
       </div>`,

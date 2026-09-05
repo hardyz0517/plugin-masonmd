@@ -19,29 +19,19 @@ export default definePlugin({
         hideFooter: true,
       },
     },
-    {
-      path: "/hardy-post-editor",
-      name: "HardyPostEditor",
-      component: ucPostEditor,
-      meta: {
-        title: "新建文章 - Mason Markdown",
-        permissions: ["uc:posts:manage"],
-        hideFooter: true,
-      },
-    },
   ],
   extensionPoints: {
     "editor:create": () => {
       return [
         {
-          name: "bytemd",
+          name: "mason-markdown",
           displayName: "Mason Markdown",
           component: defineAsyncComponent({
-            loader: () => import("./components/bytemd.vue"),
+            loader: () => import("./components/mason-markdown-editor.vue"),
             loadingComponent: VLoading,
           }),
           rawType: "markdown",
-          logo: "/plugins/PluginBytemd/assets/logo.png",
+          logo: "/plugins/PluginMasonMarkdown/assets/mason-markdown-logo.png",
         },
       ];
     },

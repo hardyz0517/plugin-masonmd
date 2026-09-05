@@ -1,6 +1,6 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm", "mermaid"],
   "diagnostics": [],
-  "htmlSnapshot": {"contains": ["language-mermaid"], "notContains": ["bytemd-code-line-number"]}
+  "htmlSnapshot": {"contains": ["language-mermaid"], "notContains": ["mason-code-line-number"]}
 }

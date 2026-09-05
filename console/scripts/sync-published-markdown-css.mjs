@@ -5,31 +5,17 @@ import { fileURLToPath } from "node:url";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const consoleDirectory = resolve(scriptDirectory, "..");
-const source = resolve(consoleDirectory, "src/styles/bytemd-markdown.scss");
+const source = resolve(consoleDirectory, "src/styles/mason-markdown.scss");
 const assetsDirectory = resolve(
   consoleDirectory,
   "../src/main/resources/assets",
 );
-const bytemdOutput = resolve(assetsDirectory, "bytemd-markdown.css");
-const legacyOutput = resolve(assetsDirectory, "luogu-markdown.css");
-const copyDataMarker = "__PLUGIN_BYTEMD_COPY_DATA_MARKER__";
-const copyButtonMarker = "__PLUGIN_BYTEMD_COPY_BUTTON_MARKER__";
+const masonOutput = resolve(assetsDirectory, "mason-markdown.css");
 
-const bytemdCss = compile(source, {
+const masonCss = compile(source, {
   sourceMap: false,
   style: "expanded",
 }).css;
 
-// Historical article snapshots use the former Luogu class namespace. Keep a
-// mechanically derived stylesheet so legacy and current renderers share one
-// visual and whitespace contract without duplicating Sass maintenance.
-const legacyCss = bytemdCss
-  .replaceAll("data-plugin-bytemd-code-copy", copyDataMarker)
-  .replaceAll("bytemd-code-copy-button", copyButtonMarker)
-  .replaceAll("bytemd-", "luogu-")
-  .replaceAll(copyDataMarker, "data-plugin-bytemd-code-copy")
-  .replaceAll(copyButtonMarker, "bytemd-code-copy-button");
-
 mkdirSync(assetsDirectory, { recursive: true });
-writeFileSync(bytemdOutput, bytemdCss, "utf8");
-writeFileSync(legacyOutput, legacyCss, "utf8");
+writeFileSync(masonOutput, masonCss, "utf8");

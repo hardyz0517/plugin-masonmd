@@ -1,5 +1,5 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm", "math"],
   "diagnostics": ["Invalid math expression"],
   "htmlSnapshot": {"contains": ["katex"]}

@@ -1,5 +1,5 @@
 {
-  "profile": "bytemd-v1",
+  "profile": "mason-v1",
   "features": ["gfm", "table-merge"],
   "diagnostics": ["Unsupported forward merge"],
   "htmlSnapshot": {"contains": ["&#x3C;", "<td>^</td>", "<td>></td>", "rowspan=\"2\""], "notContains": ["colspan="]}

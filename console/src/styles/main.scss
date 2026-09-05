@@ -1,22 +1,22 @@
-@import "./bytemd-markdown";
+@use "./mason-markdown" as *;
 
-.bytemd-wrapper {
-  --bytemd-toolbar-text: #333333;
-  --bytemd-toolbar-border: #dddddd;
-  --bytemd-toolbar-bg: #ffffff;
-  --bytemd-toolbar-hover: rgb(51 51 51 / 20%);
-  --bytemd-toolbar-height: calc(24px + 0.4em);
+.mason-editor-wrapper {
+  --mason-toolbar-text: #333333;
+  --mason-toolbar-border: #dddddd;
+  --mason-toolbar-bg: #ffffff;
+  --mason-toolbar-hover: rgb(51 51 51 / 20%);
+  --mason-toolbar-height: calc(24px + 0.4em);
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
 }
 
-.bytemd-wrapper > div {
+.mason-editor-wrapper > div {
   min-height: 0;
 }
 
-.bytemd-wrapper > div:not(.bytemd-bytemd-toolbar):not(.bytemd-custom-status) {
+.mason-editor-wrapper > div:not(.mason-editor-toolbar):not(.mason-custom-status) {
   flex: 1;
 }
 .bytemd {
@@ -32,7 +32,7 @@
 .bytemd .bytemd-status-left {
   display: none;
 }
-.bytemd-custom-status {
+.mason-custom-status {
   bottom: 0;
   font-size: 12px;
   height: 24px;
@@ -42,10 +42,10 @@
   position: absolute;
   z-index: 1;
 }
-.bytemd-custom-status span {
+.mason-custom-status span {
   padding-left: 16px;
 }
-.bytemd-custom-status strong {
+.mason-custom-status strong {
   font-weight: 600;
 }
 .bytemd .CodeMirror-gutters {
@@ -106,21 +106,21 @@
 .bytemd.bytemd-fullscreen {
   z-index: 9999;
 }
-.bytemd-wrapper.bytemd-wrapper-fullscreen .bytemd.bytemd-fullscreen {
-  height: calc(100vh - var(--bytemd-toolbar-height)) !important;
-  height: calc(100dvh - var(--bytemd-toolbar-height)) !important;
-  inset: var(--bytemd-toolbar-height) 0 0;
+.mason-editor-wrapper.mason-editor-wrapper-fullscreen .bytemd.bytemd-fullscreen {
+  height: calc(100vh - var(--mason-toolbar-height)) !important;
+  height: calc(100dvh - var(--mason-toolbar-height)) !important;
+  inset: var(--mason-toolbar-height) 0 0;
 }
-.bytemd-wrapper.bytemd-wrapper-fullscreen > .bytemd-bytemd-toolbar {
-  height: var(--bytemd-toolbar-height);
+.mason-editor-wrapper.mason-editor-wrapper-fullscreen > .mason-editor-toolbar {
+  height: var(--mason-toolbar-height);
   left: 0;
-  min-height: var(--bytemd-toolbar-height);
+  min-height: var(--mason-toolbar-height);
   position: fixed;
   right: 0;
   top: 0;
   z-index: 10001;
 }
-.bytemd-wrapper.bytemd-wrapper-fullscreen > .bytemd-custom-status {
+.mason-editor-wrapper.mason-editor-wrapper-fullscreen > .mason-custom-status {
   position: fixed;
   z-index: 10000;
 }
@@ -140,35 +140,35 @@
 .bytemd .markdown-body ol {
   list-style: decimal;
 }
-.bytemd-bytemd-toolbar {
+.mason-editor-toolbar {
   align-items: center;
-  background-color: var(--bytemd-toolbar-bg);
-  border-bottom: 1px solid var(--bytemd-toolbar-border);
+  background-color: var(--mason-toolbar-bg);
+  border-bottom: 1px solid var(--mason-toolbar-border);
   box-sizing: border-box;
-  color: var(--bytemd-toolbar-text);
+  color: var(--mason-toolbar-text);
   display: flex;
   flex: 0 0 auto;
-  height: var(--bytemd-toolbar-height);
+  height: var(--mason-toolbar-height);
   justify-content: space-between;
   padding: 0.2em 0.5em;
   user-select: none;
   z-index: 2;
 }
-.bytemd-toolbar-side {
+.mason-toolbar-side {
   align-items: center;
   display: inline-flex;
   min-width: 0;
 }
-.bytemd-toolbar-group {
+.mason-toolbar-group {
   align-items: center;
   display: inline-flex;
 }
-.bytemd-toolbar-group:not(:last-child) {
-  border-right: 2px solid var(--bytemd-toolbar-border);
+.mason-toolbar-group:not(:last-child) {
+  border-right: 2px solid var(--mason-toolbar-border);
   margin-right: 0.2em;
   padding-right: 0.2em;
 }
-.bytemd-toolbar-tool {
+.mason-toolbar-tool {
   background-color: transparent;
   border: 0;
   border-radius: 4px;
@@ -182,21 +182,21 @@
   transition: background-color 0.2s ease-in-out;
   width: 24px;
 }
-.bytemd-toolbar-tool:not(:last-child) {
+.mason-toolbar-tool:not(:last-child) {
   margin-right: 0.2em;
 }
-.bytemd-toolbar-tool:hover:not(:disabled),
-.bytemd-toolbar-tool:focus-visible {
-  background-color: var(--bytemd-toolbar-hover);
+.mason-toolbar-tool:hover:not(:disabled),
+.mason-toolbar-tool:focus-visible {
+  background-color: var(--mason-toolbar-hover);
 }
-.bytemd-toolbar-tool.is-active:not(:disabled) {
-  background-color: var(--bytemd-toolbar-hover);
+.mason-toolbar-tool.is-active:not(:disabled) {
+  background-color: var(--mason-toolbar-hover);
 }
-.bytemd-toolbar-tool:focus-visible {
+.mason-toolbar-tool:focus-visible {
   outline: 2px solid rgb(0 0 0 / 20%);
   outline-offset: 1px;
 }
-.bytemd-toolbar-tool:disabled {
+.mason-toolbar-tool:disabled {
   cursor: default;
   opacity: 0.45;
 }
@@ -213,12 +213,12 @@
   position: absolute;
   width: 18px;
 }
-.bytemd-toolbar-tool:hover > .bytemd-tooltip,
-.bytemd-toolbar-tool:focus-visible > .bytemd-tooltip {
+.mason-toolbar-tool:hover > .mason-tooltip,
+.mason-toolbar-tool:focus-visible > .mason-tooltip {
   opacity: 1;
   transform: translate(-50%, 0);
 }
-.bytemd-tooltip {
+.mason-tooltip {
   background-color: rgb(85 85 85);
   border-radius: 4px;
   bottom: -2.5em;
@@ -238,7 +238,7 @@
   width: fit-content;
   z-index: 4;
 }
-.bytemd-table-dialog-container {
+.mason-table-dialog-container {
   align-items: center;
   background-color: rgb(0 0 0 / 20%);
   display: flex;
@@ -250,19 +250,19 @@
   width: 100%;
   z-index: 10000;
 }
-.bytemd-table-dialog-container .cs-dialog {
+.mason-table-dialog-container .cs-dialog {
   background-color: white;
   border-radius: 5px;
-  color: var(--bytemd-toolbar-text);
+  color: var(--mason-toolbar-text);
   padding: 1em;
   width: min(500px, 70%);
 }
-.bytemd-table-dialog-container .cs-dialog-big {
+.mason-table-dialog-container .cs-dialog-big {
   display: flex;
   height: 70%;
   width: min(1080px, 70%);
 }
-.bytemd-table-dialog-container .cs-dialog-sidebar {
+.mason-table-dialog-container .cs-dialog-sidebar {
   border-right: 1px dashed rgb(0 0 0 / 30%);
   display: flex;
   flex: 2 1 0%;
@@ -270,11 +270,11 @@
   margin-right: 1em;
   padding-right: 1em;
 }
-.bytemd-table-dialog-container .cs-dialog-view {
+.mason-table-dialog-container .cs-dialog-view {
   flex: 4 1 0%;
   overflow: auto;
 }
-.bytemd-table-dialog-container .cs-dialog-header {
+.mason-table-dialog-container .cs-dialog-header {
   border-bottom: 1px solid rgb(0 0 0 / 30%);
   font-size: large;
   height: 1.6em;
@@ -282,7 +282,7 @@
   padding-bottom: 0.2em;
   position: relative;
 }
-.bytemd-table-dialog-container .cs-close-container {
+.mason-table-dialog-container .cs-close-container {
   align-items: center;
   background: transparent;
   border: 0;
@@ -297,40 +297,40 @@
   top: 0;
   width: 24px;
 }
-.bytemd-table-dialog-container .cs-close-button {
+.mason-table-dialog-container .cs-close-button {
   height: 16px;
   transition:
     color 0.2s ease-in-out,
     transform 0.2s ease-in-out;
   width: 16px;
 }
-.bytemd-table-dialog-container .cs-close-container:hover .cs-close-button {
+.mason-table-dialog-container .cs-close-container:hover .cs-close-button {
   transform: scale(1.3);
 }
-.bytemd-table-dialog-container .cs-dialog-item {
+.mason-table-dialog-container .cs-dialog-item {
   display: flex;
   width: 100%;
 }
-.bytemd-table-dialog-container .cs-dialog-item:not(:last-child) {
+.mason-table-dialog-container .cs-dialog-item:not(:last-child) {
   margin-bottom: 1em;
 }
-.bytemd-table-dialog-container .cs-dialog-item-label {
+.mason-table-dialog-container .cs-dialog-item-label {
   display: inline-block;
   margin-right: 0.5em;
   width: 5em;
 }
-.bytemd-table-dialog-container .cs-dialog-item-content {
+.mason-table-dialog-container .cs-dialog-item-content {
   flex-grow: 1;
 }
-.bytemd-table-dialog-container .cs-dialog input {
+.mason-table-dialog-container .cs-dialog input {
   height: 24px;
   padding: 0;
 }
-.bytemd-table-dialog-container .cs-dialog select {
+.mason-table-dialog-container .cs-dialog select {
   height: 24px;
 }
-.bytemd-table-dialog-container .cs-dialog textarea {
-  border: 1px solid var(--bytemd-toolbar-border);
+.mason-table-dialog-container .cs-dialog textarea {
+  border: 1px solid var(--mason-toolbar-border);
   border-radius: 5px;
   flex: 1;
   font-family: var(--lfe-code-font, monospace);
@@ -339,96 +339,96 @@
   padding: 0.5em;
   resize: vertical;
 }
-.bytemd-code-dialog-container .code-label {
+.mason-code-dialog-container .code-label {
   align-self: flex-start;
   min-height: 0;
   padding-top: 8px;
 }
-.bytemd-code-dialog-container .code-content {
+.mason-code-dialog-container .code-content {
   min-height: 50vh;
 }
-.bytemd-code-dialog-container .cs-dialog {
+.mason-code-dialog-container .cs-dialog {
   box-sizing: border-box;
   padding: 24px;
   width: min(760px, calc(100% - 48px));
 }
-.bytemd-code-dialog-container .cs-dialog-header {
+.mason-code-dialog-container .cs-dialog-header {
   margin-bottom: 24px;
 }
-.bytemd-code-dialog-container .cs-dialog-item {
+.mason-code-dialog-container .cs-dialog-item {
   align-items: flex-start;
   margin-bottom: 24px;
 }
-.bytemd-code-dialog-container .cs-dialog-item-label {
+.mason-code-dialog-container .cs-dialog-item-label {
   flex: 0 0 6em;
   font-size: 18px;
   margin-right: 12px;
   width: auto;
 }
-.bytemd-code-dialog-container .code-language-select {
+.mason-code-dialog-container .code-language-select {
   background-color: #ffffff;
   border: 1px solid #888888;
   border-radius: 4px;
   box-sizing: border-box;
-  color: var(--bytemd-toolbar-text);
+  color: var(--mason-toolbar-text);
   height: 42px;
   min-width: 0;
   padding: 0 12px;
 }
-.bytemd-code-dialog-container .code-content {
+.mason-code-dialog-container .code-content {
   border-color: #dddddd;
   border-radius: 4px;
   box-sizing: border-box;
   min-width: 0;
   padding: 12px;
 }
-.bytemd-code-dialog-container .cs-dialog-submit-area {
+.mason-code-dialog-container .cs-dialog-submit-area {
   display: flex;
   justify-content: flex-end;
 }
-.bytemd-table-dialog-container .cs-dialog-area {
+.mason-table-dialog-container .cs-dialog-area {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   margin-bottom: 1em;
 }
-.bytemd-table-dialog-container .cs-dialog-area h3 {
+.mason-table-dialog-container .cs-dialog-area h3 {
   font-size: 1.17em;
   margin: 1em 0;
 }
-.bytemd-table-dialog-container .submit-area {
+.mason-table-dialog-container .submit-area {
   display: flex;
   justify-content: flex-end;
 }
-.bytemd-table-dialog-container .cs-dialog-button {
+.mason-table-dialog-container .cs-dialog-button {
   background-color: rgb(250 250 250);
   border-radius: 4px;
   cursor: pointer;
   padding: 0.4em 1em;
   transition: background-color 0.2s ease-in-out;
 }
-.bytemd-table-dialog-container .cs-dialog-button:not(:last-child) {
+.mason-table-dialog-container .cs-dialog-button:not(:last-child) {
   margin-right: 1em;
 }
-.bytemd-table-dialog-container .cs-dialog-button-info {
+.mason-table-dialog-container .cs-dialog-button-info {
   background-color: #ffffff;
   border: 1px solid #cbd5e1;
   color: #334155;
 }
-.bytemd-table-dialog-container .cs-dialog-button-info:hover {
+.mason-table-dialog-container .cs-dialog-button-info:hover {
   background-color: #f1f5f9;
   border-color: #94a3b8;
 }
-.bytemd-table-dialog-container .cs-dialog-button-primary {
+.mason-table-dialog-container .cs-dialog-button-primary {
   background-color: #2563eb;
   border: 1px solid #2563eb;
   color: #ffffff;
 }
-.bytemd-table-dialog-container .cs-dialog-button-primary:hover {
+.mason-table-dialog-container .cs-dialog-button-primary:hover {
   background-color: #1d4ed8;
   border-color: #1d4ed8;
 }
-.bytemd-autosave-dialog-container .cs-autosave-dialog {
+.mason-autosave-dialog-container .cs-autosave-dialog {
   box-sizing: border-box;
   display: flex;
   height: min(720px, calc(100vh - 64px));
@@ -437,7 +437,7 @@
   padding: 24px;
   width: min(1080px, calc(100vw - 48px));
 }
-.bytemd-autosave-dialog-container .cs-autosave-sidebar {
+.mason-autosave-dialog-container .cs-autosave-sidebar {
   border-right: 1px dashed rgb(0 0 0 / 30%);
   display: flex;
   flex: 0 0 304px;
@@ -445,15 +445,15 @@
   min-width: 0;
   padding-right: 24px;
 }
-.bytemd-autosave-dialog-container .cs-autosave-sidebar .cs-dialog-header {
+.mason-autosave-dialog-container .cs-autosave-sidebar .cs-dialog-header {
   margin-bottom: 16px;
 }
-.bytemd-autosave-dialog-container .cs-autosave-history {
+.mason-autosave-dialog-container .cs-autosave-history {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
 }
-.bytemd-autosave-dialog-container .cs-autosave-record {
+.mason-autosave-dialog-container .cs-autosave-record {
   align-items: flex-start;
   background: transparent;
   border: 0;
@@ -468,51 +468,51 @@
   text-align: left;
   width: 100%;
 }
-.bytemd-autosave-dialog-container .cs-autosave-record:hover,
-.bytemd-autosave-dialog-container .cs-autosave-record:focus-visible,
-.bytemd-autosave-dialog-container .cs-autosave-record.selected {
+.mason-autosave-dialog-container .cs-autosave-record:hover,
+.mason-autosave-dialog-container .cs-autosave-record:focus-visible,
+.mason-autosave-dialog-container .cs-autosave-record.selected {
   background-color: #eaf6ff;
 }
-.bytemd-autosave-dialog-container .cs-autosave-record:focus-visible {
+.mason-autosave-dialog-container .cs-autosave-record:focus-visible {
   outline: 2px solid #60a5fa;
   outline-offset: -2px;
 }
-.bytemd-autosave-dialog-container .cs-autosave-record time {
+.mason-autosave-dialog-container .cs-autosave-record time {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.bytemd-autosave-dialog-container .cs-autosave-record span {
+.mason-autosave-dialog-container .cs-autosave-record span {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.bytemd-autosave-dialog-container .cs-autosave-empty,
-.bytemd-autosave-dialog-container .cs-autosave-preview-empty {
+.mason-autosave-dialog-container .cs-autosave-empty,
+.mason-autosave-dialog-container .cs-autosave-preview-empty {
   color: #64748b;
   margin: 16px 0;
 }
-.bytemd-autosave-dialog-container .cs-autosave-actions {
+.mason-autosave-dialog-container .cs-autosave-actions {
   display: flex;
   justify-content: flex-end;
   padding-top: 16px;
 }
-.bytemd-autosave-dialog-container .cs-autosave-actions .cs-dialog-button:disabled {
+.mason-autosave-dialog-container .cs-autosave-actions .cs-dialog-button:disabled {
   cursor: default;
   opacity: 0.55;
 }
-.bytemd-autosave-dialog-container .cs-autosave-preview {
+.mason-autosave-dialog-container .cs-autosave-preview {
   flex: 1 1 auto;
   min-width: 0;
   overflow: auto;
   padding-left: 24px;
 }
-.bytemd-autosave-dialog-container .cs-autosave-preview h2 {
+.mason-autosave-dialog-container .cs-autosave-preview h2 {
   font-size: 24px;
   line-height: 1.4;
   margin: 0 0 24px;
 }
-.bytemd-autosave-dialog-container .cs-autosave-preview pre {
+.mason-autosave-dialog-container .cs-autosave-preview pre {
   font-family: var(--lfe-code-font, monospace);
   font-size: 14px;
   line-height: 1.7;
@@ -520,26 +520,26 @@
   min-width: max-content;
   white-space: pre;
 }
-.bytemd-simple-dialog-container .cs-dialog {
+.mason-simple-dialog-container .cs-dialog {
   box-sizing: border-box;
   padding: 24px;
   width: min(760px, calc(100% - 48px));
 }
-.bytemd-simple-dialog-container .cs-dialog-header {
+.mason-simple-dialog-container .cs-dialog-header {
   font-size: 20px;
   margin-bottom: 32px;
 }
-.bytemd-simple-dialog-container .cs-dialog-item {
+.mason-simple-dialog-container .cs-dialog-item {
   align-items: center;
   margin-bottom: 24px;
 }
-.bytemd-simple-dialog-container .cs-dialog-item-label {
+.mason-simple-dialog-container .cs-dialog-item-label {
   flex: 0 0 6em;
   font-size: 18px;
   margin-right: 12px;
   width: auto;
 }
-.bytemd-simple-dialog-container .cs-dialog input.cs-dialog-item-content {
+.mason-simple-dialog-container .cs-dialog input.cs-dialog-item-content {
   border: 1px solid #888888;
   border-radius: 4px;
   box-sizing: border-box;
@@ -547,12 +547,12 @@
   min-width: 0;
   padding: 0 12px;
 }
-.bytemd-simple-dialog-container .cs-dialog-upload-area {
+.mason-simple-dialog-container .cs-dialog-upload-area {
   display: flex;
   justify-content: flex-end;
   margin: -8px 0 24px;
 }
-.bytemd-simple-dialog-container .cs-dialog-upload-button {
+.mason-simple-dialog-container .cs-dialog-upload-button {
   background: transparent;
   border: 1px solid #bbbbbb;
   border-radius: 4px;
@@ -560,61 +560,61 @@
   cursor: pointer;
   padding: 0.4em 1em;
 }
-.bytemd-simple-dialog-container .cs-dialog-error {
+.mason-simple-dialog-container .cs-dialog-error {
   color: #b42318;
   font-size: 14px;
   margin: -12px 0 24px;
 }
-.bytemd-simple-dialog-container .cs-dialog-submit-area {
+.mason-simple-dialog-container .cs-dialog-submit-area {
   display: flex;
   justify-content: flex-end;
 }
-.bytemd-simple-dialog-container .cs-dialog-button {
+.mason-simple-dialog-container .cs-dialog-button {
   font-size: 18px;
   min-width: 88px;
 }
-.bytemd-simple-dialog-container button:disabled {
+.mason-simple-dialog-container button:disabled {
   cursor: default;
   opacity: 0.55;
 }
 @media (max-width: 760px) {
-  .bytemd-autosave-dialog-container .cs-autosave-dialog {
+  .mason-autosave-dialog-container .cs-autosave-dialog {
     flex-direction: column;
     height: min(760px, calc(100vh - 32px));
     max-height: calc(100vh - 32px);
     padding: 18px;
     width: calc(100vw - 32px);
   }
-  .bytemd-autosave-dialog-container .cs-autosave-sidebar {
+  .mason-autosave-dialog-container .cs-autosave-sidebar {
     border-bottom: 1px dashed rgb(0 0 0 / 30%);
     border-right: 0;
     flex: 0 0 42%;
     padding: 0 0 16px;
   }
-  .bytemd-autosave-dialog-container .cs-autosave-preview {
+  .mason-autosave-dialog-container .cs-autosave-preview {
     min-height: 0;
     padding: 16px 0 0;
   }
-  .bytemd-autosave-dialog-container .cs-autosave-preview h2 {
+  .mason-autosave-dialog-container .cs-autosave-preview h2 {
     font-size: 18px;
     margin-bottom: 16px;
   }
 }
 @media (max-width: 640px) {
-  .bytemd-simple-dialog-container .cs-dialog {
+  .mason-simple-dialog-container .cs-dialog {
     padding: 18px;
   }
-  .bytemd-simple-dialog-container .cs-dialog-item {
+  .mason-simple-dialog-container .cs-dialog-item {
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
   }
-  .bytemd-simple-dialog-container .cs-dialog-item-label {
+  .mason-simple-dialog-container .cs-dialog-item-label {
     flex-basis: auto;
     font-size: 16px;
   }
 }
-.bytemd-table-dialog-container .cs-dialog-table-editor {
+.mason-table-dialog-container .cs-dialog-table-editor {
   border: 2px solid black;
   border-collapse: collapse;
   display: table;
@@ -624,10 +624,10 @@
   table-layout: fixed;
   width: 100%;
 }
-.bytemd-table-dialog-container .cs-dialog-table-editor > tbody > tr {
+.mason-table-dialog-container .cs-dialog-table-editor > tbody > tr {
   overflow: hidden;
 }
-.bytemd-table-dialog-container .cs-dialog-table-editor > tbody > tr > td {
+.mason-table-dialog-container .cs-dialog-table-editor > tbody > tr > td {
   border: 2px solid black;
   min-width: 40px;
   min-height: 32px;
@@ -636,38 +636,38 @@
   user-select: none;
   white-space: pre-wrap;
 }
-.bytemd-table-dialog-container .cs-dialog-table-editor > tbody > tr > td:hover {
+.mason-table-dialog-container .cs-dialog-table-editor > tbody > tr > td:hover {
   background-color: rgb(255 238 102 / 40%);
 }
-.bytemd-table-dialog-container
+.mason-table-dialog-container
   .cs-dialog-table-editor
   > tbody
   > tr
   > td.selected {
   background-color: rgb(255 238 102 / 20%);
 }
-.bytemd-mermaid {
+.mason-mermaid {
   @include mermaid-light-theme;
   display: flow-root;
   margin: 1rem 0;
 }
-.bytemd-mermaid > svg {
+.mason-mermaid > svg {
   display: block;
   height: auto;
   margin-inline: auto;
   max-width: 100%;
 }
-.bytemd-mermaid foreignObject > div {
+.mason-mermaid foreignObject > div {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   text-align: center;
 }
-.bytemd-mermaid foreignObject p {
+.mason-mermaid foreignObject p {
   margin: 0;
   padding: 0;
 }
-.bytemd-mermaid-error {
+.mason-mermaid-error {
   color: #b91c1c;
   text-align: left;
 }

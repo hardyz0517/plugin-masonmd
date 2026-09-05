@@ -1,4 +1,4 @@
-main.hardy-post-editor {
+main.mason-post-editor {
   box-sizing: border-box;
   align-self: stretch;
   display: flex;
@@ -8,23 +8,23 @@ main.hardy-post-editor {
   min-width: 0;
   overflow: hidden;
   width: 100%;
-  background: var(--hardy-surface);
-  color: var(--hardy-text);
+  background: var(--mason-surface);
+  color: var(--mason-text);
 }
 
-main.hardy-post-editor *,
-main.hardy-post-editor *::before,
-main.hardy-post-editor *::after {
+main.mason-post-editor *,
+main.mason-post-editor *::before,
+main.mason-post-editor *::after {
   box-sizing: border-box;
 }
 
-.hardy-editor-header {
+.mason-editor-header {
   flex: 0 0 64px;
   min-width: 0;
   width: 100%;
 }
 
-.hardy-editor-header-inner {
+.mason-editor-header-inner {
   align-items: center;
   display: flex;
   gap: 24px;
@@ -34,20 +34,20 @@ main.hardy-post-editor *::after {
   width: min(1412px, calc(100% - 64px));
 }
 
-.hardy-editor-heading,
-.hardy-editor-actions {
+.mason-editor-heading,
+.mason-editor-actions {
   align-items: center;
   display: flex;
 }
 
-.hardy-editor-heading {
+.mason-editor-heading {
   gap: 12px;
   min-width: 0;
 }
 
-.hardy-editor-site-brand {
+.mason-editor-site-brand {
   align-items: center;
-  background: var(--hardy-blue);
+  background: var(--mason-blue);
   border-radius: 6px;
   color: #fff;
   display: inline-flex;
@@ -60,52 +60,52 @@ main.hardy-post-editor *::after {
   width: 34px;
 }
 
-.hardy-editor-site-brand:hover {
+.mason-editor-site-brand:hover {
   box-shadow: 0 3px 10px rgb(22 119 255 / 24%);
   transform: translateY(-1px);
 }
 
-.hardy-editor-site-brand:focus-visible {
-  outline: 2px solid var(--hardy-blue);
+.mason-editor-site-brand:focus-visible {
+  outline: 2px solid var(--mason-blue);
   outline-offset: 2px;
 }
 
-.hardy-editor-site-brand img {
+.mason-editor-site-brand img {
   height: 100%;
   object-fit: cover;
   width: 100%;
 }
 
-.hardy-editor-site-brand span {
+.mason-editor-site-brand span {
   font-size: 15px;
   font-weight: 700;
   line-height: 1;
 }
 
-.hardy-editor-brand {
+.mason-editor-brand {
   color: #a40000;
   font-size: 18px;
   font-weight: 700;
 }
 
-.hardy-editor-divider {
+.mason-editor-divider {
   color: #c5ccd5;
   font-size: 20px;
 }
 
-.hardy-editor-breadcrumb {
+.mason-editor-breadcrumb {
   min-width: 0;
 }
 
-.hardy-editor-breadcrumb p {
-  color: var(--hardy-muted);
+.mason-editor-breadcrumb p {
+  color: var(--mason-muted);
   font-size: 12px;
   line-height: 1.2;
   margin: 0;
 }
 
-.hardy-editor-breadcrumb h1 {
-  color: var(--hardy-text);
+.mason-editor-breadcrumb h1 {
+  color: var(--mason-text);
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
@@ -116,27 +116,27 @@ main.hardy-post-editor *::after {
   white-space: nowrap;
 }
 
-.hardy-editor-actions {
+.mason-editor-actions {
   flex: 0 0 auto;
   gap: 10px;
 }
 
-.hardy-save-state {
-  color: var(--hardy-muted);
+.mason-save-state {
+  color: var(--mason-muted);
   font-size: 12px;
   white-space: nowrap;
 }
 
-.hardy-save-state.error {
+.mason-save-state.error {
   color: #c53b32;
 }
 
-.hardy-button {
+.mason-button {
   align-items: center;
-  background: var(--hardy-control-surface);
+  background: var(--mason-control-surface);
   border: 1px solid #cfd6df;
   border-radius: 4px;
-  color: var(--hardy-control-text);
+  color: var(--mason-control-text);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
@@ -149,61 +149,61 @@ main.hardy-post-editor *::after {
   white-space: nowrap;
 }
 
-.hardy-button:hover:not(:disabled) {
+.mason-button:hover:not(:disabled) {
   border-color: #9bbcf0;
-  color: var(--hardy-blue);
+  color: var(--mason-blue);
 }
 
-.hardy-button.primary {
-  background: var(--hardy-blue);
-  border-color: var(--hardy-blue);
+.mason-button.primary {
+  background: var(--mason-blue);
+  border-color: var(--mason-blue);
   color: #fff;
 }
 
-.hardy-button.primary:hover:not(:disabled) {
-  background: var(--hardy-blue-dark);
+.mason-button.primary:hover:not(:disabled) {
+  background: var(--mason-blue-dark);
   color: #fff;
 }
 
-.hardy-button:disabled {
+.mason-button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
 
-.hardy-button.danger {
+.mason-button.danger {
   background: #ef4b43;
   border-color: #ef4b43;
   color: #fff;
 }
 
-.hardy-button.danger:hover:not(:disabled) {
+.mason-button.danger:hover:not(:disabled) {
   background: #d93832;
   border-color: #d93832;
   color: #fff;
 }
 
-.hardy-button.disabled {
+.mason-button.disabled {
   cursor: not-allowed;
   opacity: 0.55;
   pointer-events: auto;
 }
 
-.hardy-editor-content {
+.mason-editor-content {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
   width: 100%;
 }
 
-.hardy-post-form {
-  container-name: hardy-post-form;
+.mason-post-form {
+  container-name: mason-post-form;
   container-type: inline-size;
   margin: 0 auto;
   padding: 28px 36px 48px;
   width: min(1412px, calc(100% - 64px));
 }
 
-.hardy-form-row {
+.mason-form-row {
   align-items: center;
   column-gap: 32px;
   display: grid;
@@ -212,14 +212,14 @@ main.hardy-post-editor *::after {
   min-width: 0;
 }
 
-.hardy-form-label {
-  color: var(--hardy-label);
+.mason-form-label {
+  color: var(--mason-label);
   font-size: 17px;
   font-weight: 600;
   line-height: 40px;
 }
 
-.hardy-form-control {
+.mason-form-control {
   align-items: center;
   display: flex;
   min-height: 40px;
@@ -227,7 +227,7 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-form-actions {
+.mason-form-actions {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
@@ -236,69 +236,69 @@ main.hardy-post-editor *::after {
   min-height: 40px;
 }
 
-.hardy-form-control-compact .hardy-category-select {
+.mason-form-control-compact .mason-category-select {
   width: 205px;
 }
 
-.hardy-input {
-  background: var(--hardy-control-surface);
-  border: 1px solid var(--hardy-border);
+.mason-input {
+  background: var(--mason-control-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 4px;
-  color: var(--hardy-text);
+  color: var(--mason-text);
   font: inherit;
   font-size: 14px;
   outline: 0;
 }
 
-.hardy-input {
+.mason-input {
   height: 40px;
   min-width: 0;
   padding: 0 12px;
   width: 100%;
 }
 
-.hardy-title-input {
+.mason-title-input {
   font-size: 16px;
   font-weight: 400;
 }
 
-.hardy-input::placeholder {
-  color: var(--hardy-placeholder);
+.mason-input::placeholder {
+  color: var(--mason-placeholder);
 }
 
-.hardy-input:focus {
+.mason-input:focus {
   border-color: #83b1ed;
   box-shadow: 0 0 0 2px rgb(22 119 255 / 12%);
 }
 
-.hardy-category-select {
+.mason-category-select {
   min-width: 0;
   position: relative;
   width: 100%;
 }
 
-.hardy-options-error {
+.mason-options-error {
   color: #b36a00;
   font-size: 12px;
   line-height: 20px;
   margin: 6px 0 0;
 }
 
-.hardy-options-error button {
+.mason-options-error button {
   background: transparent;
   border: 0;
-  color: var(--hardy-blue);
+  color: var(--mason-blue);
   cursor: pointer;
   font: inherit;
   padding: 0 0 0 6px;
 }
 
-.hardy-category-trigger {
+.mason-category-trigger {
   align-items: center;
-  background: var(--hardy-control-surface);
-  border: 1px solid var(--hardy-border);
+  background: var(--mason-control-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 4px;
-  color: var(--hardy-text);
+  color: var(--mason-text);
   cursor: pointer;
   display: flex;
   font: inherit;
@@ -310,24 +310,24 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-category-trigger:hover {
+.mason-category-trigger:hover {
   border-color: #aac5e9;
 }
 
-.hardy-category-trigger > span:first-child {
+.mason-category-trigger > span:first-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.hardy-category-trigger:focus-visible,
-.hardy-category-trigger[aria-expanded="true"] {
+.mason-category-trigger:focus-visible,
+.mason-category-trigger[aria-expanded="true"] {
   border-color: #83b1ed;
   box-shadow: 0 0 0 2px rgb(22 119 255 / 12%);
   outline: 0;
 }
 
-.hardy-category-chevron {
+.mason-category-chevron {
   border-bottom: 2px solid #536171;
   border-right: 2px solid #536171;
   flex: 0 0 auto;
@@ -338,13 +338,13 @@ main.hardy-post-editor *::after {
   width: 7px;
 }
 
-.hardy-category-trigger[aria-expanded="true"] .hardy-category-chevron {
+.mason-category-trigger[aria-expanded="true"] .mason-category-chevron {
   margin-top: 4px;
   transform: rotate(225deg);
 }
 
-.hardy-category-menu {
-  background: var(--hardy-control-surface);
+.mason-category-menu {
+  background: var(--mason-control-surface);
   border: 1px solid #d5dce5;
   border-radius: 5px;
   box-shadow: 0 12px 24px rgb(31 41 55 / 14%);
@@ -361,11 +361,11 @@ main.hardy-post-editor *::after {
   z-index: 20;
 }
 
-.hardy-category-option {
+.mason-category-option {
   background: transparent;
   border: 0;
   border-radius: 3px;
-  color: var(--hardy-control-text);
+  color: var(--mason-control-text);
   cursor: pointer;
   display: block;
   font: inherit;
@@ -379,59 +379,59 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-category-branch {
-  border-bottom: 1px solid var(--hardy-border);
-  border-left: 1px solid var(--hardy-border);
+.mason-category-branch {
+  border-bottom: 1px solid var(--mason-border);
+  border-left: 1px solid var(--mason-border);
   display: inline-block;
   height: 13px;
   margin: 0 7px 3px 0;
   width: 10px;
 }
 
-.hardy-category-parent-label {
+.mason-category-parent-label {
   font-weight: 600;
 }
 
-.hardy-category-option:hover,
-.hardy-category-option.highlighted {
-  background: var(--hardy-control-hover);
+.mason-category-option:hover,
+.mason-category-option.highlighted {
+  background: var(--mason-control-hover);
   color: #095ed7;
 }
 
-.hardy-category-option.selected {
-  background: var(--hardy-control-selected);
+.mason-category-option.selected {
+  background: var(--mason-control-selected);
   color: #095ed7;
   font-weight: 600;
 }
 
-.hardy-category-menu-enter-active,
-.hardy-category-menu-leave-active {
+.mason-category-menu-enter-active,
+.mason-category-menu-leave-active {
   transition: opacity 150ms ease, transform 150ms ease;
 }
 
-.hardy-category-menu-enter-from,
-.hardy-category-menu-leave-to {
+.mason-category-menu-enter-from,
+.mason-category-menu-leave-to {
   opacity: 0;
   transform: translateY(-4px) scale(0.98);
 }
 
-.hardy-content-row {
+.mason-content-row {
   align-items: start;
 }
 
-.hardy-content-row .hardy-form-label {
+.mason-content-row .mason-form-label {
   padding-top: 4px;
 }
 
-.hardy-content-control {
+.mason-content-control {
   align-items: stretch;
   height: clamp(520px, calc(100dvh - 240px), 700px);
   min-height: 520px;
 }
 
-.hardy-editor-surface {
-  background: var(--hardy-control-surface);
-  border: 1px solid var(--hardy-border);
+.mason-editor-surface {
+  background: var(--mason-control-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 5px;
   height: 100%;
   min-height: 0;
@@ -440,9 +440,9 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-post-editor .hardy-editor-surface > .bytemd-wrapper {
-  --bytemd-toolbar-height: 38px;
-  background: var(--hardy-control-surface);
+.mason-post-editor .mason-editor-surface > .mason-editor-wrapper {
+  --mason-toolbar-height: 38px;
+  background: var(--mason-control-surface);
   border: 0;
   height: 100%;
   max-width: none;
@@ -452,27 +452,27 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-post-editor .bytemd-wrapper > div:not(.bytemd-bytemd-toolbar):not(.bytemd-custom-status),
-.hardy-post-editor .bytemd-wrapper > .bytemd-editor-host {
+.mason-post-editor .mason-editor-wrapper > div:not(.mason-editor-toolbar):not(.mason-custom-status),
+.mason-post-editor .mason-editor-wrapper > .mason-editor-host {
   min-width: 0;
   width: 100%;
 }
 
-.hardy-post-editor .bytemd .bytemd-body {
+.mason-post-editor .bytemd .bytemd-body {
   display: flex;
   min-width: 0;
   width: 100%;
 }
 
-.hardy-post-editor .bytemd .bytemd-editor,
-.hardy-post-editor .bytemd .bytemd-preview,
-.hardy-post-editor .bytemd .bytemd-sidebar {
+.mason-post-editor .bytemd .bytemd-editor,
+.mason-post-editor .bytemd .bytemd-preview,
+.mason-post-editor .bytemd .bytemd-sidebar {
   max-width: 100%;
   min-width: 0;
 }
 
-.hardy-post-editor .bytemd .bytemd-editor,
-.hardy-post-editor .bytemd .bytemd-preview {
+.mason-post-editor .bytemd .bytemd-editor,
+.mason-post-editor .bytemd .bytemd-preview {
   /* Keep both panes present even when the editor is narrower than ByteMD's
      default auto-split threshold. */
   flex: 1 1 0;
@@ -480,14 +480,14 @@ main.hardy-post-editor *::after {
   width: 50%;
 }
 
-.hardy-post-editor .bytemd .bytemd-sidebar {
+.mason-post-editor .bytemd .bytemd-sidebar {
   flex: 0 0 280px;
   overflow-x: hidden;
   width: 280px;
 }
 
-.hardy-post-editor .bytemd-bytemd-toolbar {
-  border-bottom: 1px solid var(--hardy-border);
+.mason-post-editor .mason-editor-toolbar {
+  border-bottom: 1px solid var(--mason-border);
   min-height: 38px;
   height: 38px;
   overflow: visible;
@@ -496,51 +496,51 @@ main.hardy-post-editor *::after {
   z-index: 3;
 }
 
-.hardy-post-editor .bytemd-toolbar-side {
+.mason-post-editor .mason-toolbar-side {
   flex: 0 0 auto;
 }
 
-.hardy-post-editor .bytemd-toolbar-group:not(:last-child) {
+.mason-post-editor .mason-toolbar-group:not(:last-child) {
   border-right: 0;
   margin-right: 8px;
   padding-right: 0;
 }
 
-.hardy-post-editor .bytemd-toolbar-tool {
+.mason-post-editor .mason-toolbar-tool {
   border-radius: 4px;
   height: 28px;
   z-index: 4;
   width: 28px;
 }
 
-.hardy-post-editor .bytemd-tooltip {
+.mason-post-editor .mason-tooltip {
   z-index: 10;
 }
 
-.hardy-post-editor .bytemd-toolbar-tool:not(:last-child) {
+.mason-post-editor .mason-toolbar-tool:not(:last-child) {
   margin-right: 2px;
 }
 
 /* Keep CodeMirror from creating a second gray strip under the toolbar in UC. */
-.hardy-post-editor .bytemd .CodeMirror-scroll {
+.mason-post-editor .bytemd .CodeMirror-scroll {
   overflow-x: hidden !important;
 }
 
-.hardy-post-editor .bytemd .CodeMirror-hscrollbar {
+.mason-post-editor .bytemd .CodeMirror-hscrollbar {
   display: none !important;
 }
 
-.hardy-post-editor .bytemd .CodeMirror-sizer {
+.mason-post-editor .bytemd .CodeMirror-sizer {
   min-width: 100% !important;
 }
 
 /* Keep the content editor usable before the mobile breakpoint is reached. */
-@container hardy-post-form (max-width: 1040px) {
-  .hardy-content-row {
+@container mason-post-form (max-width: 1040px) {
+  .mason-content-row {
     display: block;
   }
 
-  .hardy-content-row .hardy-form-label {
+  .mason-content-row .mason-form-label {
     display: block;
     line-height: 32px;
     margin-bottom: 6px;
@@ -548,8 +548,8 @@ main.hardy-post-editor *::after {
   }
 }
 
-@container hardy-post-form (max-width: 700px) {
-  .hardy-post-editor .bytemd-bytemd-toolbar {
+@container mason-post-form (max-width: 700px) {
+  .mason-post-editor .mason-editor-toolbar {
     align-content: center;
     flex-wrap: wrap;
     height: auto;
@@ -557,55 +557,55 @@ main.hardy-post-editor *::after {
     row-gap: 2px;
   }
 
-  .hardy-post-editor .bytemd-toolbar-side {
+  .mason-post-editor .mason-toolbar-side {
     flex: 0 1 auto;
     flex-wrap: wrap;
   }
 
-  .hardy-post-editor .bytemd-toolbar-side:last-child {
+  .mason-post-editor .mason-toolbar-side:last-child {
     margin-left: auto;
   }
 }
 
 /* Fullscreen keeps a stable header height; overflow remains reachable. */
-.hardy-post-editor .bytemd-wrapper.bytemd-wrapper-fullscreen > .bytemd-bytemd-toolbar {
+.mason-post-editor .mason-editor-wrapper.mason-editor-wrapper-fullscreen > .mason-editor-toolbar {
   flex-wrap: nowrap;
-  height: var(--bytemd-toolbar-height);
-  min-height: var(--bytemd-toolbar-height);
+  height: var(--mason-toolbar-height);
+  min-height: var(--mason-toolbar-height);
   overflow-x: auto;
 }
 
-.hardy-post-editor .bytemd-wrapper.bytemd-wrapper-fullscreen .bytemd-toolbar-side {
+.mason-post-editor .mason-editor-wrapper.mason-editor-wrapper-fullscreen .mason-toolbar-side {
   flex-wrap: nowrap;
   flex: 0 0 auto;
 }
 
-.hardy-radio-group {
+.mason-radio-group {
   gap: 22px;
 }
 
-.hardy-radio,
-.hardy-switch-line {
+.mason-radio,
+.mason-switch-line {
   align-items: center;
-  color: var(--hardy-secondary-text);
+  color: var(--mason-secondary-text);
   display: inline-flex;
   font-size: 14px;
   gap: 8px;
   min-height: 40px;
 }
 
-.hardy-radio input,
-.hardy-switch-line input {
-  accent-color: var(--hardy-blue);
+.mason-radio input,
+.mason-switch-line input {
+  accent-color: var(--mason-blue);
   height: 16px;
   margin: 0;
   width: 16px;
 }
 
-.hardy-tags-control {
+.mason-tags-control {
   align-content: center;
-  background: var(--hardy-control-surface);
-  border: 1px solid var(--hardy-border);
+  background: var(--mason-control-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 4px;
   flex-wrap: wrap;
   gap: 6px;
@@ -615,18 +615,18 @@ main.hardy-post-editor *::after {
   outline: 0;
 }
 
-.hardy-tags-control:focus-visible,
-.hardy-tags-control:hover {
+.mason-tags-control:focus-visible,
+.mason-tags-control:hover {
   border-color: #83b1ed;
   box-shadow: 0 0 0 2px rgb(22 119 255 / 12%);
 }
 
-.hardy-tag {
+.mason-tag {
   align-items: center;
-  background: var(--hardy-tag-surface);
-  border: 1px solid var(--hardy-tag-border);
+  background: var(--mason-tag-surface);
+  border: 1px solid var(--mason-tag-border);
   border-radius: 3px;
-  color: var(--hardy-blue);
+  color: var(--mason-blue);
   display: inline-flex;
   font-size: 13px;
   gap: 4px;
@@ -634,7 +634,7 @@ main.hardy-post-editor *::after {
   padding: 0 6px;
 }
 
-.hardy-tag button {
+.mason-tag button {
   background: transparent;
   border: 0;
   color: inherit;
@@ -644,20 +644,20 @@ main.hardy-post-editor *::after {
   padding: 0;
 }
 
-.hardy-tags-placeholder {
-  color: var(--hardy-placeholder);
+.mason-tags-placeholder {
+  color: var(--mason-placeholder);
   font-size: 14px;
   line-height: 30px;
 }
 
-.hardy-tags-picker-hint {
-  color: var(--hardy-muted);
+.mason-tags-picker-hint {
+  color: var(--mason-muted);
   font-size: 13px;
   line-height: 30px;
   margin-left: auto;
 }
 
-.hardy-editor-message {
+.mason-editor-message {
   align-items: center;
   display: flex;
   gap: 14px;
@@ -666,17 +666,17 @@ main.hardy-post-editor *::after {
   width: min(1340px, calc(100% - 136px));
 }
 
-.hardy-editor-error {
-  background: var(--hardy-error-surface);
-  border: 1px solid var(--hardy-error-border);
-  color: var(--hardy-error-text);
+.mason-editor-error {
+  background: var(--mason-error-surface);
+  border: 1px solid var(--mason-error-border);
+  color: var(--mason-error-text);
   font-size: 13px;
 }
 
-.hardy-editor-loading,
-.hardy-editor-load-error {
+.mason-editor-loading,
+.mason-editor-load-error {
   align-content: center;
-  color: var(--hardy-muted);
+  color: var(--mason-muted);
   display: grid;
   flex: 1 1 auto;
   gap: 16px;
@@ -685,13 +685,13 @@ main.hardy-post-editor *::after {
   place-items: center;
 }
 
-.hardy-cover-control {
+.mason-cover-control {
   align-items: stretch;
   flex-direction: column;
   gap: 10px;
 }
 
-.hardy-cover-input-row {
+.mason-cover-input-row {
   align-items: center;
   display: flex;
   gap: 8px;
@@ -699,15 +699,15 @@ main.hardy-post-editor *::after {
   width: 100%;
 }
 
-.hardy-cover-input-row .hardy-input {
+.mason-cover-input-row .mason-input {
   flex: 1 1 auto;
 }
 
-.hardy-upload-button {
+.mason-upload-button {
   position: relative;
 }
 
-.hardy-upload-button input {
+.mason-upload-button input {
   clip: rect(0 0 0 0);
   height: 1px;
   overflow: hidden;
@@ -716,45 +716,45 @@ main.hardy-post-editor *::after {
   width: 1px;
 }
 
-.hardy-upload-button.is-loading {
+.mason-upload-button.is-loading {
   cursor: wait;
   opacity: 0.7;
 }
 
-.hardy-cover-preview {
+.mason-cover-preview {
   align-items: center;
   display: flex;
   gap: 10px;
   min-height: 32px;
 }
 
-.hardy-cover-preview img {
+.mason-cover-preview img {
   aspect-ratio: 16 / 9;
-  background: var(--hardy-surface);
-  border: 1px solid var(--hardy-border);
+  background: var(--mason-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 4px;
   height: 64px;
   object-fit: cover;
   width: 114px;
 }
 
-.hardy-cover-clear {
+.mason-cover-clear {
   background: transparent;
   border: 0;
-  color: var(--hardy-muted);
+  color: var(--mason-muted);
   cursor: pointer;
   font: inherit;
   font-size: 13px;
   padding: 6px 0;
 }
 
-.hardy-cover-clear:hover {
-  color: var(--hardy-blue);
+.mason-cover-clear:hover {
+  color: var(--mason-blue);
 }
 
-.hardy-attachment-dialog-container {
+.mason-attachment-dialog-container {
   align-items: center;
-  background: var(--hardy-dialog-overlay);
+  background: var(--mason-dialog-overlay);
   display: flex;
   inset: 0;
   justify-content: center;
@@ -763,12 +763,12 @@ main.hardy-post-editor *::after {
   z-index: 10000;
 }
 
-.hardy-attachment-dialog {
-  background: var(--hardy-dialog-surface);
-  border: 1px solid var(--hardy-border);
+.mason-attachment-dialog {
+  background: var(--mason-dialog-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 6px;
   box-shadow: 0 24px 80px rgb(15 23 42 / 26%);
-  color: var(--hardy-text);
+  color: var(--mason-text);
   display: flex;
   flex-direction: column;
   max-height: min(720px, calc(100dvh - 48px));
@@ -776,23 +776,23 @@ main.hardy-post-editor *::after {
   width: min(760px, 100%);
 }
 
-.hardy-tag-picker-dialog {
+.mason-tag-picker-dialog {
   max-height: min(760px, calc(100dvh - 32px));
   width: min(1040px, 100%);
 }
 
-.hardy-tag-picker-toolbar {
+.mason-tag-picker-toolbar {
   align-items: center;
-  border-bottom: 1px solid var(--hardy-border);
+  border-bottom: 1px solid var(--mason-border);
   display: flex;
   gap: 20px;
   justify-content: space-between;
   padding: 14px 20px;
 }
 
-.hardy-tag-picker-search {
+.mason-tag-picker-search {
   align-items: center;
-  border: 1px solid var(--hardy-border);
+  border: 1px solid var(--mason-border);
   border-radius: 4px;
   display: flex;
   flex: 0 1 360px;
@@ -801,61 +801,61 @@ main.hardy-post-editor *::after {
   padding-left: 10px;
 }
 
-.hardy-tag-picker-search > span {
-  color: var(--hardy-muted);
+.mason-tag-picker-search > span {
+  color: var(--mason-muted);
   font-size: 22px;
   line-height: 1;
 }
 
-.hardy-tag-picker-search .hardy-input {
+.mason-tag-picker-search .mason-input {
   border: 0;
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.hardy-tag-picker-search .hardy-input:focus {
+.mason-tag-picker-search .mason-input:focus {
   box-shadow: none;
 }
 
-.hardy-tag-picker-search:focus-within {
+.mason-tag-picker-search:focus-within {
   border-color: #83b1ed;
   box-shadow: 0 0 0 2px rgb(22 119 255 / 12%);
 }
 
-.hardy-tag-picker-count {
-  color: var(--hardy-text);
+.mason-tag-picker-count {
+  color: var(--mason-text);
   flex: 0 0 auto;
   font-size: 14px;
 }
 
-.hardy-tag-picker-list {
+.mason-tag-picker-list {
   flex: 1 1 auto;
   min-height: 260px;
   overflow: auto;
   padding: 18px 20px 24px;
 }
 
-.hardy-tag-picker-list h3 {
-  border-bottom: 1px solid var(--hardy-border);
-  color: var(--hardy-text);
+.mason-tag-picker-list h3 {
+  border-bottom: 1px solid var(--mason-border);
+  color: var(--mason-text);
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 16px;
   padding-bottom: 12px;
 }
 
-.hardy-tag-picker-options {
+.mason-tag-picker-options {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.hardy-tag-picker-option {
+.mason-tag-picker-option {
   align-items: center;
-  background: var(--hardy-control-surface);
-  border: 1px solid var(--hardy-border);
+  background: var(--mason-control-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 3px;
-  color: var(--hardy-control-text);
+  color: var(--mason-control-text);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
@@ -866,65 +866,65 @@ main.hardy-post-editor *::after {
   transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
 }
 
-.hardy-tag-picker-option:hover,
-.hardy-tag-picker-option:focus-visible {
-  background: var(--hardy-control-hover);
+.mason-tag-picker-option:hover,
+.mason-tag-picker-option:focus-visible {
+  background: var(--mason-control-hover);
   border-color: #83b1ed;
-  color: var(--hardy-blue);
+  color: var(--mason-blue);
   outline: 0;
 }
 
-.hardy-tag-picker-option.selected {
-  background: var(--hardy-control-selected);
-  border-color: var(--hardy-blue);
-  color: var(--hardy-blue);
+.mason-tag-picker-option.selected {
+  background: var(--mason-control-selected);
+  border-color: var(--mason-blue);
+  color: var(--mason-blue);
 }
 
-.hardy-tag-picker-check {
+.mason-tag-picker-check {
   color: transparent;
   font-size: 14px;
   font-weight: 700;
 }
 
-.hardy-tag-picker-option.selected .hardy-tag-picker-check {
+.mason-tag-picker-option.selected .mason-tag-picker-check {
   color: currentColor;
 }
 
-.hardy-tag-picker-footer {
+.mason-tag-picker-footer {
   align-items: center;
-  border-top: 1px solid var(--hardy-border);
+  border-top: 1px solid var(--mason-border);
   display: flex;
   gap: 10px;
   justify-content: flex-end;
   padding: 14px 20px;
 }
 
-.hardy-attachment-dialog-header,
-.hardy-attachment-dialog-toolbar {
+.mason-attachment-dialog-header,
+.mason-attachment-dialog-toolbar {
   align-items: center;
   display: flex;
   gap: 12px;
   padding: 16px 20px;
 }
 
-.hardy-attachment-dialog-header {
-  border-bottom: 1px solid var(--hardy-border);
+.mason-attachment-dialog-header {
+  border-bottom: 1px solid var(--mason-border);
   justify-content: space-between;
 }
 
-.hardy-attachment-dialog-header h2 {
-  color: var(--hardy-text);
+.mason-attachment-dialog-header h2 {
+  color: var(--mason-text);
   font-size: 17px;
   line-height: 1.4;
   margin: 0;
 }
 
-.hardy-dialog-close {
+.mason-dialog-close {
   align-items: center;
   background: transparent;
   border: 0;
   border-radius: 4px;
-  color: var(--hardy-muted);
+  color: var(--mason-muted);
   cursor: pointer;
   display: inline-flex;
   font-size: 24px;
@@ -935,35 +935,35 @@ main.hardy-post-editor *::after {
   width: 30px;
 }
 
-.hardy-dialog-close:hover {
-  background: var(--hardy-control-hover);
-  color: var(--hardy-text);
+.mason-dialog-close:hover {
+  background: var(--mason-control-hover);
+  color: var(--mason-text);
 }
 
-.hardy-attachment-dialog-toolbar {
-  border-bottom: 1px solid var(--hardy-border);
+.mason-attachment-dialog-toolbar {
+  border-bottom: 1px solid var(--mason-border);
 }
 
-.hardy-attachment-dialog-toolbar .hardy-input {
+.mason-attachment-dialog-toolbar .mason-input {
   flex: 1 1 auto;
 }
 
-.hardy-attachment-error {
-  background: var(--hardy-error-surface);
-  color: var(--hardy-error-text);
+.mason-attachment-error {
+  background: var(--mason-error-surface);
+  color: var(--mason-error-text);
   font-size: 13px;
   margin: 12px 20px 0;
   padding: 8px 10px;
 }
 
-.hardy-attachment-empty {
-  color: var(--hardy-muted);
+.mason-attachment-empty {
+  color: var(--mason-muted);
   font-size: 13px;
   padding: 48px 20px;
   text-align: center;
 }
 
-.hardy-attachment-grid {
+.mason-attachment-grid {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
@@ -971,11 +971,11 @@ main.hardy-post-editor *::after {
   padding: 20px;
 }
 
-.hardy-attachment-item {
-  background: var(--hardy-control-surface);
-  border: 1px solid var(--hardy-border);
+.mason-attachment-item {
+  background: var(--mason-control-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 4px;
-  color: var(--hardy-control-text);
+  color: var(--mason-control-text);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -986,36 +986,36 @@ main.hardy-post-editor *::after {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.hardy-attachment-item:hover,
-.hardy-attachment-item:focus-visible {
-  border-color: var(--hardy-blue);
+.mason-attachment-item:hover,
+.mason-attachment-item:focus-visible {
+  border-color: var(--mason-blue);
   box-shadow: 0 4px 14px rgb(22 119 255 / 16%);
   outline: 0;
   transform: translateY(-1px);
 }
 
-.hardy-attachment-item img {
+.mason-attachment-item img {
   aspect-ratio: 4 / 3;
-  background: var(--hardy-surface);
+  background: var(--mason-surface);
   border-radius: 2px;
   object-fit: cover;
   width: 100%;
 }
 
-.hardy-attachment-item span {
+.mason-attachment-item span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
 }
 
-.hardy-delete-dialog {
+.mason-delete-dialog {
   align-items: center;
-  background: var(--hardy-dialog-surface);
-  border: 1px solid var(--hardy-border);
+  background: var(--mason-dialog-surface);
+  border: 1px solid var(--mason-border);
   border-radius: 6px;
   box-shadow: 0 24px 80px rgb(15 23 42 / 26%);
-  color: var(--hardy-text);
+  color: var(--mason-text);
   display: flex;
   flex-direction: column;
   padding: 42px 32px 30px;
@@ -1023,7 +1023,7 @@ main.hardy-post-editor *::after {
   width: min(520px, 100%);
 }
 
-.hardy-delete-dialog-icon {
+.mason-delete-dialog-icon {
   align-items: center;
   border: 4px solid #f7c99f;
   border-radius: 50%;
@@ -1038,205 +1038,205 @@ main.hardy-post-editor *::after {
   width: 86px;
 }
 
-.hardy-delete-dialog h2 {
-  color: var(--hardy-text);
+.mason-delete-dialog h2 {
+  color: var(--mason-text);
   font-size: 28px;
   line-height: 1.35;
   margin: 0 0 16px;
 }
 
-.hardy-delete-dialog p {
-  color: var(--hardy-muted);
+.mason-delete-dialog p {
+  color: var(--mason-muted);
   font-size: 18px;
   margin: 0;
 }
 
-.hardy-delete-dialog-error {
-  color: var(--hardy-error-text) !important;
+.mason-delete-dialog-error {
+  color: var(--mason-error-text) !important;
   font-size: 13px !important;
   margin-top: 12px !important;
 }
 
-.hardy-delete-dialog-actions {
+.mason-delete-dialog-actions {
   display: flex;
   gap: 10px;
   justify-content: center;
   margin-top: 34px;
 }
 
-.hardy-delete-dialog-actions .hardy-button {
+.mason-delete-dialog-actions .mason-button {
   min-width: 84px;
 }
 
-.hardy-delete-dialog .hardy-delete-confirm {
+.mason-delete-dialog .mason-delete-confirm {
   background: #1677ff;
   border-color: #1677ff;
   color: #fff;
 }
 
-.hardy-delete-dialog .hardy-delete-confirm:hover:not(:disabled),
-.hardy-delete-dialog .hardy-delete-confirm:focus-visible {
+.mason-delete-dialog .mason-delete-confirm:hover:not(:disabled),
+.mason-delete-dialog .mason-delete-confirm:focus-visible {
   background: #095ed7;
   border-color: #095ed7;
   color: #fff;
 }
 
-.hardy-delete-cancel {
+.mason-delete-cancel {
   background: #bdbdbd;
   border-color: #bdbdbd;
   color: #fff;
 }
 
-.hardy-delete-cancel:hover:not(:disabled) {
+.mason-delete-cancel:hover:not(:disabled) {
   background: #a8a8a8;
   border-color: #a8a8a8;
   color: #fff;
 }
 
-main.hardy-post-editor--dark .hardy-button {
+main.mason-post-editor--dark .mason-button {
   border-color: #46505e;
 }
 
-main.hardy-post-editor--dark .hardy-button.danger {
+main.mason-post-editor--dark .mason-button.danger {
   border-color: #ef4b43;
 }
 
-.hardy-attachment-dialog-container--dark .hardy-button {
+.mason-attachment-dialog-container--dark .mason-button {
   border-color: #46505e;
 }
 
-.hardy-attachment-dialog-container--dark .hardy-button.danger {
+.mason-attachment-dialog-container--dark .mason-button.danger {
   border-color: #ef4b43;
 }
 
-.hardy-attachment-dialog-container--dark .hardy-delete-dialog .hardy-delete-confirm {
+.mason-attachment-dialog-container--dark .mason-delete-dialog .mason-delete-confirm {
   background: #7aa2ff;
   border-color: #7aa2ff;
   color: #111418;
 }
 
-.hardy-attachment-dialog-container--dark .hardy-delete-dialog .hardy-delete-confirm:hover:not(:disabled),
-.hardy-attachment-dialog-container--dark .hardy-delete-dialog .hardy-delete-confirm:focus-visible {
+.mason-attachment-dialog-container--dark .mason-delete-dialog .mason-delete-confirm:hover:not(:disabled),
+.mason-attachment-dialog-container--dark .mason-delete-dialog .mason-delete-confirm:focus-visible {
   background: #91b3ff;
   border-color: #91b3ff;
   color: #111418;
 }
 
-main.hardy-post-editor--dark .hardy-category-chevron {
+main.mason-post-editor--dark .mason-category-chevron {
   border-color: #aab2bf;
 }
 
 @media (max-width: 700px) {
-  .hardy-delete-dialog {
+  .mason-delete-dialog {
     padding: 32px 20px 24px;
   }
 
-  .hardy-delete-dialog h2 {
+  .mason-delete-dialog h2 {
     font-size: 22px;
   }
 
-  .hardy-delete-dialog p {
+  .mason-delete-dialog p {
     font-size: 16px;
   }
 }
 
 @media (max-width: 700px) {
-  .hardy-cover-input-row {
+  .mason-cover-input-row {
     flex-wrap: wrap;
   }
 
-  .hardy-cover-input-row .hardy-input {
+  .mason-cover-input-row .mason-input {
     flex-basis: 100%;
   }
 
-  .hardy-attachment-dialog-container {
+  .mason-attachment-dialog-container {
     padding: 12px;
   }
 
-  .hardy-attachment-dialog-toolbar {
+  .mason-attachment-dialog-toolbar {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .hardy-tag-picker-toolbar {
+  .mason-tag-picker-toolbar {
     align-items: stretch;
     flex-direction: column;
     gap: 10px;
   }
 
-  .hardy-tag-picker-search {
+  .mason-tag-picker-search {
     flex-basis: auto;
     min-width: 0;
   }
 }
 
 @media (max-width: 700px) {
-  main.hardy-post-editor {
+  main.mason-post-editor {
     height: 100dvh;
     min-height: 100dvh;
   }
 
-  .hardy-editor-header {
+  .mason-editor-header {
     flex: 0 0 auto;
     min-height: 64px;
     padding: 12px 16px;
   }
 
-  .hardy-editor-header-inner {
+  .mason-editor-header-inner {
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
     width: 100%;
   }
 
-  .hardy-editor-actions {
+  .mason-editor-actions {
     flex-wrap: wrap;
     width: 100%;
   }
 
-  .hardy-save-state {
+  .mason-save-state {
     margin-right: auto;
   }
 
-  .hardy-editor-content {
+  .mason-editor-content {
     overflow: auto;
   }
 
-  .hardy-post-form {
+  .mason-post-form {
     padding: 22px 16px 36px;
     width: 100%;
   }
 
-  .hardy-form-row {
+  .mason-form-row {
     display: block;
     margin-bottom: 18px;
   }
 
-  .hardy-form-actions {
+  .mason-form-actions {
     margin: 0 0 18px;
   }
 
-  .hardy-form-label {
+  .mason-form-label {
     display: block;
     font-size: 16px;
     line-height: 32px;
     margin-bottom: 6px;
   }
 
-  .hardy-content-row .hardy-form-label {
+  .mason-content-row .mason-form-label {
     padding-top: 0;
   }
 
-  .hardy-form-control-compact .hardy-category-select {
+  .mason-form-control-compact .mason-category-select {
     width: 100%;
   }
 
-  .hardy-content-control {
+  .mason-content-control {
     height: 560px;
     min-height: 560px;
   }
 
-  .hardy-editor-message {
+  .mason-editor-message {
     margin-right: 16px;
     margin-left: 16px;
     width: calc(100% - 32px);

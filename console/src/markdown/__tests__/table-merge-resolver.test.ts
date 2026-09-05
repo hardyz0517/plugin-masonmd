@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveBytemdTableMergeTopology } from "../table-merge-resolver";
+import { resolveMasonTableMergeTopology } from "../table-merge-resolver";
 
-describe("Bytemd table merge topology", () => {
+describe("Mason Markdown table merge topology", () => {
   it("resolves documented vertical and leftward merge markers", () => {
-    const result = resolveBytemdTableMergeTopology([
+    const result = resolveMasonTableMergeTopology([
       [undefined, undefined, undefined],
       ["A", "<", "<"],
       ["^", "^", "^"],
@@ -18,7 +18,7 @@ describe("Bytemd table merge topology", () => {
   });
 
   it("keeps a valid vertical chain when adjacent unsupported markers are present", () => {
-    const result = resolveBytemdTableMergeTopology([
+    const result = resolveMasonTableMergeTopology([
       [undefined, undefined, undefined, undefined],
       [undefined, undefined, undefined, undefined],
       ["^", "<", ">", undefined],
@@ -37,7 +37,7 @@ describe("Bytemd table merge topology", () => {
   });
 
   it("keeps only malformed merge groups as source cells", () => {
-    const result = resolveBytemdTableMergeTopology([
+    const result = resolveMasonTableMergeTopology([
       [undefined, undefined, undefined],
       ["A", "<", "B"],
       ["^", ">", "^"],
@@ -53,7 +53,7 @@ describe("Bytemd table merge topology", () => {
   });
 
   it("does not create an L-shaped span from incomplete continuations", () => {
-    const result = resolveBytemdTableMergeTopology([
+    const result = resolveMasonTableMergeTopology([
       [undefined, undefined],
       ["A", "<"],
       ["^", "B"],
