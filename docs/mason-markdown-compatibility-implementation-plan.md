@@ -1,16 +1,24 @@
 # Mason Markdown Compatibility Upgrade Implementation Plan
 
 **Status:** Implemented; Halo integration matrix pending manual verification
-**Source specification:** docs/bytemd-markdown-compatibility-spec.md
-**Current baseline:** plugin-bytemd 1.10.56, Halo 2.25.0, ByteMD 1.22.x
+**Source specification:** docs/mason-markdown-compatibility-spec.md
+**Current baseline:** plugin-masonmd 1.10.85, Halo 2.25.0, ByteMD 1.22.x
 **Release rule:** preserve existing JARs; do not push or modify theme-hardy as part of this plan
+
+The naming migration is intentionally breaking: `PluginMasonMarkdown` is a new
+plugin identity, `/uc/masonmd-editor` is the only UC route, and published
+resources/classes use Mason names only. Existing JARs are retained as files, but
+old plugin-owned asset paths and semantic namespaces are not maintained. The
+ByteMD package/API names listed below remain only where they identify the actual
+third-party editor dependency.
 
 ## 1. Execution Rules
 
 ### 1.1 Non-negotiable constraints
 
 - Do not rewrite the whole editor.
-- Do not change the public UC route.
+- Keep `/uc/masonmd-editor` stable once this release is installed; do not add the
+  removed legacy route back.
 - Do not change Halo core or fork Halo source.
 - Do not modify theme-hardy.
 - Do not delete existing JAR files.
@@ -18,7 +26,7 @@
 - Do not create a second independent Markdown parser for UC save.
 - Do not add a new syntax by string replacement over rendered HTML.
 - Do not let post-sanitize plugins pass arbitrary user HTML through.
-- Do not claim Bytemd compatibility until the corresponding fixture passes.
+- Do not claim Mason Markdown compatibility until the corresponding fixture passes.
 - Do not bump the release version until the final integration gate passes.
 
 ### 1.2 Worktree procedure
@@ -29,10 +37,10 @@ The repository already contains unrelated dirty changes. Before implementation:
 git status --short
 git diff --stat
 git branch --show-current
-git switch -c codex/bytemd-markdown-compatibility
+git switch -c codex/mason-markdown-compatibility
 ~~~
 
-If codex/bytemd-markdown-compatibility already exists, use git switch codex/bytemd-markdown-compatibility instead of the create command. Do not reset, clean, or revert existing changes.
+If codex/mason-markdown-compatibility already exists, use git switch codex/mason-markdown-compatibility instead of the create command. Do not reset, clean, or revert existing changes.
 
 At the end of every phase:
 
@@ -62,7 +70,7 @@ The implementation is divided into independent workstreams with controlled integ
 | W1 | Compatibility fixtures and test harness | Parser, security, round-trip tests |
 | W2 | Shared ByteMD processor adapter | One plugin/options/sanitize factory |
 | W3 | Directive AST layer | Callouts, align, epigraph, cute-table association |
-| W4 | Table source model and renderer | Bytemd merge syntax and editor operations |
+| W4 | Table source model and renderer | Mason Markdown merge syntax and editor operations |
 | W5 | Code and Mermaid renderer | Prism behavior, line metadata, stable SVG |
 | W6 | Editor command adapter | Toolbar, shortcuts, source-range edits |
 | W7 | Content styling delivery | Editor CSS and published-page CSS |
@@ -130,7 +138,7 @@ console/src/markdown/fixtures/
 console/src/markdown/__tests__/
 ~~~
 
-Copy the Markdown examples from the supplied Bytemd manual into categorized fixture files. Do not hand-normalize source while copying.
+Copy the Markdown examples from the supplied Mason Markdown manual into categorized fixture files. Do not hand-normalize source while copying.
 
 Required fixture groups:
 
@@ -180,7 +188,7 @@ Do not make the test format depend on the exact whitespace of generated HTML. Us
 Add:
 
 ~~~text
-console/src/markdown/__tests__/bytemd-api-probe.test.ts
+console/src/markdown/__tests__/mason-markdown-api-contract.test.ts
 ~~~
 
 Verify:
@@ -260,7 +268,7 @@ Write decisions into fixture expected.json files and the spec's Open Decisions s
 
 ## 4. Phase 1: Extract the Shared Processor Without Behavior Change
 
-**Goal:** remove processor construction from bytemd.vue while preserving current output.
+**Goal:** remove processor construction from mason-markdown-editor.vue while preserving current output.
 **Risk:** high
 **Gate:** required before syntax features
 
@@ -273,7 +281,7 @@ console/src/markdown/types.ts
 console/src/markdown/profiles.ts
 console/src/markdown/diagnostics.ts
 console/src/markdown/sanitize-schema.ts
-console/src/markdown/bytemd-processor.ts
+console/src/markdown/mason-markdown-processor.ts
 console/src/markdown/pipeline.ts
 ~~~
 
@@ -282,7 +290,7 @@ Define:
 ~~~ts
 type MarkdownTarget = "editor-preview" | "save-html";
 
-type MarkdownCompatibilityProfile = "legacy" | "bytemd-v1";
+type MarkdownCompatibilityProfile = "legacy" | "mason-v1";
 
 interface MarkdownRenderRequest {
   raw: string;
@@ -316,7 +324,7 @@ Syntax plugins include:
 - current breaks behavior;
 - slug;
 - Mermaid viewer adapter;
-- future Bytemd remark and rehype plugins.
+- future Mason Markdown remark and rehype plugins.
 
 Editor plugins include:
 
@@ -343,7 +351,7 @@ Pass the same values to:
 - manual ByteMD getProcessor calls;
 - test helpers.
 
-The only allowed direct getProcessor call after this phase is inside bytemd-processor.ts.
+The only allowed direct getProcessor call after this phase is inside mason-markdown-processor.ts.
 
 ### 4.4 Move content rendering behind one coordinator
 
@@ -365,9 +373,9 @@ Responsibilities:
 
 Do not put autosave or Halo API calls in the coordinator.
 
-### 4.5 Refactor bytemd.vue
+### 4.5 Refactor mason-markdown-editor.vue
 
-Remove from bytemd.vue:
+Remove from mason-markdown-editor.vue:
 
 - direct getProcessor calls;
 - plugin array assembly;
@@ -375,7 +383,7 @@ Remove from bytemd.vue:
 - HTML table generation;
 - Mermaid HTML rendering orchestration.
 
-Keep in bytemd.vue:
+Keep in mason-markdown-editor.vue:
 
 - ByteMD component binding;
 - editor context bridge;
@@ -402,14 +410,14 @@ Update use-uc-post-draft.ts or the save composable so that:
 - Console and UC use the same syntax plugin factory;
 - ByteMD Editor and manual compilation receive the same sanitize and remarkRehype options;
 - type-check and build pass;
-- no direct getProcessor remains outside bytemd-processor.ts;
+- no direct getProcessor remains outside mason-markdown-processor.ts;
 - no UC API call appears in Markdown modules.
 
-**Rollback:** restore bytemd.vue wiring and remove only the new processor adapter. Keep fixture tests and baseline report.
+**Rollback:** restore mason-markdown-editor.vue wiring and remove only the new processor adapter. Keep fixture tests and baseline report.
 +
 ## 5. Phase 2: Baseline Correctness, Sanitization, and Math
 
-**Goal:** remove known correctness gaps before adding Bytemd syntax.
+**Goal:** remove known correctness gaps before adding Mason Markdown syntax.
 **Risk:** medium
 
 ### 5.1 Add direct KaTeX dependency and CSS
@@ -442,11 +450,11 @@ Raw user HTML must not be able to create internal compatibility markers.
 
 ### 5.3 Resolve soft-break behavior
 
-Compare baseline output with Bytemd fixtures. Select one profile behavior:
+Compare baseline output with Mason Markdown fixtures. Select one profile behavior:
 
 ~~~text
 legacy: current behavior
-bytemd-v1: verified Bytemd behavior
+mason-v1: verified Mason Markdown behavior
 ~~~
 
 Do not change the default globally until the fixture and existing article comparison pass.
@@ -474,7 +482,7 @@ Unknown or malformed syntax must never throw from the processor.
 
 ## 6. Phase 3: Directive Layer
 
-**Goal:** implement all Bytemd directive semantics through AST handlers.
+**Goal:** implement all Mason Markdown directive semantics through AST handlers.
 **Risk:** high
 **Gate:** security and nesting gate
 
@@ -485,8 +493,8 @@ Add remark-directive at the version proven in Phase 0.
 Create:
 
 ~~~text
-console/src/markdown/remark-bytemd-directive.ts
-console/src/markdown/remark-rehype-bytemd-handlers.ts
+console/src/markdown/remark-mason-directive.ts
+console/src/markdown/remark-rehype-mason-handlers.ts
 ~~~
 
 The remark transformer must:
@@ -560,11 +568,11 @@ Tests:
 - unknown directives preserve raw source and have deterministic preview fallback;
 - no directive code exists in Vue components.
 
-**Rollback:** disable bytemd-v1 directive plugins while keeping the legacy profile and existing editor.
+**Rollback:** disable mason-v1 directive plugins while keeping the legacy profile and existing editor.
 
-## 7. Phase 4: Bytemd Table Source Model and Rendering
+## 7. Phase 4: Mason Markdown Table Source Model and Rendering
 
-**Goal:** replace HTML merge fallback with source-compatible Bytemd Markdown.
+**Goal:** replace HTML merge fallback with source-compatible Mason Markdown Markdown.
 **Risk:** very high
 **Gate:** source round-trip gate
 
@@ -575,7 +583,7 @@ Create:
 ~~~text
 console/src/editor/table-source-model.ts
 console/src/editor/table-commands.ts
-console/src/markdown/remark-bytemd-table.ts
+console/src/markdown/remark-mason-table.ts
 ~~~
 
 The model must represent:
@@ -618,7 +626,7 @@ The handler must:
 1. receive mdast GFM table nodes;
 2. preserve inline child nodes through the normal HAST state;
 3. build the logical grid;
-4. resolve merges using golden Bytemd fixtures;
+4. resolve merges using golden Mason Markdown fixtures;
 5. generate bounded rowspan and colspan values;
 6. fall back to an ordinary table on invalid topology;
 7. report diagnostics without deleting source content;
@@ -638,7 +646,7 @@ hasMergedTableCells() ? buildTableHtml() : ...
 Replace with:
 
 ~~~text
-BytemdTableModel -> serializeMarkdownTable()
+MasonTableModel -> serializeMarkdownTable()
 ~~~
 
 The dialog must:
@@ -683,18 +691,18 @@ Remove or reduce the dependency only after the new model passes all browser test
 
 ### Phase 4 exit criteria
 
-- all Bytemd merge examples render correctly;
+- all Mason Markdown merge examples render correctly;
 - irregular merge fixture passes;
 - table dialog never emits HTML for supported merges;
 - merged cells preserve inline Markdown and math;
 - source round-trip tests pass;
 - existing plain-table keyboard behavior remains usable.
 
-**Rollback:** keep the new model behind a feature flag and restore normal-table insertion only. Never restore HTML as the published format for a supported Bytemd merge.
+**Rollback:** keep the new model behind a feature flag and restore normal-table insertion only. Never restore HTML as the published format for a supported Mason Markdown merge.
 +
 ## 8. Phase 5: Prism Code Blocks and Deterministic Mermaid
 
-**Goal:** match Bytemd code-block semantics without breaking existing diagrams.
+**Goal:** match Mason Markdown code-block semantics without breaking existing diagrams.
 **Risk:** high
 
 ### 8.1 Add language registry
@@ -737,7 +745,7 @@ Use only allowlisted intermediate properties.
 Create:
 
 ~~~text
-console/src/markdown/rehype-bytemd-code.ts
+console/src/markdown/rehype-mason-code.ts
 ~~~
 
 Implement:
@@ -757,7 +765,7 @@ Ensure Mermaid is excluded before Prism.
 
 ### 8.4 Replace Highlight.js preview styling
 
-- remove dependence on hljs classes in Bytemd preview styles;
+- remove dependence on hljs classes in Mason Markdown preview styles;
 - add Prism token styles for light and dark modes;
 - keep CodeMirror source highlighting separate;
 - verify indentation and selection colors do not leak into preview code.
@@ -779,12 +787,12 @@ Add repeated-render tests proving identical raw input produces identical saved H
 
 ### Phase 5 exit criteria
 
-- code snapshots match the selected Bytemd behavior;
+- code snapshots match the selected Mason Markdown behavior;
 - default C++, plain, unknown, and line metadata tests pass;
 - long lines wrap without horizontal overflow or broken line highlights;
 - Mermaid repeated renders are stable;
 - Mermaid failure is safe;
-- no Highlight.js class is required by Bytemd preview CSS.
+- no Highlight.js class is required by Mason Markdown preview CSS.
 
 ## 9. Phase 6: Editor Commands and UI Boundary Cleanup
 
@@ -798,7 +806,7 @@ Create:
 ~~~text
 console/src/editor/markdown-shortcuts.ts
 console/src/editor/editor-context.ts
-console/src/editor/bytemd-plugin-adapter.ts
+console/src/editor/mason-markdown-editor-adapter.ts
 ~~~
 
 Move toolbar operations into typed commands:
@@ -822,7 +830,7 @@ Move toolbar operations into typed commands:
 
 Commands must edit source ranges and never inspect preview DOM.
 
-### 9.2 Implement Bytemd shortcut matrix
+### 9.2 Implement Mason Markdown shortcut matrix
 
 Implement and test:
 
@@ -883,8 +891,8 @@ Do not migrate CodeMirror 6 in this release unless a tested blocker remains afte
 Create:
 
 ~~~text
-console/src/styles/bytemd-markdown.scss
-src/main/resources/assets/bytemd-markdown.css
+console/src/styles/mason-markdown.scss
+src/main/resources/assets/mason-markdown.css
 ~~~
 
 The content stylesheet must contain only prefixed rules for:
@@ -905,7 +913,7 @@ Do not copy editor layout rules into article CSS.
 Refactor:
 
 ~~~text
-src/main/java/run/halo/bytemd/BytemdHeadProcessor.java
+src/main/java/com/hardyzheng/masonmd/MasonMarkdownHeadProcessor.java
 ~~~
 
 Replace the large Java text block with a versioned stylesheet reference.
@@ -986,7 +994,7 @@ Verify:
 - opening an existing post preserves raw source;
 - saving an existing post intentionally uses the selected profile;
 - rollback to legacy does not corrupt raw source;
-- new Bytemd syntax degrades to literal source on an older plugin.
+- new Mason Markdown syntax degrades to literal source on an older plugin.
 
 ### 11.4 UC integration matrix
 
@@ -1044,7 +1052,7 @@ Inspect:
 
 ~~~powershell
 Get-ChildItem build/libs
-jar tf build/libs/plugin-bytemd-<version>.jar
+jar tf build/libs/plugin-masonmd-<version>.jar
 git diff --check
 ~~~
 
@@ -1087,7 +1095,7 @@ Keep the working version unchanged during Phases 0-8. After all gates pass:
 - `[x]` means verified locally by automated/static checks; `[ ]` means it still
   requires the real Halo browser matrix below.
 
-- [x] all checked-in Bytemd compatibility fixtures pass;
+- [x] all checked-in Mason Markdown compatibility fixtures pass;
 - [x] GFM baseline passes;
 - [x] source round trips preserve semantics;
 - [x] code metadata passes;
@@ -1108,7 +1116,7 @@ Keep the working version unchanged during Phases 0-8. After all gates pass:
 |---|---|---|---|
 | remark-directive incompatible with locked Unified | Phase 0 API probe | pin compatible version or adapter | requires Unified major upgrade |
 | custom handler cannot be passed through ByteMD | Phase 0 probe | local processor wrapper review | requires duplicate parser path |
-| table merge semantics are misunderstood | Bytemd golden fixtures | capture irregular examples first | output topology differs |
+| table merge semantics are misunderstood | Mason Markdown golden fixtures | capture irregular examples first | output topology differs |
 | code meta is lost | code handler fixture | copy metadata before sanitizer | cannot preserve meta |
 | Prism bundle is too large | build analysis | bounded synchronous core | editor startup regression exceeds budget |
 | Mermaid SVG is unstable | repeated render hash test | deterministic IDs and SVG validation | repeated HTML differs |
@@ -1121,7 +1129,7 @@ Keep the working version unchanged during Phases 0-8. After all gates pass:
 
 Every new Markdown feature must follow the same sequence:
 
-1. Copy or write the Bytemd/GFM source fixture.
+1. Copy or write the Mason Markdown/GFM source fixture.
 2. Define expected AST and HTML semantics.
 3. Define malformed and security behavior.
 4. Implement the pure remark and rehype layer.
@@ -1143,7 +1151,7 @@ The first coding batch should contain only:
 - ByteMD API probe;
 - dependency compatibility spike;
 - baseline report;
-- no Bytemd syntax implementation;
+- no Mason Markdown syntax implementation;
 - no version bump;
 - no JAR release.
 
@@ -1155,7 +1163,7 @@ The implementation has been carried through the parser, editor, persistence, sty
 
 Completed:
 
-- shared ByteMD processor/runtime and Bytemd compatibility profile;
+- shared ByteMD processor/runtime and Mason Markdown compatibility profile;
 - GFM, math, Mermaid, directives, merged tables, cute-table styles, Prism code,
   line numbers, and line highlighting;
 - sanitizer allowlist and raw-HTML security regression coverage;
@@ -1186,7 +1194,7 @@ JAR SHA-256            1660D9FE317D44E73E683F550A1792FE0E89C99F199E9EF66A681D1C3
 
 The remaining release gate is the Halo 2.25.0 browser matrix in Section 12.4.
 It requires a running authenticated Halo instance and is intentionally left for
-manual testing after installing `build/libs/plugin-bytemd-1.10.56.jar`. The
+manual testing after installing `build/libs/plugin-masonmd-1.10.56.jar`. The
 automated checks do not replace verification of login expiry, UC permissions,
 category/tag persistence, attachment upload, draft reload, publish, article
 navigation, and responsive behavior against a real Halo instance.

@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/github/license/hardyz0517/plugin-masonmd)](./LICENSE)
 [![Halo](https://img.shields.io/badge/Halo-%3E%3D2.25.0-5a67d8)](https://www.halo.run/)
 
-[用户指南](./docs/user-guide.md) · [排错指南](./docs/troubleshooting.md) · [全语法测试](./docs/compatibility/bytemd-all-syntax-test.md) · [Halo 应用市场](https://www.halo.run/store/apps/app-HTyhC)
+[用户指南](./docs/user-guide.md) · [排错指南](./docs/troubleshooting.md) · [全语法测试](./docs/compatibility/mason-markdown-all-syntax-test.md) · [Halo 应用市场](https://www.halo.run/store/apps/app-HTyhC)
 
 <p align="center">
   <img src="./images/preview.png" alt="Mason Markdown 编辑器预览" width="960" />
@@ -20,7 +20,7 @@ Mason Markdown 有两种使用方式：
 - **Console 编辑器扩展**：在 Halo 原生文章编辑器中切换到 Mason Markdown。
 - **独立 UC 编辑页**：访问 `/uc/masonmd-editor`，使用全屏文章工作台完成新建、保存和发布。
 
-Mason Markdown 是插件的用户界面品牌。为兼容已有 Halo 安装，内部插件身份、底层 ByteMD 依赖和 `bytemd-` 资源前缀保持稳定；已有文章可以直接升级，同时提供新的 `/uc/masonmd-editor` 入口。
+Mason Markdown 是插件的完整产品身份。插件以独立的 `PluginMasonMarkdown` 身份安装，发布资源和文章语义类统一使用 `mason-*` 命名；底层编辑器仍使用 ByteMD 作为技术依赖。
 
 ## 核心能力
 
@@ -28,7 +28,7 @@ Mason Markdown 是插件的用户界面品牌。为兼容已有 Halo 安装，�
 | --- | --- |
 | Markdown 编辑 | CodeMirror 编辑区、工具栏、全屏、行号和当前行状态 |
 | GFM | 标题、列表、任务列表、表格、脚注、删除线、自动链接等 |
-| Mason Markdown 扩展 | `bytemd-v1` 兼容管线、提示块、对齐、题注、Cute Table 和单元格合并 |
+| Mason Markdown 扩展 | `mason-v1` 兼容管线、提示块、对齐、题注、Cute Table 和单元格合并 |
 | 数学公式 | `$...$` 行内公式和 `$$...$$` 块级公式，使用打包的 KaTeX 资源 |
 | Mermaid | Mermaid 图表渲染、尺寸规范化和失败时的安全降级 |
 | 代码块 | Prism 语法高亮、语言识别、可选行号和长行换行 |
@@ -47,7 +47,7 @@ Mason Markdown 是插件的用户界面品牌。为兼容已有 Halo 安装，�
 | UC 编辑权限 | `uc:posts:manage` |
 | UC 发布权限 | `uc:posts:publish`（仅发布或取消发布需要） |
 
-Markdown 兼容性以 [`bytemd-v1` 全语法测试文档](./docs/compatibility/bytemd-all-syntax-test.md) 和 [兼容性规格](./docs/bytemd-markdown-compatibility-spec.md) 为准。Frontmatter 目前不是该兼容配置的一部分，不应仅根据编辑区的语法着色判断它已被解析。
+Markdown 兼容性以 [`mason-v1` 全语法测试文档](./docs/compatibility/mason-markdown-all-syntax-test.md) 和 [兼容性规格](./docs/mason-markdown-compatibility-spec.md) 为准。Frontmatter 目前不是该兼容配置的一部分，不应仅根据编辑区的语法着色判断它已被解析。
 
 ## 安装
 
@@ -75,8 +75,6 @@ Markdown 兼容性以 [`bytemd-v1` 全语法测试文档](./docs/compatibility/b
 /uc/masonmd-editor
 ```
 
-旧入口 `/uc/hardy-post-editor` 会继续保留，用于兼容已有书签和主题链接。
-
 访问该页面需要 `uc:posts:manage`。保存后，页面会使用 Halo UC Post API 保存草稿；公开文章的发布和取消发布还需要 `uc:posts:publish`。分类和标签来自 Halo 后台数据，附件上传也走 Halo UC 附件接口。
 
 更多操作说明见 [用户指南](./docs/user-guide.md)。
@@ -98,7 +96,7 @@ Mason Markdown 兼容管线目前覆盖以下方向：
 - 行内公式与块级公式
 - Mermaid 图表及安全降级
 
-完整可复制的测试内容、异常输入和安全边界见 [Mason Markdown 全语法测试文档](./docs/compatibility/bytemd-all-syntax-test.md)。
+完整可复制的测试内容、异常输入和安全边界见 [Mason Markdown 全语法测试文档](./docs/compatibility/mason-markdown-all-syntax-test.md)。
 
 ### 文章页渲染
 
@@ -108,14 +106,14 @@ Mason Markdown 兼容管线目前覆盖以下方向：
 
 ### 公式被渲染两次
 
-当前版本已经内置 KaTeX 文章页渲染。若同时安装 `plugin-katex`，不要把本插件生成的 `bytemd-math-inline` 或 `bytemd-math-display` 加入它的选择器，否则可能触发二次渲染。旧的 `.math-inline` / `.math-display` 快照会由插件在文章内容处理阶段迁移。
+当前版本已经内置 KaTeX 文章页渲染。若同时安装 `plugin-katex`，不要让它再次处理本插件已经生成的 `.mason-math-*` 内容，否则可能触发二次渲染。通用的旧 `.math-inline` / `.math-display` 快照会由文章内容处理器迁移为 Mason 语义类。
 
 ### 文章页资源 404
 
 插件资源路径位于：
 
 ```text
-/plugins/PluginBytemd/assets/ui/published/
+/plugins/PluginMasonMarkdown/assets/ui/published/
 ```
 
 不要使用旧的 `/assets/static/` 路径。请先确认插件已启用，再检查浏览器是否缓存了旧 HTML；升级后执行强制刷新。
@@ -185,9 +183,9 @@ cd ..
 
 - [用户指南](./docs/user-guide.md)
 - [排错指南](./docs/troubleshooting.md)
-- [Mason Markdown 全语法测试文档](./docs/compatibility/bytemd-all-syntax-test.md)
-- [兼容性规格](./docs/bytemd-markdown-compatibility-spec.md)
-- [兼容性实现计划](./docs/bytemd-markdown-compatibility-implementation-plan.md)
+- [Mason Markdown 全语法测试文档](./docs/compatibility/mason-markdown-all-syntax-test.md)
+- [兼容性规格](./docs/mason-markdown-compatibility-spec.md)
+- [兼容性实现计划](./docs/mason-markdown-compatibility-implementation-plan.md)
 
 ## 贡献
 

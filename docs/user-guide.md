@@ -47,6 +47,6 @@
 
 ## Markdown 和文章页
 
-Mason Markdown 编辑器预览与文章页共享 `bytemd-v1` Markdown 管线。`bytemd-v1` 是历史兼容配置标识，不是用户界面品牌。语法范围和边界以 [全语法测试文档](./compatibility/bytemd-all-syntax-test.md) 为准。文章页所需 CSS、KaTeX 样式和 Mermaid 布局脚本由插件随 JAR 发布，不需要复制到主题中。
+Mason Markdown 编辑器预览与文章页共享 `mason-v1` Markdown 管线。`mason-v1` 是历史兼容配置标识，不是用户界面品牌。语法范围和边界以 [全语法测试文档](./compatibility/mason-markdown-all-syntax-test.md) 为准。文章页所需 CSS、KaTeX 样式和 Mermaid 布局脚本由插件随 JAR 发布，不需要复制到主题中。
 
 公式、Mermaid、表格和代码块出现差异时，请先阅读 [排错指南](./troubleshooting.md)，并确认问题属于编辑器预览还是文章页。
